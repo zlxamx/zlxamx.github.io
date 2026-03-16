@@ -35,19 +35,20 @@
       {{ end }}
     </header>
 
-    {{ if .Param "showTags" }}
-      {{ $taxonomy := "tags" }}
-      {{ with .Param $taxonomy }}
-      <div class="single-tags">
-        {{ range . }}
-          {{ with $.Site.GetPage (printf "/%s/%s" $taxonomy .) }}
-          <span>
-            <a href="{{ .Permalink }}">#{{ .LinkTitle }}</a>
-          </span>
-          {{ end }}
+    {{ $taxonomy := "tags" }}
+    {{ with .Param $taxonomy }}
+    <div class="single-tags">
+      {{ range . }}
+      {{ $tag := . }}
+      <span>
+        {{ with $.Site.GetPage (printf "/%s/%s" $taxonomy $tag) }}
+        <a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>
+        {{ else }}
+        <a href="{{ printf "/%s/%s/" $taxonomy ($tag | urlize) | relURL }}">#{{ $tag }}</a>
         {{ end }}
-      </div>
+      </span>
       {{ end }}
+    </div>
     {{ end }}
 
     {{ if .Param "toc" }}
