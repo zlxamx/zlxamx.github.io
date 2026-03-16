@@ -1,4 +1,4 @@
 ---
-title: "Posts"
+title: "Writing"
 layout: "redirect-posts"
 ---

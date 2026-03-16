@@ -13,7 +13,7 @@ homeIntroContent = """
 这里记录我关心的事物，也记录我如何理解它们。
 """
 homeCollection = "post"
-homeCollectionTitle = "Posts"
+homeCollectionTitle = "Writing"
 paginationSize = 10
 listSummaries = false
 listDateFormat = "2006-01-02"
@@ -30,21 +30,26 @@ name = "github"
 url = "https://github.com/zlxamx"
 
 [[params.menu]]
-name = "home"
+name = "Home"
 url = "/"
 weight = 1
 
 [[params.menu]]
-name = "posts"
+name = "Writing"
 url = "/post"
 weight = 2
 
 [[params.menu]]
-name = "about"
+name = "About"
 url = "/about"
 weight = 3
 
 [[params.menu]]
-name = "library"
+name = "Library"
 url = "/library"
 weight = 4
+
+[[params.menu]]
+name = "Now"
+url = "/now"
+weight = 5
