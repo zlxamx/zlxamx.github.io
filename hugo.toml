@@ -12,7 +12,7 @@ homeIntroContent = "思考者，也是实践者。这里记录极简主义、生
 homeCollection = "post"
 homeCollectionTitle = "最近文章"
 paginationSize = 10
-listSummaries = true
+listSummaries = false
 colorPalette = "linen"
 mainSections = ["post"]
 
