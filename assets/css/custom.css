@@ -261,6 +261,40 @@ a:focus-visible {
   font-family: var(--font-mono);
 }
 
+.single-comments {
+  border-top: 1px solid var(--code-border);
+  margin-top: 3rem;
+  padding-top: 2rem;
+}
+
+:root {
+  --waline-theme-color: var(--content-primary);
+  --waline-active-color: var(--content-secondary);
+  --waline-color: var(--content-primary);
+  --waline-bg-color: var(--background);
+  --waline-bg-color-light: var(--code-background);
+  --waline-bg-color-hover: var(--code-background);
+  --waline-border-color: var(--code-border);
+  --waline-disable-bg-color: var(--code-background);
+  --waline-disable-color: var(--content-secondary);
+  --waline-info-bg-color: var(--code-background);
+  --waline-info-color: var(--content-secondary);
+  --waline-border: 1px solid var(--code-border);
+  --waline-box-shadow: none;
+}
+
+#waline {
+  font-family: var(--font-body);
+}
+
+#waline .wl-header label,
+#waline .wl-meta,
+#waline .wl-count,
+#waline .wl-sort li,
+#waline .wl-login-info {
+  font-family: var(--font-mono);
+}
+
 .home-letter-line {
   margin-bottom: 0.5rem;
 }

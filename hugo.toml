@@ -28,6 +28,18 @@ footerContent = "愿你也能认真生活，慢慢理解自己。"
 [params.breadcrumbs]
 enabled = false
 
+[params.waline]
+enable = true
+serverURL = "https://luxi-blog-bice.vercel.app"
+lang = "zh-CN"
+meta = ["nick", "mail"]
+requiredMeta = ["nick", "mail"]
+login = "disable"
+emoji = false
+search = false
+reaction = false
+commentSorting = "latest"
+
 [[params.social]]
 name = "github"
 url = "https://github.com/zlxamx"

@@ -140,7 +140,7 @@
     </div>
   </article>
 
-  {{ if and .Site.Params.giscus.enable (not .Params.disableComment) }}
+  {{ if and .Site.Params.waline.enable .Site.Params.waline.serverURL (in (slice "post" "posts") .Section) (not .Params.disableComment) }}
   <div class="single-comments">
     {{ partial "comments.html" . }}
   </div>

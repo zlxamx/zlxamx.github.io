@@ -100,6 +100,9 @@
 {{ partial "head/json-ld.html" (dict "page" . "description" $description "socialImage" $socialImage) }}
 
 {{ partialCached "head/css.html" . }}
+{{ if and .Site.Params.waline.enable .Site.Params.waline.serverURL .IsPage (in (slice "post" "posts") .Section) (not .Params.disableComment) }}
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css">
+{{ end }}
 {{ partialCached "head/js.html" . }}
 
 {{ if hugo.IsProduction }}
