@@ -1,0 +1,37 @@
+baseURL = "https://luxi.blog/"
+languageCode = "zh-cn"
+title = "LuxiBlog"
+theme = "typo"
+
+hasCJKLanguage = true
+paginate = 10
+
+[params]
+description = "思考者，也是实践者"
+homeIntroTitle = "LuxiBlog"
+homeIntroContent = "思考者，也是实践者。这里记录极简主义、生活、思考与影视。"
+homeCollection = "post"
+homeCollectionTitle = "最近文章"
+paginationSize = 10
+colorPalette = "linen"
+mainSections = ["post"]
+
+[params.breadcrumbs]
+enabled = false
+
+[params.footer]
+showSocials = true
+
+[[params.socials]]
+name = "github"
+url = "https://github.com/zlxamx"
+
+[[menu.main]]
+name = "文章"
+url = "/post"
+weight = 1
+
+[[menu.main]]
+name = "标签"
+url = "/tags"
+weight = 2
