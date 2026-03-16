@@ -141,24 +141,71 @@
   transform: translateY(-0.03em);
 }
 
+.header-menu a {
+  text-decoration: none;
+}
+
+.header-menu a:hover,
+.header-menu a:focus-visible {
+  color: var(--content-secondary);
+  outline: none;
+}
+
 .theme-toggle-shell {
   margin-right: 0;
 }
 
 .theme-toggle {
-  background: none;
-  border: 0;
+  align-items: center;
+  background: var(--code-background);
+  border: 1px solid var(--code-border);
+  border-radius: 999px;
   color: inherit;
   cursor: pointer;
+  display: inline-flex;
   font: inherit;
+  height: 1.9rem;
+  justify-content: center;
   padding: 0;
-  text-decoration: underline;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  width: 1.9rem;
 }
 
 .theme-toggle:hover,
 .theme-toggle:focus-visible {
+  border-color: var(--content-secondary);
   color: var(--content-secondary);
   outline: none;
+}
+
+.theme-toggle svg {
+  display: block;
+  fill: none;
+  height: 1rem;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  width: 1rem;
+}
+
+.theme-toggle-icon {
+  display: none;
+}
+
+.theme-toggle[data-next-theme="dark"] .theme-toggle-icon-moon,
+.theme-toggle[data-next-theme="light"] .theme-toggle-icon-sun {
+  display: block;
+}
+
+.theme-toggle-icon-moon svg path {
+  fill: currentColor;
+  stroke: none;
+}
+
+.theme-toggle-icon-sun svg circle {
+  fill: currentColor;
+  stroke: none;
 }
 
 .home-shell {

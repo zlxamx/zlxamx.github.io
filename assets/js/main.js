@@ -23,8 +23,9 @@ function setStoredTheme(theme) {
 function syncThemeToggle(theme) {
   const nextTheme = theme === "dark" ? "light" : "dark";
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
-    button.textContent = nextTheme === "dark" ? "Dark" : "Light";
+    button.dataset.nextTheme = nextTheme;
     button.setAttribute("aria-label", `Switch to ${nextTheme} mode`);
+    button.setAttribute("title", `Switch to ${nextTheme} mode`);
   });
 }
 

@@ -39,8 +39,20 @@
           type="button"
           class="theme-toggle"
           data-theme-toggle
-          aria-label="Switch to dark mode">
-          Dark
+          data-next-theme="dark"
+          aria-label="Switch to dark mode"
+          title="Switch to dark mode">
+          <span class="theme-toggle-icon theme-toggle-icon-moon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M14.5 3.2a8.8 8.8 0 1 0 6.3 15.7 9.4 9.4 0 0 1-11-14.3 8.8 8.8 0 0 0 4.7-1.4z"></path>
+            </svg>
+          </span>
+          <span class="theme-toggle-icon theme-toggle-icon-sun" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <circle cx="12" cy="12" r="4.2"></circle>
+              <path d="M12 2.2v2.4M12 19.4v2.4M21.8 12h-2.4M4.6 12H2.2M18.9 5.1l-1.7 1.7M6.8 17.2l-1.7 1.7M18.9 18.9l-1.7-1.7M6.8 6.8 5.1 5.1"></path>
+            </svg>
+          </span>
         </button>
       </p>
     </div>
