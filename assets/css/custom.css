@@ -1,0 +1,114 @@
+.weekly-shell {
+  margin-top: 0.5rem;
+}
+
+.weekly-intro {
+  margin-bottom: 3rem;
+}
+
+.weekly-kicker,
+.weekly-label,
+.weekly-entry-issue {
+  color: var(--content-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.weekly-description p {
+  margin-bottom: 1rem;
+  max-width: 42rem;
+}
+
+.weekly-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.weekly-meta span {
+  border: 1px solid var(--code-border);
+  border-radius: 999px;
+  color: var(--content-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  padding: 0.25rem 0.7rem;
+}
+
+.weekly-featured {
+  border: 1px solid var(--code-border);
+  border-radius: var(--code-border-radius);
+  margin-bottom: 3rem;
+  padding: 1.4rem 1.5rem 1.2rem;
+}
+
+.weekly-featured h2 {
+  margin-bottom: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.weekly-featured-date,
+.weekly-featured-note,
+.weekly-archive-note,
+.weekly-entry-date {
+  color: var(--content-secondary);
+}
+
+.weekly-featured-note {
+  margin-bottom: 0.8rem;
+  max-width: 38rem;
+}
+
+.weekly-featured-link a {
+  font-family: var(--font-mono);
+}
+
+.weekly-archive {
+  margin-top: 1rem;
+}
+
+.weekly-archive-head {
+  border-top: 1px solid var(--code-border);
+  margin-bottom: 1.2rem;
+  padding-top: 1.2rem;
+}
+
+.weekly-archive-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.weekly-entry {
+  border-bottom: 1px solid var(--code-border);
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: minmax(8rem, 9rem) 1fr;
+  padding-bottom: 1rem;
+}
+
+.weekly-entry-meta p,
+.weekly-entry-body h3 {
+  margin: 0;
+}
+
+.weekly-entry-body h3 {
+  font-size: 1.15rem;
+}
+
+.weekly-empty {
+  border-top: 1px solid var(--code-border);
+  color: var(--content-secondary);
+  padding-top: 1.2rem;
+}
+
+@media screen and (max-width: 640px) {
+  .weekly-entry {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-meta {
+    gap: 0.55rem;
+  }
+}
