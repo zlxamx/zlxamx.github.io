@@ -1,0 +1,24 @@
+<div class="header">
+  {{ if or (not (.Param "hideHeader")) .IsHome }}
+    <h1 class="header-title">
+      <a href="{{ site.BaseURL }}">{{ site.Title }}</a>
+    </h1>
+
+    <div class="header-menu">
+      {{ $currentPath := strings.TrimSuffix "/" .RelPermalink }}
+
+      {{ with site.Params.menu }}
+        {{ range . }}
+          {{ $menuPath := strings.TrimSuffix "/" (.url | relURL) }}
+          {{ $isActive := or (and $.IsHome (eq $menuPath "")) (eq $menuPath $currentPath) }}
+
+          <p class="small {{ if $isActive }} bold {{ end }}">
+            <a href="{{ .url }}" {{ if and (isset . "newTab") .newTab }}target="_blank" rel="noopener noreferrer"{{ end }}>
+              /{{ .name }}
+            </a>
+          </p>
+        {{ end }}
+      {{ end }}
+    </div>
+  {{ end }}
+</div>
