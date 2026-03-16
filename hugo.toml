@@ -13,11 +13,11 @@ homeIntroContent = """
 我是 Luxi，一个持续写作、持续思考的人。
 这里记录极简主义、生活、思考与影视，也记录那些值得被认真对待的日常片刻。
 
-如果你想先了解这个站点，可以看看 [关于](/about)；
-如果你想直接开始阅读，可以从 [文章](/post) 出发。
+如果你想先了解这个站点，可以看看 [About](/about)；
+如果你想直接开始阅读，可以从 [Posts](/post) 出发。
 """
 homeCollection = "post"
-homeCollectionTitle = "文章"
+homeCollectionTitle = "Posts"
 paginationSize = 10
 listSummaries = false
 listDateFormat = "2006-01-02"

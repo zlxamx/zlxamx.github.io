@@ -1,5 +1,5 @@
 ---
-title: "关于"
+title: "About"
 summary: "关于我，以及这个博客为什么存在。"
 hidePagination: true
 hideBackToTop: true
@@ -15,5 +15,5 @@ hideBackToTop: true
 这个站点不是作品集，也不是资讯站。
 它更像一间不断整理中的房间，放着我读过的、想过的、经历过的东西。
 
-如果你是第一次来到这里，可以先从 [文章](/post) 开始；
-如果你想看看我最近在关注什么，也可以去 [书单](/library) 转转。
+如果你是第一次来到这里，可以先从 [Posts](/post) 开始；
+如果你想看看我最近在关注什么，也可以去 [Library](/library) 转转。
