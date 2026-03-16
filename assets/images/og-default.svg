@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#F8F2E8"/>
+  <rect x="56" y="56" width="1088" height="518" rx="28" fill="#F3EBDD" stroke="#DCD0C1" stroke-width="4"/>
+  <path d="M136 140H1064" stroke="#DCD0C1" stroke-width="4"/>
+  <circle cx="112" cy="112" r="12" fill="#3A312B"/>
+  <circle cx="148" cy="112" r="12" fill="#7A6B5F"/>
+  <text x="136" y="262" fill="#3A312B" font-family="Georgia, 'Times New Roman', serif" font-size="88" font-weight="700">LuxiBlog</text>
+  <text x="136" y="336" fill="#7A6B5F" font-family="'Courier New', monospace" font-size="28" letter-spacing="4">luxi.blog</text>
+  <text x="136" y="432" fill="#3A312B" font-family="'Courier New', monospace" font-size="30">Writing / Letters / Library / Now</text>
+</svg>

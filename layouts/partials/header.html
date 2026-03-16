@@ -1,8 +1,22 @@
 <div class="header">
   {{ if or (not (.Param "hideHeader")) .IsHome }}
-    <h1 class="header-title">
-      <a href="{{ site.BaseURL }}">{{ site.Title }}</a>
-    </h1>
+    <div class="header-brand">
+      {{ if .IsHome }}
+      <h1 class="header-title">
+        <a class="header-brand-link" href="{{ site.BaseURL }}">
+          {{ partial "site-avatar.html" (dict "class" "header-avatar" "alt" "Luxi") }}
+          <span class="header-title-text">{{ site.Title }}</span>
+        </a>
+      </h1>
+      {{ else }}
+      <p class="header-title">
+        <a class="header-brand-link" href="{{ site.BaseURL }}">
+          {{ partial "site-avatar.html" (dict "class" "header-avatar" "alt" "Luxi") }}
+          <span class="header-title-text">{{ site.Title }}</span>
+        </a>
+      </p>
+      {{ end }}
+    </div>
 
     <div class="header-menu">
       {{ $currentPath := strings.TrimSuffix "/" .RelPermalink }}

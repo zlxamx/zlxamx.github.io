@@ -77,6 +77,12 @@
 {{ else }}
 <div {{ if .Param "autonumber" }} class="autonumber" {{ end }}>
   <article>
+    {{ if eq .RelPermalink "/about/" }}
+    <div class="about-avatar-wrap">
+      {{ partial "site-avatar.html" (dict "class" "about-avatar" "alt" "Luxi" ) }}
+    </div>
+    {{ end }}
+
     <header class="single-intro-container">
       <h1 class="single-title">{{ .Title }}</h1>
 

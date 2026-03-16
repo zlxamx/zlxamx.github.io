@@ -1,21 +1,21 @@
 {{ if gt .TotalPages 1 }}
 <div class="pagination">
+  {{ if .HasPrev }}
   <div class="pagination-control">
-    {{ if .HasPrev }}
-      <a href="{{ .Prev.URL | absURL }}">
-        上一页
-      </a>
-    {{ end }}
+    <a href="{{ .Prev.URL | absURL }}">
+      上一页
+    </a>
   </div>
+  {{ end }}
   <div class="page-number">
     <p>{{ .PageNumber }}/{{ .TotalPages }}</p>
   </div>
+  {{ if .HasNext }}
   <div class="pagination-control">
-    {{ if .HasNext }}
-      <a href="{{ .Next.URL | absURL }}">
-        下一页
-      </a>
-    {{ end }}
+    <a href="{{ .Next.URL | absURL }}">
+      下一页
+    </a>
   </div>
+  {{ end }}
 </div>
 {{ end }}
