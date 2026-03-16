@@ -7,23 +7,37 @@
   {{ .Content }}
 
   {{ $isTagsPage := and (eq .Kind "taxonomy") (eq .Data.Plural "tags") }}
+  {{ $isWritingPage := or (eq .RelPermalink "/post/") (eq .RelPermalink "/posts/") }}
 
-  {{ $paginationSize := 1 }}
-  {{ if gt .Site.Params.paginationSize 0 }}
-    {{ $paginationSize = .Site.Params.paginationSize }}
-  {{ end }}
+  {{ if $isWritingPage }}
+    {{ $writingPages := where .RegularPages "Title" "!=" "" }}
+    {{ range $writingPages.ByDate.Reverse.GroupByDate "2006" }}
+      <section class="writing-year-group">
+        <h2 class="writing-year-heading">{{ .Key }}</h2>
 
-  {{ $paginator := .Paginate .Pages $paginationSize }}
-
-  {{ range $paginator.Pages }}
-    {{ if $isTagsPage }}
-      {{ partial "tag-entry.html" . }}
-    {{ else }}
-      {{ partial "post-entry.html" . }}
+        {{ range .Pages }}
+          {{ partial "post-entry.html" . }}
+        {{ end }}
+      </section>
     {{ end }}
-  {{ end }}
+  {{ else }}
+    {{ $paginationSize := 1 }}
+    {{ if gt .Site.Params.paginationSize 0 }}
+      {{ $paginationSize = .Site.Params.paginationSize }}
+    {{ end }}
 
-  {{ partial "pagination-controls.html" $paginator }}
+    {{ $paginator := .Paginate .Pages $paginationSize }}
+
+    {{ range $paginator.Pages }}
+      {{ if $isTagsPage }}
+        {{ partial "tag-entry.html" . }}
+      {{ else }}
+        {{ partial "post-entry.html" . }}
+      {{ end }}
+    {{ end }}
+
+    {{ partial "pagination-controls.html" $paginator }}
+  {{ end }}
 </div>
 
 {{ end }}

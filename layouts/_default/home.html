@@ -59,16 +59,6 @@
   {{ end }}
 </section>
 {{ end }}
-
-{{ if and .Site.Params.waline.enable .Site.Params.waline.serverURL }}
-<section class="home-comments list-container">
-  <div class="comments-head">
-    <h1 class="comments-title">留言板</h1>
-    <p class="comments-note">如果你愿意，也可以在这里留下只言片语。</p>
-  </div>
-  {{ partial "comments.html" . }}
-</section>
-{{ end }}
 </div>
 
 {{ end }}
