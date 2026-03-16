@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "post/vol01.md",
+                "file": "now.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "vol01"
+              "title": "now"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "post/vol01.md",
+                "file": "now.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "vol01 的反向链接列表"
+              "title": "now 的反向链接列表"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "post/vol01.md",
+                "file": "now.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "vol01 的出链列表"
+              "title": "now 的出链列表"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "post/vol01.md",
+                "file": "now.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "vol01 的大纲"
+              "title": "now 的大纲"
             }
           }
         ]
@@ -185,15 +185,20 @@
   },
   "active": "845b52bf14e6c3d1",
   "lastOpenFiles": [
+    "weekly.md",
     "now.md",
     "library.md",
-    "weekly.md",
-    "post/9679.md",
-    "posts/_index.md",
-    "tags/_index.md",
-    "tags",
-    "post/_index.md",
     "about.md",
+    "tags/_index.md",
+    "posts/hello.md",
+    "posts/_index.md",
+    "post/_index.md",
+    "categories/example-category/_index.md",
+    "page/search/index.md",
+    "page/archives/index.md",
+    "post/vol01.md",
+    "post/9679.md",
+    "tags",
     "post/binlpl.md",
     "post/402025.md",
     "post/airpods-pro3.md",
