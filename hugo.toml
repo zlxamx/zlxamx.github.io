@@ -8,13 +8,9 @@ paginate = 10
 
 [params]
 description = "思考者，也是实践者"
-homeIntroTitle = "你好！"
+homeIntroTitle = "我是 Luxi，一个认真生活的人。"
 homeIntroContent = """
-我是 Luxi，一个持续写作、持续思考的人。
-这里记录极简主义、生活、思考与影视，也记录那些值得被认真对待的日常片刻。
-
-如果你想先了解这个站点，可以看看 [About](/about)；
-如果你想直接开始阅读，可以从 [Posts](/post) 出发。
+这里记录我关心的事物，也记录我如何理解它们。
 """
 homeCollection = "post"
 homeCollectionTitle = "Posts"
@@ -24,6 +20,7 @@ listDateFormat = "2006-01-02"
 singleDateFormat = "2006年01月02日"
 colorPalette = "linen"
 mainSections = ["post"]
+footerContent = "愿你也能认真生活，慢慢理解自己。"
 
 [params.breadcrumbs]
 enabled = false
