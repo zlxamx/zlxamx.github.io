@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "weekly.md",
+                "file": "post/vol01.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "weekly"
+              "title": "vol01"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "weekly.md",
+                "file": "post/vol01.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "weekly 的反向链接列表"
+              "title": "vol01 的反向链接列表"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "weekly.md",
+                "file": "post/vol01.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "weekly 的出链列表"
+              "title": "vol01 的出链列表"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "weekly.md",
+                "file": "post/vol01.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "weekly 的大纲"
+              "title": "vol01 的大纲"
             }
           }
         ]
@@ -186,13 +186,13 @@
   "active": "845b52bf14e6c3d1",
   "lastOpenFiles": [
     "now.md",
+    "library.md",
     "weekly.md",
     "post/9679.md",
     "posts/_index.md",
     "tags/_index.md",
     "tags",
     "post/_index.md",
-    "library.md",
     "about.md",
     "post/binlpl.md",
     "post/402025.md",
