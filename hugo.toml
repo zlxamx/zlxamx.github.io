@@ -19,7 +19,7 @@ homeIntroContent = """
 homeCollection = "post"
 homeCollectionTitle = "文章"
 paginationSize = 10
-listSummaries = true
+listSummaries = false
 listDateFormat = "2006-01-02"
 singleDateFormat = "2006年01月02日"
 colorPalette = "linen"
@@ -33,21 +33,21 @@ name = "github"
 url = "https://github.com/zlxamx"
 
 [[params.menu]]
-name = "首页"
+name = "home"
 url = "/"
 weight = 1
 
 [[params.menu]]
-name = "文章"
+name = "posts"
 url = "/post"
 weight = 2
 
 [[params.menu]]
-name = "关于"
+name = "about"
 url = "/about"
 weight = 3
 
 [[params.menu]]
-name = "书单"
+name = "library"
 url = "/library"
 weight = 4
