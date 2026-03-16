@@ -267,6 +267,26 @@ a:focus-visible {
   padding-top: 2rem;
 }
 
+.home-comments {
+  border-top: 1px solid var(--code-border);
+  margin-top: 1rem;
+  padding-top: 2rem;
+}
+
+.comments-head {
+  margin-bottom: 1.25rem;
+}
+
+.comments-title {
+  margin-bottom: 0.35rem;
+  margin-top: 0;
+}
+
+.comments-note {
+  color: var(--content-secondary);
+  margin: 0;
+}
+
 :root {
   --waline-theme-color: var(--content-primary);
   --waline-active-color: var(--content-secondary);

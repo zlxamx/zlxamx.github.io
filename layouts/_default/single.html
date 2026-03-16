@@ -142,6 +142,10 @@
 
   {{ if and .Site.Params.waline.enable .Site.Params.waline.serverURL (in (slice "post" "posts") .Section) (not .Params.disableComment) }}
   <div class="single-comments">
+    <div class="comments-head">
+      <h2 class="comments-title">留言</h2>
+      <p class="comments-note">欢迎留下你的想法。</p>
+    </div>
     {{ partial "comments.html" . }}
   </div>
   {{ end }}
