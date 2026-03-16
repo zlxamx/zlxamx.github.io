@@ -28,11 +28,21 @@
 
           <p class="small {{ if $isActive }} bold {{ end }}">
             <a href="{{ .url }}" {{ if and (isset . "newTab") .newTab }}target="_blank" rel="noopener noreferrer"{{ end }}>
-              /{{ .name }}
+              {{ .name }}
             </a>
           </p>
         {{ end }}
       {{ end }}
+
+      <p class="small theme-toggle-shell">
+        <button
+          type="button"
+          class="theme-toggle"
+          data-theme-toggle
+          aria-label="Switch to dark mode">
+          Dark
+        </button>
+      </p>
     </div>
   {{ end }}
 </div>

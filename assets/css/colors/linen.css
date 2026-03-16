@@ -1,9 +1,9 @@
 :root {
-  --content-primary-light: rgb(58, 49, 43);
-  --content-secondary-light: rgb(122, 107, 95);
-  --background-light: rgb(248, 242, 232);
-  --code-background-light: rgb(239, 231, 220);
-  --code-border-light: rgb(220, 208, 193);
+  --content-primary-light: rgb(54, 48, 43);
+  --content-secondary-light: rgb(118, 110, 101);
+  --background-light: rgb(255, 255, 255);
+  --code-background-light: rgb(247, 245, 242);
+  --code-border-light: rgb(229, 224, 218);
 
   --content-primary-dark: rgb(231, 222, 211);
   --content-secondary-dark: rgb(173, 156, 142);

@@ -141,6 +141,26 @@
   transform: translateY(-0.03em);
 }
 
+.theme-toggle-shell {
+  margin-right: 0;
+}
+
+.theme-toggle {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  color: var(--content-secondary);
+  outline: none;
+}
+
 .home-shell {
   --home-meta-width: 12rem;
 }
@@ -255,6 +275,10 @@
 
   .header-avatar {
     width: 3rem;
+  }
+
+  .theme-toggle-shell {
+    margin-top: 0.2rem;
   }
 
   .about-avatar {

@@ -21,7 +21,7 @@ listSummaries = false
 listDateFormat = "2006-01-02"
 singleDateFormat = "2006年01月02日"
 colorPalette = "linen"
-themeColor = "#f8f2e8"
+themeColor = "#ffffff"
 mainSections = ["post"]
 footerContent = "愿你也能认真生活，慢慢理解自己。"
 
