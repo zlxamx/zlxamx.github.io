@@ -59,35 +59,6 @@
   {{ end }}
 </section>
 {{ end }}
-
-{{ if .Site.Params.homeCollection }}
-<div class="list-container home-writing">
-  {{ with .Site.Params.homeCollectionTitle }}
-  <h1>{{ . }}</h1>
-  {{ end }}
-
-  {{ $pages := where .Site.RegularPages "Section" .Site.Params.homeCollection }}
-  {{ $writingPages := slice }}
-  {{ range $pages.ByDate.Reverse }}
-    {{ if not (in (default (slice) .Params.tags) "周刊") }}
-      {{ $writingPages = $writingPages | append . }}
-    {{ end }}
-  {{ end }}
-
-  {{ $paginationSize := 1 }}
-  {{ if gt .Site.Params.paginationSize 0 }}
-    {{ $paginationSize = .Site.Params.paginationSize }}
-  {{ end }}
-
-  {{ $paginator := .Paginate $writingPages $paginationSize }}
-
-  {{ range $paginator.Pages }}
-    {{ partial "post-entry.html" . }}
-  {{ end }}
-
-  {{ partial "pagination-controls.html" $paginator }}
-</div>
-{{ end }}
 </div>
 
 {{ end }}
