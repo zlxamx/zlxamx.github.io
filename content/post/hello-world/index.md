@@ -1,20 +1,24 @@
 ---
-title: Hello World
-description: Welcome to Hugo Theme Stack
-slug: hello-world
-date: 2022-03-06 00:00:00+0000
-image: cover.jpg
+title: 你好，世界
+description: 我的第一篇博客文章
+date: 2026-03-16
 categories:
-    - Example Category
+  - 随笔
 tags:
-    - Example Tag
-weight: 1       # You can add weight to some posts to override the default sorting (date descending)
+  - Hugo
+  - 博客
 ---
 
-Welcome to Hugo theme Stack. This is your first post. Edit or delete it, then start writing!
+## 欢迎来到 LuxiBlog
 
-For more information about this theme, check the documentation: https://stack.jimmycai.com/
+这是我的博客的第一篇文章，使用 Hugo + Stack 主题搭建。
 
-Want a site like this? Check out [hugo-theme-stack-stater](https://github.com/CaiJimmy/hugo-theme-stack-starter)
+作为一个思考者，也是实践者，我会在这里记录我的技术学习笔记、生活感悟，以及作品集。
 
-> Photo by [Pawel Czerwinski](https://unsplash.com/@pawel_czerwinski) on [Unsplash](https://unsplash.com/)
+### 为什么选择搭建博客？
+
+- 记录和整理自己的想法
+- 分享有价值的内容
+- 建立个人品牌
+
+期待这段旅程的开始！

@@ -1,13 +1,11 @@
 ---
-title: "Search"
-slug: "search"
+title: "搜索"
+date: 2022-03-06
 layout: "search"
-outputs:
-    - html
-    - json
+slug: "search"
 menu:
     main:
         weight: 3
-        params: 
+        params:
             icon: search
 ---
