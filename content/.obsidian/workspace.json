@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "post/《实践论》好读到哭（一）.md",
+                "file": "post/《实践论》好读到哭（二）.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "《实践论》好读到哭（一）"
+              "title": "《实践论》好读到哭（二）"
             }
           }
         ]
@@ -197,9 +197,11 @@
   },
   "active": "845b52bf14e6c3d1",
   "lastOpenFiles": [
+    "post/如何保持源源不断的输出.md",
+    "post/《实践论》好读到哭（二）.md",
+    "post/《实践论》好读到哭（一）.md",
     "post/0003.md",
     "post/0004.md",
-    "post/《实践论》好读到哭（一）.md",
     "post/在AI碾碎的技术门槛前面，是什么拦住了我们？.md",
     "post/ai01.md",
     "post/573.md",
@@ -221,8 +223,6 @@
     "post/9679.md",
     "tags",
     "post/binlpl.md",
-    "post/airpods-pro3.md",
-    "post/0006.md",
-    "post/901.md"
+    "post/airpods-pro3.md"
   ]
 }
