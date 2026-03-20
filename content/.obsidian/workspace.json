@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "post/《实践论》好读到哭（二）.md",
+                "file": "post/JOJO系列漫画为什么好看？.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "《实践论》好读到哭（二）"
+              "title": "JOJO系列漫画为什么好看？"
             }
           }
         ]
@@ -171,8 +171,8 @@
             "state": {
               "type": "git-view",
               "state": {},
-              "icon": "git-pull-request",
-              "title": "Source Control"
+              "icon": "lucide-ghost",
+              "title": "git-view"
             }
           }
         ],
@@ -197,8 +197,9 @@
   },
   "active": "845b52bf14e6c3d1",
   "lastOpenFiles": [
-    "post/如何保持源源不断的输出.md",
     "post/《实践论》好读到哭（二）.md",
+    "post/JOJO系列漫画为什么好看？.md",
+    "post/如何保持源源不断的输出.md",
     "post/《实践论》好读到哭（一）.md",
     "post/0003.md",
     "post/0004.md",
@@ -222,7 +223,6 @@
     "post/vol01.md",
     "post/9679.md",
     "tags",
-    "post/binlpl.md",
-    "post/airpods-pro3.md"
+    "post/binlpl.md"
   ]
 }
