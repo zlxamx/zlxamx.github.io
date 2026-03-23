@@ -25,6 +25,11 @@ themeColor = "#ffffff"
 mainSections = ["post"]
 footerContent = "愿你也能认真生活，慢慢理解自己。"
 
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.parser]
+      wrapStandAloneImageWithinParagraph = false
+
 [params.breadcrumbs]
 enabled = false
 
