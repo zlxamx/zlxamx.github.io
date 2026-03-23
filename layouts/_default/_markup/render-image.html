@@ -6,8 +6,10 @@ Custom image render hook:
 {{- $u := urls.Parse .Destination -}}
 {{- $url := $u.String -}}
 {{- $imgResource := .Page.Scratch.Get "typoNilVariable" -}}
+{{- $imgConfig := .Page.Scratch.Get "typoNilVariable" -}}
 {{- if not $u.IsAbs -}}
   {{- $path := strings.TrimPrefix "./" $u.Path -}}
+  {{- $trimmedPath := strings.TrimPrefix "/" $path -}}
   {{- with .PageInner.Resources -}}
     {{- $imgResource = .Get $path -}}
   {{- end -}}
@@ -21,6 +23,13 @@ Custom image render hook:
   {{- end -}}
   {{- if and (not $imgResource) (strings.HasPrefix $path "/") -}}
     {{- $imgResource = resources.Get (strings.TrimPrefix "/" $path) -}}
+  {{- end -}}
+  {{- if not $imgResource -}}
+    {{- range $candidate := slice (path.Join "content" $trimmedPath) (path.Join "static" $trimmedPath) (path.Join "assets" $trimmedPath) -}}
+      {{- if and (not $imgConfig) (fileExists $candidate) -}}
+        {{- $imgConfig = imageConfig $candidate -}}
+      {{- end -}}
+    {{- end -}}
   {{- end -}}
   {{- with $imgResource -}}
     {{- $url = .RelPermalink -}}
@@ -54,9 +63,15 @@ Custom image render hook:
       </div>
     {{- end -}}
   {{- else -}}
-    <div class="img-container">
-      <img loading="lazy" alt="{{ $text }}" src="{{ $url }}">
-    </div>
+    {{- with $imgConfig -}}
+      <div class="img-container" style="--w: {{ .Width }}; --h: {{ .Height }};">
+        <img loading="lazy" alt="{{ $text }}" src="{{ $url }}" width="{{ .Width }}" height="{{ .Height }}">
+      </div>
+    {{- else -}}
+      <div class="img-container">
+        <img loading="lazy" alt="{{ $text }}" src="{{ $url }}">
+      </div>
+    {{- end -}}
   {{- end -}}
 
   {{- with .Title -}}

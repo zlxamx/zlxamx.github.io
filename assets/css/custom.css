@@ -261,6 +261,42 @@ a:focus-visible {
   font-family: var(--font-mono);
 }
 
+.single-content figure,
+.weekly-description figure,
+.home-shell figure {
+  clear: both;
+  display: block;
+  margin: 1.5rem auto;
+  max-width: 100%;
+}
+
+.single-content figure .img-container,
+.weekly-description figure .img-container,
+.home-shell figure .img-container {
+  display: block;
+  line-height: 0;
+  margin: 0 auto;
+  max-width: 100%;
+  width: fit-content;
+}
+
+.single-content figure img,
+.weekly-description figure img,
+.home-shell figure img {
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  max-height: var(--figure-img-max-height);
+  max-width: 100%;
+  width: auto;
+}
+
+.single-content figure + *,
+.weekly-description figure + *,
+.home-shell figure + * {
+  clear: both;
+}
+
 .single-comments {
   border-top: 1px solid var(--code-border);
   margin-top: 3rem;
