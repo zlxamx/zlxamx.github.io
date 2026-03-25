@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "post/用了八年闲鱼，我想和你聊的不是怎么赚钱.md",
+                "file": "post/用了八年闲鱼，我的购买和砍价指南.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "用了八年闲鱼，我想和你聊的不是怎么赚钱"
+              "title": "用了八年闲鱼，我的购买和砍价指南"
             }
           }
         ]
@@ -197,6 +197,10 @@
   },
   "active": "0deda47e31a57379",
   "lastOpenFiles": [
+    "PixPin_2026-03-25_17-42-29.png",
+    "post/张雪峰老师走了，聊聊我的健康生活系统.md",
+    "post/用了八年闲鱼，我的购买和砍价指南.md",
+    "PixPin_2026-03-25_19-17-31.png",
     "post/用了八年闲鱼，我想和你聊的不是怎么赚钱.md",
     "post/莎士比亚把真正的主角藏在了男装里.md",
     "post/希路路克的周末来信Vol.02：把光递给后面的人.md",
@@ -229,9 +233,6 @@
     "about.md",
     "tags/_index.md",
     "posts/hello.md",
-    "posts/_index.md",
-    "categories/example-category/_index.md",
-    "page/search/index.md",
     "tags"
   ]
 }
