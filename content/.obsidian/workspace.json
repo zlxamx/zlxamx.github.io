@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "post/一个普通人的健康系统.md",
+                "file": "post/希路路克的周末来信Vol.03.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "一个普通人的健康系统"
+              "title": "希路路克的周末来信Vol.03"
             }
           }
         ]
@@ -127,7 +127,7 @@
             "state": {
               "type": "tag",
               "state": {
-                "sortOrder": "frequency",
+                "sortOrder": "alphabetical",
                 "useHierarchy": true,
                 "showSearch": false,
                 "searchQuery": ""
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "now.md",
+                "file": "post/希路路克的周末来信Vol.03.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "now 的大纲"
+              "title": "希路路克的周末来信Vol.03 的大纲"
             }
           },
           {
@@ -171,12 +171,12 @@
             "state": {
               "type": "git-view",
               "state": {},
-              "icon": "lucide-ghost",
-              "title": "git-view"
+              "icon": "git-pull-request",
+              "title": "Source Control"
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
@@ -197,17 +197,22 @@
   },
   "active": "0deda47e31a57379",
   "lastOpenFiles": [
-    "post/普通人如何在闲鱼买卖手机？八年经验都在这儿了.md",
+    "post/希路路克的周末来信Vol.02.md",
+    "post/希路路克的周末来信Vol.03.md",
+    "post/希路路克的周末来信Vol.01.md",
+    "post/402025.md",
+    "post/张雪峰老师走了，聊聊我的健康生活系统.md",
+    "post/在AI碾碎的技术门槛前面，是什么拦住了我们？.md",
+    "post/ai01.md",
+    "希路路克的周末来信_vol03_竖版封面.png",
     "post/一个普通人的健康系统.md",
+    "post/普通人如何在闲鱼买卖手机？八年经验都在这儿了.md",
     "post/八年闲鱼卖家指南：手把手教你玩闲鱼.md",
     "post/用了八年闲鱼，我的购买和砍价指南.md",
     "PixPin_2026-03-25_17-42-29.png",
-    "post/张雪峰老师走了，聊聊我的健康生活系统.md",
     "PixPin_2026-03-25_19-17-31.png",
     "post/用了八年闲鱼，我想和你聊的不是怎么赚钱.md",
     "post/莎士比亚把真正的主角藏在了男装里.md",
-    "post/希路路克的周末来信Vol.02：把光递给后面的人.md",
-    "post/在AI碾碎的技术门槛前面，是什么拦住了我们？.md",
     "希路路克的周末来信_vol02_竖版封面.png",
     "weread_image_41967032920136.jpeg",
     "weekly.md",
@@ -218,21 +223,16 @@
     "post/JOJO系列漫画为什么好看？.md",
     "PixPin_2026-03-20_21-01-04.png",
     "PixPin_2026-03-20_21-01-08.png",
-    "PixPin_2026-03-20_20-59-52.png",
     "post/《实践论》好读到哭（二）.md",
     "post/如何保持源源不断的输出.md",
     "post/《实践论》好读到哭（一）.md",
     "post/0003.md",
     "post/0004.md",
-    "post/ai01.md",
     "post/573.md",
     "post/22.md",
-    "post/402025.md",
     "post/2026-03-03.md",
     "post/_index.md",
     "now.md",
-    "library.md",
-    "about.md",
     "tags"
   ]
 }
