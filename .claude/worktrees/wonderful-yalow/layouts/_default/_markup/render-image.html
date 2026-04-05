@@ -1,0 +1,87 @@
+{{/*
+Custom image render hook:
+- keep Hugo page/global resource resolution for local images
+- fall back to a plain img tag for remote or unresolved paths
+*/}}
+{{- $u := urls.Parse .Destination -}}
+{{- $url := $u.String -}}
+{{- $imgResource := .Page.Scratch.Get "typoNilVariable" -}}
+{{- $imgConfig := .Page.Scratch.Get "typoNilVariable" -}}
+{{- if not $u.IsAbs -}}
+  {{- $path := strings.TrimPrefix "./" $u.Path -}}
+  {{- $trimmedPath := strings.TrimPrefix "/" $path -}}
+  {{- with .PageInner.Resources -}}
+    {{- $imgResource = .Get $path -}}
+  {{- end -}}
+  {{- if and (not $imgResource) .PageInner.Parent -}}
+    {{- with .PageInner.Parent.Resources -}}
+      {{- $imgResource = .Get $path -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if not $imgResource -}}
+    {{- $imgResource = resources.Get $path -}}
+  {{- end -}}
+  {{- if and (not $imgResource) (strings.HasPrefix $path "/") -}}
+    {{- $imgResource = resources.Get (strings.TrimPrefix "/" $path) -}}
+  {{- end -}}
+  {{- if not $imgResource -}}
+    {{- range $candidate := slice (path.Join "content" $trimmedPath) (path.Join "static" $trimmedPath) (path.Join "assets" $trimmedPath) -}}
+      {{- if and (not $imgConfig) (fileExists $candidate) -}}
+        {{- $imgConfig = imageConfig $candidate -}}
+        {{- /* Fix relative paths: ensure the URL is root-relative so the browser
+               resolves it from the site root, not from the current page path. */ -}}
+        {{- if not (strings.HasPrefix $url "/") -}}
+          {{- $url = printf "/%s" $trimmedPath -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- with $imgResource -}}
+    {{- $url = .RelPermalink -}}
+    {{- with $u.RawQuery -}}
+      {{- $url = printf "%s?%s" $url . -}}
+    {{- end -}}
+    {{- with $u.Fragment -}}
+      {{- $url = printf "%s#%s" $url . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $url = $url | safeURL -}}
+{{- $fileNameParts := split $url "#" -}}
+{{- $classes := "" -}}
+{{- range $idx := seq (sub (len $fileNameParts) 1) -}}
+  {{- $tag := index $fileNameParts $idx -}}
+  {{- $classes = printf "%s img-%s" $classes $tag -}}
+{{- end -}}
+
+<figure class="{{ $classes }}">
+  {{- $text := .Text -}}
+  {{- with $imgResource -}}
+    {{- if eq .MediaType.SubType "svg" -}}
+      <div class="img-container">
+        <img loading="lazy" alt="{{ $text }}" src="{{ $url }}">
+      </div>
+    {{- else -}}
+      <div class="img-container" style="--w: {{ .Width }}; --h: {{ .Height }};">
+        <img loading="lazy" alt="{{ $text }}" src="{{ $url }}" width="{{ .Width }}" height="{{ .Height }}">
+      </div>
+    {{- end -}}
+  {{- else -}}
+    {{- with $imgConfig -}}
+      <div class="img-container" style="--w: {{ .Width }}; --h: {{ .Height }};">
+        <img loading="lazy" alt="{{ $text }}" src="{{ $url }}" width="{{ .Width }}" height="{{ .Height }}">
+      </div>
+    {{- else -}}
+      <div class="img-container">
+        <img loading="lazy" alt="{{ $text }}" src="{{ $url }}">
+      </div>
+    {{- end -}}
+  {{- end -}}
+
+  {{- with .Title -}}
+    <div class="caption-container">
+      <figcaption>{{ . | markdownify }}</figcaption>
+    </div>
+  {{- end -}}
+</figure>

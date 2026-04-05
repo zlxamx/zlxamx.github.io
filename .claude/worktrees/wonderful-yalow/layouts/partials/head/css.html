@@ -1,0 +1,20 @@
+{{ $css := slice
+  (resources.Get "css/reset.css")
+  (resources.Get "css/vars.css")
+  (resources.Get "css/utils.css")
+  (resources.Get "css/fonts.css")
+  (resources.Get "css/syntax-highlighting.css")
+  (resources.Get "css/main.css")
+  (resources.Get "css/custom.css")
+}}
+
+{{ $palette := .Site.Params.colorPalette | default "default" }}
+{{ $palettePath := printf "css/colors/%s.css" $palette }}
+{{ with resources.Get $palettePath }}
+  {{ $css = $css | append . }}
+{{ else }}
+  {{ warnf "Color palette %q not found at %q; continuing without palette override." $palette $palettePath }}
+{{ end }}
+
+{{ $combined := $css | resources.Concat "assets/combined.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $combined.RelPermalink }}" media="all">

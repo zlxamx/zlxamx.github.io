@@ -1,0 +1,34 @@
+[sidebar]
+    emoji = "✨"
+    subtitle = "思考者，也是实践者"
+    avatar = "img/avatar.png"
+
+[article]
+    headingAnchor = false
+    math = false
+    readingTime = true
+
+    [article.license]
+        enabled = true
+        default = "Licensed under CC BY-NC-SA 4.0"
+
+[widgets]
+    homepage = [
+        { type = "search" },
+        { type = "archives", params = { limit = 5 } },
+        { type = "categories", params = { limit = 10 } },
+        { type = "tag-cloud", params = { limit = 10 } },
+    ]
+    page = [{ type = "toc" }]
+
+[opengraph.twitter]
+    site = ""
+    card = "summary_large_image"
+
+[colorScheme]
+    toggle = true
+    default = "auto"
+
+[comments]
+    enabled = false
+    provider = ""
