@@ -308,23 +308,15 @@ a:focus-visible {
 }
 
 .single-page-grid {
-  column-gap: var(--single-grid-gap);
-  display: grid;
-  grid-template-columns: minmax(0, var(--single-main-width));
-  justify-content: center;
-}
-
-.single-page-grid.has-toc {
-  grid-template-columns:
-    minmax(0, var(--single-main-width))
-    minmax(14rem, var(--single-toc-width));
+  margin: 0 auto;
+  max-width: var(--single-main-width);
+  position: relative;
 }
 
 .single-page-grid > article,
 .single-page-grid > .single-comments,
 .single-page-grid > .single-pagination,
 .single-page-grid > .back-to-top {
-  grid-column: 1;
   min-width: 0;
 }
 
@@ -446,10 +438,13 @@ a:focus-visible {
 }
 
 .single-toc {
-  align-self: start;
-  grid-column: 2;
-  grid-row: 1;
-  margin-top: 5.2rem;
+  left: calc(100% + var(--single-grid-gap));
+  position: absolute;
+  top: 5.2rem;
+  width: var(--single-toc-width);
+}
+
+.single-toc-sticky {
   position: sticky;
   top: 5.5rem;
 }
@@ -840,9 +835,8 @@ a:focus-visible {
     width: auto;
   }
 
-  .single-page-grid,
-  .single-page-grid.has-toc {
-    grid-template-columns: minmax(0, 1fr);
+  .single-page-grid {
+    max-width: min(100%, var(--single-main-width));
   }
 
   .single-toc {

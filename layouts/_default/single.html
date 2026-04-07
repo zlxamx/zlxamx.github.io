@@ -134,9 +134,11 @@
 
     {{ if $hasToc }}
     <aside class="single-toc">
-      <p class="single-toc-label">目录</p>
-      <div class="single-toc-body">
-        {{ $toc }}
+      <div class="single-toc-sticky">
+        <p class="single-toc-label">目录</p>
+        <div class="single-toc-body">
+          {{ $toc }}
+        </div>
       </div>
     </aside>
     {{ end }}
