@@ -317,18 +317,105 @@ a:focus-visible {
   margin: 0;
 }
 
-.writing-year-group + .writing-year-group {
-  margin-top: 2.25rem;
+.writing-archive {
+  margin-top: 2rem;
 }
 
-.writing-year-heading {
-  border-top: 1px solid var(--code-border);
+.writing-year-group + .writing-year-group {
+  margin-top: 3rem;
+}
+
+.writing-year-head {
+  align-items: baseline;
+  border-bottom: 1px solid var(--code-border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1.35rem;
+  padding-bottom: 0.9rem;
+}
+
+.writing-year-title {
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin: 0;
+}
+
+.writing-year-count,
+.writing-month-count,
+.writing-entry-date {
   color: var(--content-secondary);
   font-family: var(--font-mono);
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  margin-top: 0;
+  font-size: 0.95rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.writing-month-list {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.writing-month-block {
+  margin: 0;
+}
+
+.writing-month-summary {
+  align-items: baseline;
+  border-bottom: 1px dashed var(--code-border);
+  cursor: pointer;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  list-style: none;
+  padding-bottom: 0.85rem;
+}
+
+.writing-month-summary::-webkit-details-marker {
+  display: none;
+}
+
+.writing-month-summary::marker {
+  content: "";
+}
+
+.writing-month-title {
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.writing-month-posts {
+  display: grid;
+  gap: 0.85rem;
   padding-top: 1rem;
+}
+
+.writing-entry {
+  align-items: baseline;
+  column-gap: 1.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.writing-entry-title {
+  margin: 0;
+}
+
+.writing-entry-title a {
+  text-decoration: none;
+}
+
+.writing-entry-title a:hover,
+.writing-entry-title a:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.16em;
+}
+
+.writing-entry-date {
+  text-align: right;
 }
 
 :root {
@@ -469,5 +556,30 @@ a:focus-visible {
 
   .weekly-meta {
     gap: 0.55rem;
+  }
+
+  .writing-year-head,
+  .writing-month-summary,
+  .writing-entry {
+    gap: 0.45rem;
+    grid-template-columns: 1fr;
+  }
+
+  .writing-year-head,
+  .writing-month-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .writing-year-title {
+    font-size: 1.9rem;
+  }
+
+  .writing-month-title {
+    font-size: 1.3rem;
+  }
+
+  .writing-entry-date {
+    text-align: left;
   }
 }

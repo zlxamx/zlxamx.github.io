@@ -11,14 +11,68 @@
 
   {{ if $isWritingPage }}
     {{ $writingPages := where .RegularPages "Title" "!=" "" }}
-    {{ range $writingPages.ByDate.Reverse.GroupByDate "2006" }}
-      <section class="writing-year-group">
-        <h2 class="writing-year-heading">{{ .Key }}</h2>
+    {{ $yearGroups := sort ($writingPages.ByDate.Reverse.GroupByDate "2006") "Key" "desc" }}
+    {{ $monthNames := slice "" "一月" "二月" "三月" "四月" "五月" "六月" "七月" "八月" "九月" "十月" "十一月" "十二月" }}
+    {{ $listDateFormat := .Site.Params.listDateFormat | default "2006-01-02" }}
+    {{ $currentYear := time.Format "2006" now }}
+    {{ $scratch := newScratch }}
+    {{ $scratch.Set "expandedYear" "" }}
 
-        {{ range .Pages }}
-          {{ partial "post-entry.html" . }}
+    {{ range $yearGroups }}
+      {{ if eq .Key $currentYear }}
+        {{ $scratch.Set "expandedYear" .Key }}
+      {{ end }}
+    {{ end }}
+
+    {{ if eq ($scratch.Get "expandedYear") "" }}
+      {{ range first 1 $yearGroups }}
+        {{ $scratch.Set "expandedYear" .Key }}
+      {{ end }}
+    {{ end }}
+
+    {{ if gt (len $writingPages) 0 }}
+      <div class="writing-archive">
+        {{ range $yearGroups }}
+          {{ $isExpandedYear := eq .Key ($scratch.Get "expandedYear") }}
+          {{ $monthGroups := sort (.Pages.ByDate.Reverse.GroupByDate "01") "Key" "desc" }}
+
+          <section class="writing-year-group {{ if $isExpandedYear }}is-current-year{{ else }}is-archived-year{{ end }}">
+            <div class="writing-year-head">
+              <h2 class="writing-year-title">{{ .Key }}</h2>
+              <p class="writing-year-count">共计 {{ len .Pages }} 篇文章</p>
+            </div>
+
+            <div class="writing-month-list">
+              {{ range $monthGroups }}
+                {{ $monthNumber := int .Key }}
+                {{ $monthLabel := index $monthNames $monthNumber }}
+
+                <details class="writing-month-block" {{ if $isExpandedYear }}open{{ end }}>
+                  <summary class="writing-month-summary">
+                    <span class="writing-month-title">{{ $monthLabel }}</span>
+                    <span class="writing-month-count">{{ len .Pages }} 篇文章</span>
+                  </summary>
+
+                  <div class="writing-month-posts">
+                    {{ range .Pages.ByDate.Reverse }}
+                      <article class="writing-entry">
+                        <p class="writing-entry-title">
+                          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                        </p>
+                        <p class="writing-entry-date">
+                          <time datetime="{{ .Date | time.Format "2006-01-02" }}">{{ .Date | time.Format $listDateFormat }}</time>
+                        </p>
+                      </article>
+                    {{ end }}
+                  </div>
+                </details>
+              {{ end }}
+            </div>
+          </section>
         {{ end }}
-      </section>
+      </div>
+    {{ else }}
+      <p>这里还没有文章。</p>
     {{ end }}
   {{ else }}
     {{ $paginationSize := 1 }}
