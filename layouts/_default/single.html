@@ -74,6 +74,101 @@
       </div>
     {{ end }}
   </div>
+{{ else if in (slice "post" "posts") .Section }}
+{{ $taxonomy := "tags" }}
+{{ $toc := .TableOfContents }}
+{{ $hasToc := gt (len (strings.TrimSpace ($toc | plainify))) 0 }}
+<div class="single-shell is-post-page{{ if .Param "autonumber" }} autonumber{{ end }}">
+  <div class="single-page-grid{{ if $hasToc }} has-toc{{ end }}">
+    <article class="single-article-page">
+      <header class="single-intro-container">
+        <h1 class="single-title">{{ .Title }}</h1>
+
+        {{ if or .Date (.Param "readTime") .Params.categories (.Param $taxonomy) }}
+        <div class="single-meta">
+          {{ with .Date }}
+          {{ $dateMachine := . | time.Format "2006-01-02T15:04:05-07:00" }}
+          {{ $dateHuman := . | time.Format (default ":date_long" $.Site.Params.singleDateFormat) }}
+          <span class="single-meta-item single-meta-date">
+            <time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time>
+          </span>
+          {{ end }}
+
+          {{ with .Params.categories }}
+            {{ range first 1 . }}
+            <span class="single-meta-item single-meta-category">《{{ . }}》</span>
+            {{ end }}
+          {{ end }}
+
+          {{ if .Param "readTime" }}
+          <span class="single-meta-item">{{ .ReadingTime }} min read</span>
+          {{ end }}
+
+          {{ with .Param $taxonomy }}
+            {{ range . }}
+            {{ $tag := . }}
+            <span class="single-meta-item single-meta-tag">
+              {{ with $.Site.GetPage (printf "/%s/%s" $taxonomy $tag) }}
+              <a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>
+              {{ else }}
+              <a href="{{ printf "/%s/%s/" $taxonomy ($tag | urlize) | relURL }}">#{{ $tag }}</a>
+              {{ end }}
+            </span>
+            {{ end }}
+          {{ end }}
+        </div>
+        {{ end }}
+      </header>
+
+      <div class="single-content">
+        {{ .Content }}
+      </div>
+    </article>
+
+    {{ if $hasToc }}
+    <aside class="single-toc">
+      <p class="single-toc-label">目录</p>
+      <div class="single-toc-body">
+        {{ $toc }}
+      </div>
+    </aside>
+    {{ end }}
+
+    {{ if and .Site.Params.waline.enable .Site.Params.waline.serverURL (not .Params.disableComment) }}
+    <div class="single-comments">
+      <div class="comments-head">
+        <h2 class="comments-title">留言</h2>
+        <p class="comments-note">欢迎留下你的想法。</p>
+      </div>
+      {{ partial "comments.html" . }}
+    </div>
+    {{ end }}
+
+    {{ if not (.Param "hidePagination") }}
+    {{ partial "pagination-single.html" . }}
+    {{ end }}
+
+    {{ if not (.Param "hideBackToTop") }}
+    <div class="back-to-top">
+      <a href="#top">
+        back to top
+      </a>
+    </div>
+    {{ end }}
+  </div>
+
+  {{ if .Store.Get "hasMermaid" }}
+  {{ $mermaidDarkTheme := default "dark" (or .Params.mermaidDarkTheme .Site.Params.mermaidDarkTheme) }}
+  {{ $mermaidTheme := default "default" (or .Params.mermaidTheme .Site.Params.mermaidTheme) }}
+  <script defer
+    type="module"
+    id="mermaid_script"
+    data-light-theme="{{ $mermaidTheme }}"
+    data-dark-theme="{{ $mermaidDarkTheme }}"
+    src='{{ "js/mermaid.js" | relURL }}'>
+  </script>
+  {{ end }}
+</div>
 {{ else }}
 <div {{ if .Param "autonumber" }} class="autonumber" {{ end }}>
   <article>
