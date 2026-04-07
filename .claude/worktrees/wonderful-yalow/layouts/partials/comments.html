@@ -1,0 +1,102 @@
+<div id="waline"></div>
+<script type="module">
+  import { init } from "https://unpkg.com/@waline/client@v3/dist/waline.js";
+
+  const walineMetaKey = "waline-meta";
+  const walineRoot = document.getElementById("waline");
+
+  function loadSavedMeta() {
+    try {
+      return JSON.parse(localStorage.getItem(walineMetaKey) || "{}");
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveMeta(meta) {
+    try {
+      localStorage.setItem(walineMetaKey, JSON.stringify(meta));
+    } catch (error) {
+      return;
+    }
+  }
+
+  function getMetaInputs() {
+    const inputs = Array.from(walineRoot.querySelectorAll("input")).filter((input) => {
+      const type = (input.getAttribute("type") || "text").toLowerCase();
+      return ["text", "email"].includes(type);
+    });
+
+    return {
+      nickInput: inputs[0],
+      mailInput: inputs[1],
+    };
+  }
+
+  function syncSavedMeta() {
+    const { nickInput, mailInput } = getMetaInputs();
+    const savedMeta = loadSavedMeta();
+
+    if (nickInput) {
+      if (!nickInput.value && savedMeta.nick) {
+        nickInput.value = savedMeta.nick;
+        nickInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+
+      if (!nickInput.dataset.walineBound) {
+        const persistNick = () => {
+          saveMeta({
+            ...loadSavedMeta(),
+            nick: nickInput.value.trim(),
+          });
+        };
+
+        nickInput.addEventListener("input", persistNick);
+        nickInput.addEventListener("change", persistNick);
+        nickInput.dataset.walineBound = "true";
+      }
+    }
+
+    if (mailInput) {
+      if (!mailInput.value && savedMeta.mail) {
+        mailInput.value = savedMeta.mail;
+        mailInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+
+      if (!mailInput.dataset.walineBound) {
+        const persistMail = () => {
+          saveMeta({
+            ...loadSavedMeta(),
+            mail: mailInput.value.trim(),
+          });
+        };
+
+        mailInput.addEventListener("input", persistMail);
+        mailInput.addEventListener("change", persistMail);
+        mailInput.dataset.walineBound = "true";
+      }
+    }
+  }
+
+  init({
+    el: "#waline",
+    serverURL: "{{ .Site.Params.waline.serverURL }}",
+    path: window.location.pathname.replace(/\/$/, "") || "/",
+    lang: "{{ .Site.Params.waline.lang | default "zh-CN" }}",
+    dark: "html.dark",
+    meta: {{ .Site.Params.waline.meta | default (slice "nick" "mail") | jsonify | safeJS }},
+    requiredMeta: {{ .Site.Params.waline.requiredMeta | default (slice "nick" "mail") | jsonify | safeJS }},
+    login: "{{ .Site.Params.waline.login | default "disable" }}",
+    emoji: {{ .Site.Params.waline.emoji | default false }},
+    search: {{ .Site.Params.waline.search | default false }},
+    reaction: {{ .Site.Params.waline.reaction | default false }},
+    commentSorting: "{{ .Site.Params.waline.commentSorting | default "latest" }}",
+  });
+
+  const observer = new MutationObserver(() => {
+    syncSavedMeta();
+  });
+
+  observer.observe(walineRoot, { childList: true, subtree: true });
+  syncSavedMeta();
+</script>

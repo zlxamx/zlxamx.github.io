@@ -1,0 +1,9 @@
+{{- with partial "_funcs/get-page-images" . -}}
+  {{- with index . 0 -}}
+    {{- .Permalink -}}
+  {{- end -}}
+{{- else -}}
+  {{- with resources.Get "images/og-default.svg" -}}
+    {{- .Permalink -}}
+  {{- end -}}
+{{- end -}}

@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "9e464fbac9620c3a",
+        "id": "30f2b21f18485d8c",
         "type": "tabs",
         "children": [
           {
-            "id": "845b52bf14e6c3d1",
+            "id": "0deda47e31a57379",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "now.md",
+                "file": "library.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "now"
+              "title": "library"
             }
           }
         ]
@@ -127,7 +127,7 @@
             "state": {
               "type": "tag",
               "state": {
-                "sortOrder": "frequency",
+                "sortOrder": "alphabetical",
                 "useHierarchy": true,
                 "showSearch": false,
                 "searchQuery": ""
@@ -156,16 +156,27 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "now.md",
+                "file": "post/希路路克的周末来信Vol.03.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "now 的大纲"
+              "title": "希路路克的周末来信Vol.03 的大纲"
+            }
+          },
+          {
+            "id": "8749a224476c64fd",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
@@ -180,31 +191,49 @@
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
-      "bases:新建数据库": false
+      "bases:新建数据库": false,
+      "obsidian-git:Open Git source control": false
     }
   },
-  "active": "845b52bf14e6c3d1",
+  "active": "0deda47e31a57379",
   "lastOpenFiles": [
-    "weekly.md",
-    "now.md",
-    "library.md",
-    "about.md",
-    "tags/_index.md",
     "posts/hello.md",
     "posts/_index.md",
-    "post/_index.md",
     "categories/example-category/_index.md",
-    "page/search/index.md",
     "page/archives/index.md",
-    "post/vol01.md",
-    "post/9679.md",
-    "tags",
-    "post/binlpl.md",
+    "page/search/index.md",
+    "post/你的体重可能不是胖了，而是咸了.md",
+    "post/_index.md",
+    "post/读了十几篇Dan Koe之后，我倒吸一口凉气：他是不是读过《实践论》？.md",
+    "post/未命名",
+    "post/希路路克的周末来信Vol.04.md",
+    "希路路克的周末来信_vol04_竖版封面.png",
+    "post/订阅AI就是给自己买一把锄头.md",
+    "post/假如我是个不婚主义者.md",
+    "post/八年闲鱼卖家指南：手把手教你玩闲鱼.md",
+    "post/希路路克的周末来信Vol.03.md",
+    "ChatGPT.md",
+    "希路路克的周末来信_vol02_竖版封面 1.png",
+    "post/在AI碾碎的技术门槛前面，是什么拦住了我们？.md",
+    "post/一个普通人的健康系统.md",
+    "post/学任何东西，我都会先读一遍说明书.md",
+    "post/用了八年闲鱼，我想和你聊的不是怎么赚钱.md",
+    "post/用了八年闲鱼，我的购买和砍价指南.md",
+    "post/JOJO系列漫画为什么好看？.md",
+    "ChatGPTImage2026年4月4日14_46_14.png",
+    "post/1000粉丝自由写作.md",
+    "post/唯物辩证法，就是现实世界里的焚决.md",
+    "post/希路路克的周末来信Vol.02.md",
+    "post/希路路克的周末来信Vol.01.md",
     "post/402025.md",
-    "post/airpods-pro3.md",
-    "post/ai01.md",
-    "post/0006.md",
-    "post/901.md",
-    "post/8472.md"
+    "post/张雪峰老师走了，聊聊我的健康生活系统.md",
+    "希路路克的周末来信_vol03_竖版封面.png",
+    "PixPin_2026-03-25_17-42-29.png",
+    "PixPin_2026-03-25_19-17-31.png",
+    "希路路克的周末来信_vol02_竖版封面.png",
+    "weread_image_41967032920136.jpeg",
+    "PixPin_2026-03-22_10-24-52.png",
+    "PixPin_2026-03-22_10-16-13.png",
+    "tags"
   ]
 }

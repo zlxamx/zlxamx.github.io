@@ -1,0 +1,116 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{{ partial "functions/get_hook.html" (dict "hook" "head_start" "context" .) }}
+
+{{ $authorName := site.Params.author | default site.Title }}
+{{ $themeColor := site.Params.themeColor | default "#f8f2e8" }}
+{{ $description := .Site.Params.description | default .Site.Title }}
+{{ if not .IsHome }}
+  {{ with .Params.description }}
+    {{ $description = . }}
+  {{ else }}
+    {{ with .Params.summary }}
+      {{ $description = . }}
+    {{ else }}
+      {{ with .Summary }}
+        {{ $description = . }}
+      {{ else }}
+        {{ with .Plain }}
+          {{ $description = . | truncate 160 }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ $description = $description | plainify | htmlUnescape | replaceRE "\\s+" " " }}
+{{ $description = trim $description " " }}
+{{ $pageTitle := site.Title }}
+{{ if not .IsHome }}
+  {{ $pageTitle = printf "%s | %s" .Title site.Title }}
+{{ end }}
+{{ $socialImage := partial "head/social-image.html" . }}
+
+{{ with resources.Get "img/favicon.png" }}
+  {{ $favicon := . | fingerprint }}
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ $favicon.RelPermalink }}">
+{{ end }}
+<link rel="apple-touch-icon" sizes="180x180" href="{{ "apple-touch-icon.png" | relURL }}">
+<link rel="manifest" href="{{ "site.webmanifest" | relURL }}">
+
+{{ with .OutputFormats.Get "rss" -}}
+{{ printf `<link rel=%q type=%q href=%q title=%q>` .Rel .MediaType.Type .Permalink site.Title | safeHTML }}
+{{ end }}
+
+<meta name="description" content="{{ $description }}">
+<meta name="author" content="{{ $authorName }}">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="{{ $themeColor }}">
+<meta name="color-scheme" content="light dark">
+<script>
+(() => {
+  const storageKey = "theme-preference";
+  const themeColors = {
+    light: "#ffffff",
+    dark: "#1c1815",
+  };
+
+  let theme = "light";
+  try {
+    const savedTheme = localStorage.getItem(storageKey);
+    theme = savedTheme === "dark" ? "dark" : "light";
+  } catch (error) {
+    theme = "light";
+  }
+
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(theme);
+
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute("content", themeColors[theme]);
+  }
+})();
+</script>
+
+{{ if .Param "fediverse" }}
+<meta name="fediverse:creator" content="{{ .Params.Fediverse }}">
+{{ end }}
+
+<title>
+  {{ $pageTitle }}
+</title>
+
+<link rel="canonical" href="{{ .Permalink }}">
+
+{{ partial "opengraph.html" (dict "page" . "description" $description "socialImage" $socialImage) }}
+
+<meta name="twitter:card" content="{{ if $socialImage }}summary_large_image{{ else }}summary{{ end }}">
+<meta name="twitter:title" content="{{ $pageTitle }}">
+<meta name="twitter:description" content="{{ $description }}">
+{{ with $socialImage }}
+<meta name="twitter:image" content="{{ . }}">
+{{ end }}
+{{ with cond .IsHome site.Title .Title }}
+<meta name="twitter:image:alt" content="{{ . }}">
+{{ end }}
+
+{{ partial "head/json-ld.html" (dict "page" . "description" $description "socialImage" $socialImage) }}
+
+{{ partialCached "head/css.html" . }}
+{{ if and .Site.Params.waline.enable .Site.Params.waline.serverURL .IsPage (in (slice "post" "posts") .Section) (not .Params.disableComment) }}
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css">
+{{ end }}
+{{ partialCached "head/js.html" . }}
+
+{{ if hugo.IsProduction }}
+{{ template "_internal/google_analytics.html" . }}
+
+{{ if .Site.Params.umami.enable }}
+{{ partial "umami.html" . }}
+{{ end }}
+{{ end }}
+
+{{ partial "functions/get_hook.html" (dict "hook" "head_end" "context" .) }}

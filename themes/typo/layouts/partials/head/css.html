@@ -1,0 +1,34 @@
+{{- /* 定义需要加载的 CSS 文件路径列表 */ -}}
+{{ $cssPaths := slice
+  "css/reset.css"
+  "css/vars.css"
+  "css/utils.css"
+  "css/fonts.css"
+  "css/syntax-highlighting.css"
+  "css/main.css"
+  "css/custom.css"
+}}
+
+{{- /* 初始化一个空的资源数组 */ -}}
+{{ $CSS := slice }}
+
+{{- /* 遍历路径，只有当获取到真实资源时，才加入到 $CSS 数组中 */ -}}
+{{ range $cssPaths }}
+  {{ with resources.Get . }}
+    {{ $CSS = $CSS | append . }}
+  {{ end }}
+{{ end }}
+
+{{- /* 处理颜色主题 CSS，同样增加存在性检查 */ -}}
+{{ with .Site.Params.colorPalette | default "default" }}
+  {{ $path := printf "css/colors/%s.css" . }}
+  {{ with resources.Get $path }}
+    {{ $CSS = $CSS | append . }}
+  {{ end }}
+{{ end }}
+
+{{- /* 确保数组不为空的情况下，才进行合并和压缩 */ -}}
+{{ if gt (len $CSS) 0 }}
+  {{ $combined := $CSS | resources.Concat "assets/combined.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $combined.RelPermalink }}" media="all">
+{{ end }}

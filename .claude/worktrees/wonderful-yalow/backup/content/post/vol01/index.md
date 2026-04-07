@@ -1,5 +1,5 @@
 ---
-title: 希路路克的周末来信 Vol.01：极简主义最大的对手可能是惯性
+title: "希路路克的周末来信 vol.01"
 date: 2026-03-15
 slug: vol01
 categories:
