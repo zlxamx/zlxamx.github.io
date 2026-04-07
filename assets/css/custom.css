@@ -337,9 +337,9 @@ a:focus-visible {
 }
 
 .single-shell.is-post-page .single-title {
-  font-size: clamp(2.65rem, 4.4vw, 4rem);
+  font-size: clamp(2.2rem, 1.85rem + 1.45vw, 3.1rem);
   letter-spacing: -0.055em;
-  line-height: 1.08;
+  line-height: 1.12;
   margin: 0;
   text-wrap: balance;
 }
@@ -784,7 +784,7 @@ a:focus-visible {
   }
 
   .single-shell.is-post-page .single-title {
-    font-size: 2.2rem;
+    font-size: 1.95rem;
   }
 
   .single-meta {
