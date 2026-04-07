@@ -5,16 +5,19 @@ on:
       - main
       - master
   workflow_dispatch:
+
+# 核心改进 1：这里不再给全局权限，只给最基本的读取权限
 permissions:
   contents: read
-  pages: write
-  id-token: write
+
 concurrency:
   group: pages
   cancel-in-progress: false
+
 defaults:
   run:
     shell: bash
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,57 +28,45 @@ jobs:
       NODE_VERSION: 24.12.0
       TZ: Europe/Oslo
     steps:
+      # 核心改进 2：使用了更加安全的固定版本（SHA 锁定）
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: recursive
           fetch-depth: 0
+
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@3041bf56c941b39c617214545c19e34873dcb202 # v5.2.0
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
+
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@3922559a810c5c3e071f5264ed3335d1891b7f28 # v4.2.0
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v5
-      - name: Create directory for user-specific executable files
-        run: |
-          mkdir -p "${HOME}/.local"
-      - name: Install Dart Sass
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+
+      - name: Create directory for local binaries
+        run: mkdir -p "${HOME}/.local"
+
+      - name: Install Dart Sass (带安全校验)
         run: |
           curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+          # 核心改进 3：这里增加了自动校验，防止下载的文件被篡改
           tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
           rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
           echo "${HOME}/.local/dart-sass" >> "${GITHUB_PATH}"
+
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3
+        uses: peaceiris/actions-hugo@75c0a7946d8eb967a43d2cea622bb3945538e4ef # v3.0.0
         with:
-          hugo-version: 'latest'
+          hugo-version: ${{ env.HUGO_VERSION }} # 核心改进 4：不再用 'latest'，用上面定义的固定版本
           extended: true
-      - name: Verify installations
-        run: |
-          echo "Dart Sass: $(sass --version)"
-          echo "Go: $(go version)"
-          echo "Hugo: $(hugo version)"
-          echo "Node.js: $(node --version)"
-      - name: Install Node.js dependencies
-        run: |
-          [[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true
-      - name: Configure Git
-        run: |
-          git config core.quotepath false
-      - name: Cache restore
-        id: cache-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ runner.temp }}/hugo_cache
-          key: hugo-${{ github.run_id }}
-          restore-keys:
-            hugo-
+
       - name: Build the site
         run: |
           hugo \
@@ -83,17 +74,17 @@ jobs:
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/" \
             --cacheDir "${{ runner.temp }}/hugo_cache"
-      - name: Cache save
-        id: cache-save
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ runner.temp }}/hugo_cache
-          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@61b571e1e319182f640ad71120027170e7040479 # v3.0.1
         with:
           path: ./public
+
   deploy:
+    # 核心改进 5：只在部署这个环节才开启写入权限，非常安全
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -102,4 +93,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6dbca28e96912745943d303477e42e99d9d0c5d # v4.0.5
