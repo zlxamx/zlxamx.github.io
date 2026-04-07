@@ -96,7 +96,14 @@
 
           {{ with .Params.categories }}
             {{ range first 1 . }}
-            <span class="single-meta-item single-meta-category">《{{ . }}》</span>
+            {{ $category := . }}
+            <span class="single-meta-item single-meta-category">
+              {{ with $.Site.GetPage (printf "/categories/%s" $category) }}
+              <a href="{{ .RelPermalink }}">《{{ .LinkTitle }}》</a>
+              {{ else }}
+              <a href="{{ printf "/categories/%s/" ($category | urlize) | relURL }}">《{{ $category }}》</a>
+              {{ end }}
+            </span>
             {{ end }}
           {{ end }}
 
