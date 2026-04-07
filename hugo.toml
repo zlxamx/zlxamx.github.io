@@ -5,7 +5,9 @@ theme = "typo"
 enableRobotsTXT = true
 
 hasCJKLanguage = true
-paginate = 10
+
+[pagination]
+  pagerSize = 10
 
 [params]
 description = "我是 Luxi，一个认真生活的人。这里记录我关心的事物，也记录我如何理解它们。"
