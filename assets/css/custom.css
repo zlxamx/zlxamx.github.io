@@ -438,9 +438,12 @@ a:focus-visible {
 }
 
 .single-toc {
+  bottom: 0;
+  box-sizing: border-box;
   left: calc(100% + var(--single-grid-gap));
+  padding-top: 5.2rem;
   position: absolute;
-  top: 5.2rem;
+  top: 0;
   width: var(--single-toc-width);
 }
 
