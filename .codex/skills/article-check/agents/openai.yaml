@@ -1,0 +1,4 @@
+interface:
+  display_name: "Article Check"
+  short_description: "按中文写作规范检查文章的格式、用词、语义与论证问题"
+  default_prompt: "Use $article-check to review this Chinese article draft against wording, concept precision, formatting, and reader clarity."
