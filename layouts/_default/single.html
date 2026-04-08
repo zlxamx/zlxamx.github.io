@@ -82,26 +82,23 @@
   <section class="library-hero">
     <div class="library-hero-main">
       <div class="library-hero-head">
-        <div class="library-hero-copy">
-          <div class="library-hero-topline">
-            <p class="library-kicker">Ex Libris</p>
+        <div class="library-hero-topline">
+          <p class="library-kicker">Ex Libris</p>
+          <div class="library-topline-meta">
             <p class="library-ledger-no">Shelf Page 01</p>
-          </div>
-          <h1 class="library-title">{{ .Title }}</h1>
-          {{ with .Param "summary" }}
-          <p class="library-summary">{{ . }}</p>
-          {{ end }}
-
-          <div class="library-intro">
-            {{ .Content }}
+            <div class="library-plate library-plate-inline">
+              <p class="library-plate-kicker">藏书票</p>
+              <p class="library-plate-title">Luxi Private Shelf</p>
+            </div>
           </div>
         </div>
 
-        <div class="library-hero-side">
-          <div class="library-plate">
-            <p class="library-plate-kicker">藏书票</p>
-            <p class="library-plate-title">Luxi Private Shelf</p>
-            <p class="library-plate-copy">只记会反复回来的书。</p>
+        <div class="library-hero-copy">
+          <div class="library-hero-title-row">
+            <h1 class="library-title">{{ .Title }}</h1>
+          </div>
+          <div class="library-intro">
+            {{ .Content }}
           </div>
         </div>
       </div>
