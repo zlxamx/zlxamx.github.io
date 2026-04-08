@@ -81,35 +81,32 @@
 <div class="library-shell">
   <section class="library-hero">
     <div class="library-hero-main">
-      <div class="library-hero-topline">
-        <p class="library-kicker">Ex Libris</p>
-        <p class="library-ledger-no">Shelf Page 01</p>
-      </div>
-      <h1 class="library-title">{{ .Title }}</h1>
-      {{ with .Param "summary" }}
-      <p class="library-summary">{{ . }}</p>
-      {{ end }}
+      <div class="library-hero-head">
+        <div class="library-hero-copy">
+          <div class="library-hero-topline">
+            <p class="library-kicker">Ex Libris</p>
+            <p class="library-ledger-no">Shelf Page 01</p>
+          </div>
+          <h1 class="library-title">{{ .Title }}</h1>
+          {{ with .Param "summary" }}
+          <p class="library-summary">{{ . }}</p>
+          {{ end }}
 
-      <div class="library-intro">
-        {{ .Content }}
-      </div>
+          <div class="library-intro">
+            {{ .Content }}
+          </div>
+        </div>
 
-      <div class="library-hero-rule" aria-hidden="true">
-        <span></span>
-        <span></span>
-      </div>
-
-      <p class="library-hero-footnote">一本书真正留下来，不是因为它读完了，而是因为它还在回响。</p>
-    </div>
-
-    <aside class="library-stats" aria-label="Library overview">
-      <div class="library-plate">
-        <p class="library-plate-kicker">藏书票</p>
-        <p class="library-plate-title">Luxi Private Shelf</p>
-        <p class="library-plate-copy">只记录仍在发光的书，不做完整目录。</p>
+        <div class="library-hero-side">
+          <div class="library-plate">
+            <p class="library-plate-kicker">藏书票</p>
+            <p class="library-plate-title">Luxi Private Shelf</p>
+            <p class="library-plate-copy">只记会反复回来的书。</p>
+          </div>
+        </div>
       </div>
 
-      <div class="library-stat-grid">
+      <div class="library-stat-grid library-stat-grid-hero" aria-label="Library overview">
         <div class="library-stat-card">
           <p class="library-stat-value">{{ len $current }}</p>
           <p class="library-stat-label">正在读</p>
@@ -123,8 +120,7 @@
           <p class="library-stat-label">想读</p>
         </div>
       </div>
-      <p class="library-stats-note">馆藏说明：这里只有那些已经进入我的阅读记忆、并且还在继续发亮的书。</p>
-    </aside>
+    </div>
   </section>
 
   <section class="library-section library-section-now">

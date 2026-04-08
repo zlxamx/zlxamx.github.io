@@ -658,11 +658,8 @@ a:focus-visible {
 }
 
 .library-hero {
-  align-items: start;
-  display: grid;
-  gap: 1.4rem;
-  grid-template-columns: minmax(0, 1.55fr) minmax(15rem, 0.95fr);
-  margin-bottom: 3.4rem;
+  display: block;
+  margin-bottom: 2rem;
 }
 
 .library-hero-main,
@@ -680,7 +677,7 @@ a:focus-visible {
 
 .library-hero-main {
   overflow: hidden;
-  padding: clamp(1.6rem, 2.4vw, 2.2rem);
+  padding: clamp(1.15rem, 1.8vw, 1.55rem);
 }
 
 .library-hero-main::before,
@@ -694,17 +691,7 @@ a:focus-visible {
 }
 
 .library-hero-main::after {
-  color: rgba(127, 113, 95, 0.08);
-  content: "EX LIBRIS";
-  font-family: var(--font-mono);
-  font-size: clamp(2.8rem, 7vw, 5.6rem);
-  letter-spacing: 0.24em;
-  position: absolute;
-  right: -0.22em;
-  top: 1rem;
-  transform: rotate(-90deg);
-  transform-origin: top right;
-  white-space: nowrap;
+  content: none;
 }
 
 .library-kicker,
@@ -734,15 +721,32 @@ a:focus-visible {
   z-index: 1;
 }
 
+.library-hero-head {
+  align-items: start;
+  column-gap: 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 15rem);
+}
+
+.library-hero-copy {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.library-hero-side {
+  min-width: 0;
+}
+
 .library-ledger-no {
   white-space: nowrap;
 }
 
 .library-title {
-  font-size: clamp(2.15rem, 1.72rem + 1.4vw, 3rem);
+  font-size: clamp(1.95rem, 1.6rem + 1vw, 2.45rem);
   letter-spacing: -0.06em;
-  line-height: 1.02;
-  margin: 0.4rem 0 0.85rem;
+  line-height: 1;
+  margin: 0.1rem 0 0.15rem;
   position: relative;
   text-wrap: balance;
   z-index: 1;
@@ -758,52 +762,17 @@ a:focus-visible {
 
 .library-summary {
   color: var(--content-secondary);
-  font-size: 1.08rem;
-  margin: 0 0 1.25rem;
-  max-width: 34rem;
-}
-
-.library-intro p {
-  font-size: clamp(1.08rem, 1.03rem + 0.2vw, 1.18rem);
-  line-height: 1.85;
-  margin-bottom: 1rem;
-  margin-top: 0;
-  max-width: 38rem;
-}
-
-.library-intro p:last-child {
-  margin-bottom: 0;
-}
-
-.library-hero-rule {
-  display: grid;
-  gap: 0.35rem;
-  margin-top: 1.4rem;
-}
-
-.library-hero-rule span {
-  background: var(--code-border);
-  display: block;
-  height: 1px;
-  width: 100%;
-}
-
-.library-hero-rule span:last-child {
-  opacity: 0.55;
-  transform: scaleX(0.78);
-  transform-origin: left center;
-}
-
-.library-hero-footnote {
-  color: var(--content-secondary);
-  font-size: 0.98rem;
-  margin: 0.9rem 0 0;
+  font-size: 1rem;
+  margin: 0;
   max-width: 30rem;
 }
 
-.library-stats {
-  display: grid;
-  gap: 0.9rem;
+.library-intro p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 0;
+  margin-top: 0;
+  max-width: 38rem;
 }
 
 .library-plate {
@@ -813,9 +782,9 @@ a:focus-visible {
   border: 1px solid var(--code-border);
   border-radius: calc(var(--code-border-radius) + 2px);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-  padding: 1rem 1.05rem 1.05rem;
+  padding: 0.8rem 0.95rem;
   position: relative;
-  transform: rotate(-1.15deg);
+  transform: none;
 }
 
 .library-plate::before {
@@ -835,21 +804,21 @@ a:focus-visible {
   content: "LX";
   display: inline-flex;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  height: 3rem;
+  font-size: 0.82rem;
+  height: 2.45rem;
   justify-content: center;
   position: absolute;
-  right: 1rem;
-  top: 0.9rem;
+  right: 0.9rem;
+  top: 0.75rem;
   transform: rotate(14deg);
-  width: 3rem;
+  width: 2.45rem;
 }
 
 .library-plate-title {
-  font-size: 1.22rem;
+  font-size: 1.05rem;
   letter-spacing: -0.03em;
   line-height: 1.15;
-  margin: 0.35rem 0 0.45rem;
+  margin: 0.18rem 0 0.25rem;
   position: relative;
 }
 
@@ -864,6 +833,11 @@ a:focus-visible {
   gap: 0.8rem;
 }
 
+.library-stat-grid-hero {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.9rem;
+}
+
 .library-stat-card {
   background:
     linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.02) 100%),
@@ -871,7 +845,7 @@ a:focus-visible {
   border: 1px solid var(--code-border);
   border-radius: var(--code-border-radius);
   overflow: hidden;
-  padding: 1rem 1.05rem;
+  padding: 0.7rem 0.85rem 0.75rem;
   position: relative;
 }
 
@@ -879,24 +853,17 @@ a:focus-visible {
   background: linear-gradient(90deg, transparent 0%, var(--code-border) 100%);
   content: "";
   height: 1px;
-  left: 1.05rem;
+  left: 0.85rem;
   position: absolute;
-  right: 1.05rem;
-  top: 0.8rem;
+  right: 0.85rem;
+  top: 0.55rem;
 }
 
 .library-stat-value {
-  font-size: clamp(1.55rem, 1.4rem + 0.6vw, 2rem);
+  font-size: clamp(1.35rem, 1.25rem + 0.35vw, 1.65rem);
   letter-spacing: -0.05em;
   line-height: 1;
-  margin: 0.72rem 0 0.28rem;
-}
-
-.library-stats-note {
-  border-top: 1px dashed var(--code-border);
-  color: var(--content-secondary);
-  margin: 0.2rem 0 0;
-  padding-top: 0.95rem;
+  margin: 0.45rem 0 0.15rem;
 }
 
 .library-section {
@@ -945,14 +912,6 @@ a:focus-visible {
   margin: 0;
   max-width: 22rem;
   text-align: right;
-}
-
-.library-intro p:first-child::first-letter {
-  color: var(--content-primary);
-  float: left;
-  font-size: 4.2rem;
-  line-height: 0.88;
-  margin: 0.08rem 0.35rem -0.05rem 0;
 }
 
 .library-book-visual,
@@ -1439,7 +1398,7 @@ a:focus-visible {
   }
 
   .library-hero-main {
-    padding: 1.2rem 1.1rem;
+    padding: 1rem 0.95rem;
   }
 
   .library-hero-main::before,
@@ -1459,17 +1418,17 @@ a:focus-visible {
     gap: 0.3rem;
   }
 
+  .library-hero-head {
+    grid-template-columns: 1fr;
+    row-gap: 0.9rem;
+  }
+
+  .library-hero-side {
+    width: min(100%, 13rem);
+  }
+
   .library-title {
-    font-size: 1.8rem;
-  }
-
-  .library-plate {
-    transform: none;
-  }
-
-  .library-intro p:first-child::first-letter {
-    font-size: 3.3rem;
-    margin-right: 0.28rem;
+    font-size: 1.75rem;
   }
 
   .library-section-head {
