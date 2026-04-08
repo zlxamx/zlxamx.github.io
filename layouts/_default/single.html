@@ -74,6 +74,167 @@
       </div>
     {{ end }}
   </div>
+{{ else if eq .Layout "library" }}
+{{ $current := .Params.currentlyReading | default (slice) }}
+{{ $recommended := .Params.recommendedBooks | default (slice) }}
+{{ $queue := .Params.wantToRead | default (slice) }}
+<div class="library-shell">
+  <section class="library-hero">
+    <div class="library-hero-main">
+      <div class="library-hero-topline">
+        <p class="library-kicker">Ex Libris</p>
+        <p class="library-ledger-no">Shelf Page 01</p>
+      </div>
+      <h1 class="library-title">{{ .Title }}</h1>
+      {{ with .Param "summary" }}
+      <p class="library-summary">{{ . }}</p>
+      {{ end }}
+
+      <div class="library-intro">
+        {{ .Content }}
+      </div>
+
+      <div class="library-hero-rule" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </div>
+
+      <p class="library-hero-footnote">一本书真正留下来，不是因为它读完了，而是因为它还在回响。</p>
+    </div>
+
+    <aside class="library-stats" aria-label="Library overview">
+      <div class="library-plate">
+        <p class="library-plate-kicker">藏书票</p>
+        <p class="library-plate-title">Luxi Private Shelf</p>
+        <p class="library-plate-copy">只记录仍在发光的书，不做完整目录。</p>
+      </div>
+
+      <div class="library-stat-grid">
+        <div class="library-stat-card">
+          <p class="library-stat-value">{{ len $current }}</p>
+          <p class="library-stat-label">正在读</p>
+        </div>
+        <div class="library-stat-card">
+          <p class="library-stat-value">{{ len $recommended }}</p>
+          <p class="library-stat-label">推荐</p>
+        </div>
+        <div class="library-stat-card">
+          <p class="library-stat-value">{{ len $queue }}</p>
+          <p class="library-stat-label">想读</p>
+        </div>
+      </div>
+      <p class="library-stats-note">馆藏说明：这里只有那些已经进入我的阅读记忆、并且还在继续发亮的书。</p>
+    </aside>
+  </section>
+
+  <section class="library-section">
+    <div class="library-section-head">
+      <div>
+        <p class="library-section-kicker">Reading Now</p>
+        <h2>正在读</h2>
+      </div>
+      <p class="library-section-note">最近最靠近手边的几本书。</p>
+    </div>
+
+    <div class="library-now-grid">
+      {{ range $index, $book := $current }}
+      <article class="library-now-card">
+        <div class="library-card-head">
+          <p class="library-card-code">Shelf A{{ add $index 1 }}</p>
+          {{ with index $book "status" }}
+          <p class="library-book-status">{{ . }}</p>
+          {{ end }}
+        </div>
+        <div class="library-now-copy">
+          <h3 class="library-now-title">{{ index $book "title" }}</h3>
+          {{ with index $book "note" }}
+          <p class="library-now-note">{{ . }}</p>
+          {{ end }}
+        </div>
+      </article>
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="library-section">
+    <div class="library-section-head">
+      <div>
+        <p class="library-section-kicker">Keep Returning</p>
+        <h2>读过并推荐</h2>
+      </div>
+      <p class="library-section-note">不是所有读过的书都会留下来，这些会。</p>
+    </div>
+
+    <div class="library-recommend-list">
+      {{ range $index, $book := $recommended }}
+      <article class="library-recommend-entry">
+        <div class="library-recommend-index">
+          <p class="library-book-order">{{ printf "%02d" (add $index 1) }}</p>
+          <p class="library-entry-mark">荐藏</p>
+        </div>
+        <div class="library-recommend-copy">
+          <h3 class="library-recommend-title">{{ index $book "title" }}</h3>
+          {{ with index $book "note" }}
+          <p class="library-recommend-note">{{ . }}</p>
+          {{ end }}
+        </div>
+      </article>
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="library-section">
+    <div class="library-section-head">
+      <div>
+        <p class="library-section-kicker">Next Up</p>
+        <h2>想读</h2>
+      </div>
+      <p class="library-section-note">还没翻开，但已经在排队等我。</p>
+    </div>
+
+    <div class="library-queue-grid">
+      {{ range $index, $book := $queue }}
+      <article class="library-queue-card">
+        <div class="library-card-head">
+          <p class="library-queue-label">Queue {{ printf "%02d" (add $index 1) }}</p>
+          <p class="library-entry-mark">待入架</p>
+        </div>
+        <h3 class="library-queue-title">{{ index $book "title" }}</h3>
+        {{ with index $book "note" }}
+        <p class="library-queue-note">{{ . }}</p>
+        {{ end }}
+        {{ with index $book "children" }}
+        <ul class="library-sublist">
+          {{ range . }}
+          <li>{{ . }}</li>
+          {{ end }}
+        </ul>
+        {{ end }}
+      </article>
+      {{ end }}
+    </div>
+  </section>
+
+  {{ if .Store.Get "hasMermaid" }}
+  {{ $mermaidDarkTheme := default "dark" (or .Params.mermaidDarkTheme .Site.Params.mermaidDarkTheme) }}
+  {{ $mermaidTheme := default "default" (or .Params.mermaidTheme .Site.Params.mermaidTheme) }}
+  <script defer
+    type="module"
+    id="mermaid_script"
+    data-light-theme="{{ $mermaidTheme }}"
+    data-dark-theme="{{ $mermaidDarkTheme }}"
+    src='{{ "js/mermaid.js" | relURL }}'>
+  </script>
+  {{ end }}
+
+  {{ if not (.Param "hideBackToTop") }}
+  <div class="back-to-top">
+    <a href="#top">
+      back to top
+    </a>
+  </div>
+  {{ end }}
+</div>
 {{ else if in (slice "post" "posts") .Section }}
 {{ $taxonomy := "tags" }}
 {{ $toc := .TableOfContents }}
