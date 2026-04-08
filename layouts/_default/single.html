@@ -139,7 +139,30 @@
 
     <div class="library-now-grid">
       {{ range $index, $book := $current }}
+      {{ $tone := printf "library-cover-tone-%d" (add (mod $index 4) 1) }}
+      {{ $cover := index $book "cover" }}
       <article class="library-now-card">
+        <div class="library-book-visual">
+          <div class="library-book-cover library-book-cover-feature {{ $tone }}{{ if $cover }} has-image{{ end }}">
+            {{ with $cover }}
+            <img
+              class="library-book-cover-image"
+              src="{{ . | relURL }}"
+              alt="{{ printf "《%s》封面" (index $book "title") }}">
+            {{ else }}
+            <div class="library-book-cover-placeholder">
+              <div>
+                <p class="library-book-cover-code">{{ printf "A%02d" (add $index 1) }}</p>
+                <p class="library-book-cover-label">Reading Now</p>
+              </div>
+              <h3 class="library-book-cover-title">{{ index $book "title" }}</h3>
+              {{ with index $book "status" }}
+              <p class="library-book-cover-meta">{{ . }}</p>
+              {{ end }}
+            </div>
+            {{ end }}
+          </div>
+        </div>
         <div class="library-card-head">
           <p class="library-card-code">Shelf A{{ add $index 1 }}</p>
           {{ with index $book "status" }}
@@ -169,12 +192,30 @@
 
     <div class="library-recommend-list">
       {{ range $index, $book := $recommended }}
+      {{ $tone := printf "library-cover-tone-%d" (add (mod (add $index 1) 4) 1) }}
+      {{ $cover := index $book "cover" }}
       <article class="library-recommend-entry">
-        <div class="library-recommend-index">
-          <p class="library-book-order">{{ printf "%02d" (add $index 1) }}</p>
-          <p class="library-entry-mark">荐藏</p>
+        <div class="library-recommend-visual">
+          <div class="library-book-cover library-book-cover-compact {{ $tone }}{{ if $cover }} has-image{{ end }}">
+            {{ with $cover }}
+            <img
+              class="library-book-cover-image"
+              src="{{ . | relURL }}"
+              alt="{{ printf "《%s》封面" (index $book "title") }}">
+            {{ else }}
+            <div class="library-book-cover-placeholder">
+              <div>
+                <p class="library-book-cover-code">{{ printf "R%02d" (add $index 1) }}</p>
+                <p class="library-book-cover-label">Recommended</p>
+              </div>
+              <h3 class="library-book-cover-title">{{ index $book "title" }}</h3>
+              <p class="library-book-cover-meta">荐藏</p>
+            </div>
+            {{ end }}
+          </div>
         </div>
         <div class="library-recommend-copy">
+          <p class="library-entry-mark">荐藏 {{ printf "%02d" (add $index 1) }}</p>
           <h3 class="library-recommend-title">{{ index $book "title" }}</h3>
           {{ with index $book "note" }}
           <p class="library-recommend-note">{{ . }}</p>
@@ -197,7 +238,28 @@
 
     <div class="library-queue-grid">
       {{ range $index, $book := $queue }}
+      {{ $tone := printf "library-cover-tone-%d" (add (mod (add $index 2) 4) 1) }}
+      {{ $cover := index $book "cover" }}
       <article class="library-queue-card">
+        <div class="library-queue-visual">
+          <div class="library-book-cover library-book-cover-queue {{ $tone }}{{ if $cover }} has-image{{ end }}">
+            {{ with $cover }}
+            <img
+              class="library-book-cover-image"
+              src="{{ . | relURL }}"
+              alt="{{ printf "《%s》封面" (index $book "title") }}">
+            {{ else }}
+            <div class="library-book-cover-placeholder">
+              <div>
+                <p class="library-book-cover-code">{{ printf "Q%02d" (add $index 1) }}</p>
+                <p class="library-book-cover-label">Next Up</p>
+              </div>
+              <h3 class="library-book-cover-title">{{ index $book "title" }}</h3>
+              <p class="library-book-cover-meta">待入架</p>
+            </div>
+            {{ end }}
+          </div>
+        </div>
         <div class="library-card-head">
           <p class="library-queue-label">Queue {{ printf "%02d" (add $index 1) }}</p>
           <p class="library-entry-mark">待入架</p>
