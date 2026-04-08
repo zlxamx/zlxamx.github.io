@@ -632,6 +632,29 @@ a:focus-visible {
 
 .library-shell {
   margin-top: 0.5rem;
+  padding-bottom: 1rem;
+  position: relative;
+}
+
+.library-shell::before,
+.library-shell::after {
+  background: linear-gradient(180deg, transparent 0%, var(--code-border) 12%, var(--code-border) 88%, transparent 100%);
+  content: "";
+  opacity: 0.38;
+  pointer-events: none;
+  position: absolute;
+  top: 0.8rem;
+  width: 1px;
+}
+
+.library-shell::before {
+  bottom: 1rem;
+  left: -1.1rem;
+}
+
+.library-shell::after {
+  bottom: 1rem;
+  right: -1.1rem;
 }
 
 .library-hero {
@@ -804,6 +827,24 @@ a:focus-visible {
   position: absolute;
 }
 
+.library-plate::after {
+  align-items: center;
+  border: 1px solid rgba(127, 113, 95, 0.45);
+  border-radius: 999px;
+  color: rgba(127, 113, 95, 0.75);
+  content: "LX";
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  height: 3rem;
+  justify-content: center;
+  position: absolute;
+  right: 1rem;
+  top: 0.9rem;
+  transform: rotate(14deg);
+  width: 3rem;
+}
+
 .library-plate-title {
   font-size: 1.22rem;
   letter-spacing: -0.03em;
@@ -861,11 +902,25 @@ a:focus-visible {
 .library-section {
   margin-top: 0;
   overflow: hidden;
-  padding: 1.45rem 1.45rem 1.55rem;
+  padding: 1.55rem 1.55rem 1.7rem;
 }
 
 .library-section + .library-section {
   margin-top: 1.4rem;
+}
+
+.library-section-title {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.library-section-code {
+  color: var(--content-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  margin: 0 0 0.1rem;
+  text-transform: uppercase;
 }
 
 .library-section-head {
@@ -892,6 +947,14 @@ a:focus-visible {
   text-align: right;
 }
 
+.library-intro p:first-child::first-letter {
+  color: var(--content-primary);
+  float: left;
+  font-size: 4.2rem;
+  line-height: 0.88;
+  margin: 0.08rem 0.35rem -0.05rem 0;
+}
+
 .library-now-grid {
   display: grid;
   gap: 1rem;
@@ -904,6 +967,9 @@ a:focus-visible {
     linear-gradient(180deg, var(--code-background) 0%, transparent 160%);
   border: 1px solid var(--code-border);
   border-radius: calc(var(--code-border-radius) + 4px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 10px 24px rgba(0, 0, 0, 0.035);
   display: flex;
   flex-direction: column;
   min-height: 13rem;
@@ -920,6 +986,24 @@ a:focus-visible {
   position: absolute;
   right: 1.35rem;
   top: 2.55rem;
+}
+
+.library-section-now .library-now-card:nth-child(odd) {
+  transform: rotate(-0.45deg);
+}
+
+.library-section-now .library-now-card:nth-child(even) {
+  transform: rotate(0.35deg);
+}
+
+.library-section-now .library-now-card::after {
+  border-style: solid;
+  border-width: 0 1.1rem 1.1rem 0;
+  border-color: transparent rgba(127, 113, 95, 0.12) transparent transparent;
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .library-card-head {
@@ -961,7 +1045,18 @@ a:focus-visible {
 }
 
 .library-recommend-list {
-  border-top: 1px solid var(--code-border);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 2.2rem,
+      rgba(127, 113, 95, 0.08) 2.2rem,
+      rgba(127, 113, 95, 0.08) calc(2.2rem + 1px)
+    );
+  border: 1px solid var(--code-border);
+  border-radius: calc(var(--code-border-radius) + 2px);
+  overflow: hidden;
+  padding: 0 1.2rem;
 }
 
 .library-recommend-entry {
@@ -971,6 +1066,10 @@ a:focus-visible {
   grid-template-columns: minmax(2.8rem, 3.6rem) minmax(0, 1fr);
   position: relative;
   padding: 1.15rem 0 1.2rem;
+}
+
+.library-recommend-entry:last-child {
+  border-bottom: 0;
 }
 
 .library-recommend-entry::before {
@@ -1005,6 +1104,7 @@ a:focus-visible {
 }
 
 .library-recommend-note {
+  font-style: italic;
   max-width: 39rem;
 }
 
@@ -1020,6 +1120,9 @@ a:focus-visible {
     linear-gradient(180deg, transparent 0%, var(--code-background) 120%);
   border: 1px dashed var(--code-border);
   border-radius: var(--code-border-radius);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 10px 24px rgba(0, 0, 0, 0.03);
   overflow: hidden;
   padding: 1.05rem 1.05rem 1.1rem;
   position: relative;
@@ -1032,6 +1135,10 @@ a:focus-visible {
   position: absolute;
   right: 0;
   top: 2.65rem;
+}
+
+.library-section-queue .library-queue-card:nth-child(2n) {
+  transform: translateY(0.35rem);
 }
 
 .library-queue-title {
@@ -1222,6 +1329,11 @@ a:focus-visible {
     inset: 0.45rem;
   }
 
+  .library-shell::before,
+  .library-shell::after {
+    display: none;
+  }
+
   .library-hero-topline,
   .library-card-head {
     align-items: flex-start;
@@ -1235,6 +1347,11 @@ a:focus-visible {
 
   .library-plate {
     transform: none;
+  }
+
+  .library-intro p:first-child::first-letter {
+    font-size: 3.3rem;
+    margin-right: 0.28rem;
   }
 
   .library-section-head {
@@ -1259,6 +1376,7 @@ a:focus-visible {
 
   .library-now-card {
     min-height: 10.5rem;
+    transform: none;
   }
 
   .library-now-copy {
@@ -1268,6 +1386,10 @@ a:focus-visible {
   .library-recommend-index {
     gap: 0.15rem;
     padding-top: 0;
+  }
+
+  .library-section-queue .library-queue-card:nth-child(2n) {
+    transform: none;
   }
 
   .single-shell.is-post-page .single-intro-container {
