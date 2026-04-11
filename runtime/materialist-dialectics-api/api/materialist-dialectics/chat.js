@@ -242,9 +242,7 @@ module.exports = async function handler(req, res) {
     json(res, 500, {
       error: {
         code: "model_call_failed",
-        message: error instanceof Error
-          ? error.message
-          : "The model runtime failed to produce a valid response.",
+        message: "The model runtime failed to produce a valid response.",
       },
     });
   }
