@@ -77,11 +77,16 @@ url = "/library"
 weight = 4
 
 [[params.menu]]
+name = "Dialectics"
+url = "/dialectics"
+weight = 5
+
+[[params.menu]]
 name = "Now"
 url = "/now"
-weight = 5
+weight = 6
 
 [[params.menu]]
 name = "About"
 url = "/about"
-weight = 6
+weight = 7
