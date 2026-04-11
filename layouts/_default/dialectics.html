@@ -18,9 +18,9 @@
   data-max-history-messages="{{ $maxHistoryMessages }}"
   data-empty-message="请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。">
   <section class="dialectics-stage">
-    <header class="dialectics-hero">
-      <div class="dialectics-hero-head">
-        <div class="dialectics-hero-heading">
+    <article class="dialectics-panel dialectics-chat-panel">
+      <div class="dialectics-chat-topbar">
+        <div class="dialectics-chat-heading">
           <p class="dialectics-kicker">{{ .Params.kicker | default "唯物辩证法" }}</p>
           <h1 class="dialectics-title">{{ $displayTitle }}</h1>
         </div>
@@ -35,65 +35,85 @@
         </span>
       </div>
 
-      <div class="dialectics-hero-body">
-        <div class="dialectics-hero-identity">
-          <div class="dialectics-intro">
-            {{ .Content }}
-          </div>
+      <div class="dialectics-info-shell">
+        <p class="dialectics-status-note" data-dialectics-runtime-note>
+          {{ if $runtimeConnected }}
+            现在可以直接提交问题并拿到分析回复。
+          {{ else }}
+            现在还不能发出请求，但你仍然可以先整理草稿。
+          {{ end }}
+        </p>
 
-          <p class="dialectics-status-note" data-dialectics-runtime-note>
-            {{ if $runtimeConnected }}
-              现在可以直接提交问题并拿到分析回复。
-            {{ else }}
-              现在还不能发出请求，但你仍然可以先整理草稿。
-            {{ end }}
-          </p>
+        <div class="dialectics-info-switcher" aria-label="页面说明">
+          <button
+            type="button"
+            class="dialectics-info-button"
+            data-dialectics-info-trigger="intro"
+            aria-controls="dialectics-info-intro"
+            aria-expanded="false">
+            介绍
+          </button>
+          <button
+            type="button"
+            class="dialectics-info-button"
+            data-dialectics-info-trigger="capability"
+            aria-controls="dialectics-info-capability"
+            aria-expanded="false">
+            能力
+          </button>
+          <button
+            type="button"
+            class="dialectics-info-button"
+            data-dialectics-info-trigger="boundary"
+            aria-controls="dialectics-info-boundary"
+            aria-expanded="false">
+            边界
+          </button>
         </div>
 
-        <figure class="dialectics-hero-portrait">
-          {{ with $portrait }}
-          <img
-            class="dialectics-hero-portrait-image"
-            src="{{ .RelPermalink }}"
-            width="{{ .Width }}"
-            height="{{ .Height }}"
-            alt="红军时期的毛泽东人物像"
-            loading="eager"
-            decoding="async">
-          {{ end }}
-        </figure>
+        <div class="dialectics-info-panel" data-dialectics-info-panel hidden>
+          <section
+            class="dialectics-info-content"
+            id="dialectics-info-intro"
+            data-dialectics-info-content="intro"
+            hidden>
+            <p class="dialectics-info-kicker">介绍</p>
+            <div class="dialectics-intro">
+              {{ .Content }}
+            </div>
+          </section>
+
+          <section
+            class="dialectics-info-content"
+            id="dialectics-info-capability"
+            data-dialectics-info-content="capability"
+            hidden>
+            <p class="dialectics-info-kicker">能力</p>
+            <ol class="dialectics-signal-list dialectics-info-signal-list">
+              {{ range .Params.signals }}
+              <li class="dialectics-signal-item dialectics-info-signal-item">
+                <p class="dialectics-signal-label">{{ .label }}</p>
+                <p class="dialectics-signal-value">{{ .value }}</p>
+                <p class="dialectics-signal-note">{{ .note }}</p>
+              </li>
+              {{ end }}
+            </ol>
+          </section>
+
+          <section
+            class="dialectics-info-content"
+            id="dialectics-info-boundary"
+            data-dialectics-info-content="boundary"
+            hidden>
+            <p class="dialectics-info-kicker">边界</p>
+            <ul class="dialectics-guardrail-list dialectics-info-guardrail-list">
+              {{ range .Params.guardrails }}
+              <li>{{ . }}</li>
+              {{ end }}
+            </ul>
+          </section>
+        </div>
       </div>
-
-      <div class="dialectics-contract">
-        <section class="dialectics-contract-col dialectics-contract-do" aria-label="它能做的事">
-          <p class="dialectics-contract-kicker">能力</p>
-          <h2 class="dialectics-contract-heading">它能做的事</h2>
-
-          <ol class="dialectics-signal-list">
-            {{ range .Params.signals }}
-            <li class="dialectics-signal-item">
-              <p class="dialectics-signal-label">{{ .label }}</p>
-              <p class="dialectics-signal-value">{{ .value }}</p>
-              <p class="dialectics-signal-note">{{ .note }}</p>
-            </li>
-            {{ end }}
-          </ol>
-        </section>
-
-        <section class="dialectics-contract-col dialectics-contract-dont" aria-label="它不做的事">
-          <p class="dialectics-contract-kicker">边界</p>
-          <h2 class="dialectics-contract-heading">它不做的事</h2>
-
-          <ul class="dialectics-guardrail-list">
-            {{ range .Params.guardrails }}
-            <li>{{ . }}</li>
-            {{ end }}
-          </ul>
-        </section>
-      </div>
-    </header>
-
-    <article class="dialectics-panel dialectics-chat-panel">
       <div class="dialectics-panel-head">
         <div>
           <p class="dialectics-panel-kicker">对话区</p>
@@ -146,37 +166,52 @@
       </form>
     </article>
 
-    <aside class="dialectics-side">
-      <article class="dialectics-panel dialectics-prompt-panel">
-        <div class="dialectics-panel-head">
+    <article class="dialectics-panel dialectics-prompt-panel">
+      <div class="dialectics-panel-head">
+        <div>
           <p class="dialectics-panel-kicker">示例问题</p>
           <h2>可以从这里开始</h2>
         </div>
+      </div>
 
-        <div class="dialectics-prompt-list">
-          {{ range .Params.examplePrompts }}
-          <button
-            type="button"
-            class="dialectics-prompt-button"
-            aria-label="填入问题"
-            {{ printf "data-dialectics-prompt=%q" . | safeHTMLAttr }}>
-            <span class="dialectics-prompt-copy">{{ . }}</span>
-            <span class="dialectics-prompt-arrow" aria-hidden="true">→</span>
-          </button>
-          {{ end }}
-        </div>
-      </article>
-    </aside>
+      <div class="dialectics-prompt-list">
+        {{ range .Params.examplePrompts }}
+        <button
+          type="button"
+          class="dialectics-prompt-button"
+          aria-label="填入问题"
+          {{ printf "data-dialectics-prompt=%q" . | safeHTMLAttr }}>
+          <span class="dialectics-prompt-copy">{{ . }}</span>
+          <span class="dialectics-prompt-arrow" aria-hidden="true">→</span>
+        </button>
+        {{ end }}
+      </div>
+    </article>
 
-    <footer class="dialectics-footnote">
-      <span class="dialectics-footnote-label">当前版本</span>
-      <span>草稿与对话记录保存在浏览器本地</span>
-      <span aria-hidden="true">·</span>
-      <span>当前分析只参考最近 {{ $maxHistoryMessages }} 条历史消息</span>
-      <span aria-hidden="true">·</span>
-      <span>无状态接口契约，后端无需数据库</span>
-      <span aria-hidden="true">·</span>
-      <span>前后端分离，独立迭代</span>
+    <footer class="dialectics-closure">
+      <figure class="dialectics-footer-portrait">
+        {{ with $portrait }}
+        <img
+          class="dialectics-footer-portrait-image"
+          src="{{ .RelPermalink }}"
+          width="{{ .Width }}"
+          height="{{ .Height }}"
+          alt="红军时期的毛泽东人物像"
+          loading="eager"
+          decoding="async">
+        {{ end }}
+      </figure>
+
+      <div class="dialectics-footnote">
+        <span class="dialectics-footnote-label">当前版本</span>
+        <span>草稿与对话记录保存在浏览器本地</span>
+        <span aria-hidden="true">·</span>
+        <span>当前分析只参考最近 {{ $maxHistoryMessages }} 条历史消息</span>
+        <span aria-hidden="true">·</span>
+        <span>无状态接口契约，后端无需数据库</span>
+        <span aria-hidden="true">·</span>
+        <span>前后端分离，独立迭代</span>
+      </div>
     </footer>
   </section>
 </div>

@@ -385,6 +385,25 @@ function renderThread(thread, messages, emptyMessage, archiveCount = 0, maxHisto
   thread.scrollTop = thread.scrollHeight;
 }
 
+function syncInfoPanel(panel, triggers, contents, activeKey) {
+  if (!panel) {
+    return;
+  }
+
+  panel.hidden = !activeKey;
+
+  triggers.forEach((button) => {
+    const isActive = button.dataset.dialecticsInfoTrigger === activeKey;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-expanded", String(isActive));
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+
+  contents.forEach((section) => {
+    section.hidden = section.dataset.dialecticsInfoContent !== activeKey;
+  });
+}
+
 function syncComposer(
   input,
   count,
@@ -506,17 +525,22 @@ function initDialecticsPage() {
   const runtimeStatus = root.querySelector("[data-dialectics-runtime-status]");
   const runtimeNote = root.querySelector("[data-dialectics-runtime-note]");
   const promptButtons = Array.from(root.querySelectorAll("[data-dialectics-prompt]"));
+  const infoPanel = root.querySelector("[data-dialectics-info-panel]");
+  const infoTriggers = Array.from(root.querySelectorAll("[data-dialectics-info-trigger]"));
+  const infoContents = Array.from(root.querySelectorAll("[data-dialectics-info-content]"));
 
   const state = loadState(storageKey);
   state.storageKey = storageKey;
   state.storageFailed = false;
 
   let pending = false;
+  let activeInfoKey = "";
   archiveOverflowMessages(state, maxHistoryMessages);
 
   setRuntimeStatus(runtimeStatus, runtimeNote, hasApiTarget ? "online" : "offline", {
     hasFallback: apiTargets.length > 1,
   });
+  syncInfoPanel(infoPanel, infoTriggers, infoContents, activeInfoKey);
   input.value = state.draft;
   renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
   syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
@@ -532,6 +556,14 @@ function initDialecticsPage() {
       state.draft = input.value;
       syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
       input.focus();
+    });
+  });
+
+  infoTriggers.forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextKey = button.dataset.dialecticsInfoTrigger || "";
+      activeInfoKey = activeInfoKey === nextKey ? "" : nextKey;
+      syncInfoPanel(infoPanel, infoTriggers, infoContents, activeInfoKey);
     });
   });
 
