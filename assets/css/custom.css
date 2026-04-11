@@ -1723,6 +1723,10 @@ a:focus-visible {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.dialectics-ledger-grid.is-single {
+  grid-template-columns: 1fr;
+}
+
 .dialectics-workbench {
   align-items: start;
   grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.85fr);
@@ -1954,29 +1958,45 @@ a:focus-visible {
 
 .dialectics-prompt-list {
   display: grid;
-  gap: 0.85rem;
-}
-
-.dialectics-prompt-button {
+  gap: 0;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(141, 76, 52, 0.03));
   border: 1px solid var(--code-border);
   border-radius: calc(var(--code-border-radius) + 0.05rem);
+  overflow: hidden;
+}
+
+.dialectics-prompt-button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--code-border);
   cursor: pointer;
   display: grid;
-  gap: 0.8rem;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
   padding: 0.95rem 1rem;
   text-align: left;
   width: 100%;
 }
 
+.dialectics-prompt-button:last-child {
+  border-bottom: 0;
+}
+
 .dialectics-prompt-button:hover,
 .dialectics-prompt-button:focus-visible {
+  background: rgba(141, 76, 52, 0.05);
   border-color: var(--dialectics-accent-border);
   outline: none;
 }
 
+.dialectics-prompt-copy {
+  line-height: 1.7;
+}
+
 .dialectics-prompt-action {
   color: var(--dialectics-accent);
+  white-space: nowrap;
 }
 
 @media screen and (max-width: 900px) {

@@ -53,17 +53,17 @@ function createMessageElement(message) {
 
   if (message.role === "user") {
     article.classList.add("is-user");
-    label.textContent = "You";
+    label.textContent = "你";
   } else {
     const kind = message.kind || "answer";
     article.classList.add(`is-${kind}`);
 
     if (kind === "follow_up") {
-      label.textContent = "Page · Clarifying";
+      label.textContent = "页面 · 追问";
     } else if (kind === "reject") {
-      label.textContent = "Page · Boundary";
+      label.textContent = "页面 · 边界";
     } else {
-      label.textContent = "Page · Analysis";
+      label.textContent = "页面 · 分析";
     }
   }
 
@@ -83,7 +83,7 @@ function renderThread(thread, messages, emptyMessage) {
     label.className = "dialectics-message-label";
     body.className = "dialectics-message-body";
 
-    label.textContent = "System";
+    label.textContent = "系统";
     body.textContent = emptyMessage;
 
     placeholder.append(label, body);
@@ -115,7 +115,7 @@ function syncComposer(
 
   if (pending) {
     submitButton.disabled = true;
-    submitButton.textContent = "Sending...";
+    submitButton.textContent = "发送中...";
     if (statusMessage) {
       status.textContent = statusMessage;
     }
@@ -124,20 +124,20 @@ function syncComposer(
 
   if (!apiUrl) {
     submitButton.disabled = true;
-    submitButton.textContent = "API Pending";
-    status.textContent = statusMessage || "Drafts stay on this device. The API is not connected yet.";
+    submitButton.textContent = "接口未就绪";
+    status.textContent = statusMessage || "草稿只保存在当前设备，接口暂未接通。";
     return;
   }
 
   submitButton.disabled = length === 0 || length > inputLimit;
-  submitButton.textContent = "Send";
+  submitButton.textContent = "发送";
 
   if (statusMessage) {
     status.textContent = statusMessage;
   } else if (!length) {
-    status.textContent = "Drafts stay on this device until you send them.";
+    status.textContent = "草稿只保存在当前设备，发送前不会上传。";
   } else {
-    status.textContent = "Ready to send. If the page lacks key facts, it will ask one follow-up round first.";
+    status.textContent = "可以发送了。如果关键信息不足，页面会先追问一轮。";
   }
 }
 
@@ -166,7 +166,7 @@ function initDialecticsPage() {
   const apiUrl = root.dataset.apiUrl || "";
   const storageKey = root.dataset.storageKey || "materialist-dialectics-chat";
   const inputLimit = Number(root.dataset.inputLimit || 1600);
-  const emptyMessage = root.dataset.emptyMessage || "Ask a question that needs analysis.";
+  const emptyMessage = root.dataset.emptyMessage || "请提出一个需要分析的问题。";
 
   const thread = root.querySelector("[data-dialectics-thread]");
   const form = root.querySelector("[data-dialectics-form]");
@@ -231,7 +231,7 @@ function initDialecticsPage() {
     input.value = "";
     renderThread(thread, state.messages, emptyMessage);
     syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending);
-    status.textContent = "Sending the question to the backend runtime...";
+    status.textContent = "正在把问题发送到后端...";
 
     let settledStatus = "";
 
@@ -246,17 +246,17 @@ function initDialecticsPage() {
       state.messages.push({
         role: "assistant",
         kind: result.status || "answer",
-        content: result.message || "The backend returned an empty response.",
+        content: result.message || "后端返回了空内容。",
       });
 
       renderThread(thread, state.messages, emptyMessage);
-      settledStatus = "Response received. Drafts and thread state are stored locally.";
+      settledStatus = "已收到回复。草稿和本地对话记录仍保存在当前设备。";
     } catch (error) {
       state.messages = previousMessages;
       state.draft = prompt;
       input.value = prompt;
       renderThread(thread, state.messages, emptyMessage);
-      settledStatus = "The page could not reach its backend runtime. Keep the draft local and wire the API next.";
+      settledStatus = "当前无法连接后端。问题草稿已保留在本地。";
     } finally {
       pending = false;
       syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending, settledStatus);
