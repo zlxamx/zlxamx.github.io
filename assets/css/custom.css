@@ -1597,7 +1597,6 @@ a:focus-visible {
   --dialectics-danger-border: rgba(182, 73, 73, 0.24);
   display: block;
   margin-top: 1rem;
-  position: relative;
 }
 
 .dialectics-stage {
@@ -2319,14 +2318,8 @@ a:focus-visible {
 }
 
 @media screen and (min-width: 1024px) {
-  .dialectics-shell {
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(1040px, calc(100vw - (2 * var(--main-padding))));
-  }
-
   .dialectics-stage {
-    max-width: 64rem;
+    max-width: 100%;
   }
 
   .dialectics-footer-portrait {
