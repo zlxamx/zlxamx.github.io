@@ -7,7 +7,7 @@ This directory is a standalone Vercel runtime for the public `Dialectics` page.
 - receives public page requests
 - applies a first-pass rate limit
 - blocks obvious self-harm / violence / illegal-use requests before normal analysis
-- calls the OpenAI Responses API
+- calls either DeepSeek or OpenAI behind the same page contract
 - returns one of three statuses:
   - `answer`
   - `follow_up`
@@ -23,11 +23,12 @@ This directory is a standalone Vercel runtime for the public `Dialectics` page.
 
 ## Required Environment Variables
 
-- `OPENAI_API_KEY`
+- `LLM_PROVIDER=deepseek`
+- `DEEPSEEK_API_KEY`
 
 ## Recommended Environment Variables
 
-- `OPENAI_MODEL`
+- `DEEPSEEK_MODEL`
 - `ALLOWED_ORIGIN`
 - `INPUT_LIMIT`
 - `MAX_HISTORY_MESSAGES`
@@ -35,8 +36,14 @@ This directory is a standalone Vercel runtime for the public `Dialectics` page.
 - `RATE_LIMIT_WINDOW_MS`
 - `RATE_LIMIT_MAX_REQUESTS`
 
-Suggested starting model for this public page:
+Suggested starting provider and model for this public page:
 
+- `LLM_PROVIDER=deepseek`
+- `DEEPSEEK_MODEL=deepseek-chat`
+
+Optional OpenAI fallback:
+
+- `OPENAI_API_KEY`
 - `OPENAI_MODEL=gpt-5.4-mini`
 
 ## Notes

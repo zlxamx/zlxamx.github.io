@@ -2,7 +2,7 @@ const { createHash } = require("node:crypto");
 const { buildSystemPrompt } = require("../../lib/prompt");
 const { checkRateLimit, getClientIp } = require("../../lib/rate-limit");
 const { json, sendCors, readJsonBody } = require("../../lib/http");
-const { callOpenAI } = require("../../lib/openai");
+const { callModel, resolveProviderConfig } = require("../../lib/openai");
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -210,12 +210,15 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
+  const providerConfig = resolveProviderConfig(process.env);
+  if (!providerConfig.apiKey) {
     json(res, 503, {
       error: {
         code: "runtime_not_configured",
-        message: "OPENAI_API_KEY is missing on the server.",
+        message:
+          providerConfig.provider === "deepseek"
+            ? "DEEPSEEK_API_KEY is missing on the server."
+            : "OPENAI_API_KEY is missing on the server.",
       },
     });
     return;
@@ -226,9 +229,8 @@ module.exports = async function handler(req, res) {
   const followUpAlreadyUsed = messages.some((message) => message.kind === "follow_up");
 
   try {
-    const result = await callOpenAI({
-      apiKey,
-      model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
+    const result = await callModel({
+      config: providerConfig,
       instructions: buildSystemPrompt({ followUpAlreadyUsed }),
       input: buildModelInput(messages, input),
       maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS || "900"),
