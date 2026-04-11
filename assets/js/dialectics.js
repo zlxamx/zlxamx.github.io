@@ -202,6 +202,16 @@ function hasExportableContent(state) {
   return state.archivedMessages.length > 0 || state.messages.length > 0 || state.draft.trim().length > 0;
 }
 
+function createRequestSignal(timeoutMs) {
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+    return AbortSignal.timeout(timeoutMs);
+  }
+
+  const controller = new window.AbortController();
+  window.setTimeout(() => controller.abort(), timeoutMs);
+  return controller.signal;
+}
+
 function normalizeApiTarget(value) {
   if (typeof value !== "string") {
     return "";
@@ -435,6 +445,7 @@ async function sendPrompt(apiUrl, payload) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
+    signal: createRequestSignal(15000),
   });
 
   if (!response.ok) {

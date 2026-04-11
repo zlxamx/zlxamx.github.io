@@ -15,8 +15,13 @@
     }
   ],
   "vars": {
+    "LLM_PROVIDER": "deepseek",
+    "DEEPSEEK_MODEL": "deepseek-chat",
     "UPSTREAM_URL": "https://zlxamx-github-io.vercel.app/api/materialist-dialectics/chat",
     "ALLOWED_ORIGINS": "https://luxi.blog,https://www.luxi.blog,http://localhost:1313,http://127.0.0.1:1313",
+    "INPUT_LIMIT": "1600",
+    "MAX_HISTORY_MESSAGES": "8",
+    "MAX_OUTPUT_TOKENS": "900",
     "REQUEST_TIMEOUT_MS": "25000"
   }
 }

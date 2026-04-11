@@ -10,23 +10,41 @@ The blog itself is deployed as a static site on GitHub Pages. That means:
 - the browser cannot post to a serverless function on the same origin by default
 - direct calls to a `*.vercel.app` hostname can be unstable for mainland visitors
 
-This Worker fixes the access path by terminating requests on `https://luxi.blog/api/materialist-dialectics/chat` and forwarding them server-side to the actual runtime.
+This Worker fixes the access path by terminating requests on `https://luxi.blog/api/materialist-dialectics/chat`.
+
+It now supports two execution modes:
+
+- direct runtime mode: the Worker calls DeepSeek or OpenAI itself
+- upstream fallback mode: the Worker forwards to the old Vercel runtime when no model key is configured on Cloudflare
 
 ## What It Does
 
 - accepts `POST` and `OPTIONS` on `/api/materialist-dialectics/chat`
 - enforces an origin allowlist before forwarding browser requests
 - preserves the caller IP through `x-forwarded-for`
-- relays the upstream response without changing the page contract
+- can run the full public runtime directly on Cloudflare
+- falls back to the old upstream runtime when no provider key is configured
 - returns `502` or `504` when the upstream runtime is unreachable
 
 ## Configurable Vars
 
+- `LLM_PROVIDER`
+- `DEEPSEEK_MODEL`
 - `UPSTREAM_URL`
 - `ALLOWED_ORIGINS`
+- `INPUT_LIMIT`
+- `MAX_HISTORY_MESSAGES`
+- `MAX_OUTPUT_TOKENS`
 - `REQUEST_TIMEOUT_MS`
 
 Defaults live in [`wrangler.jsonc`](./wrangler.jsonc).
+
+## Optional Secrets
+
+- `DEEPSEEK_API_KEY`
+- `OPENAI_API_KEY`
+
+If `DEEPSEEK_API_KEY` is present, the Worker runs the full dialectics runtime directly on Cloudflare and stops depending on the upstream Vercel function.
 
 ## Deploy With Cloudflare
 
@@ -43,6 +61,11 @@ The included workflow expects these repository secrets:
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 
+Optional model secrets:
+
+- `DEEPSEEK_API_KEY`
+- `OPENAI_API_KEY`
+
 ## Local Check
 
 ```bash
@@ -53,6 +76,7 @@ npm run check
 ## Notes
 
 - This Worker keeps the front-end path same-origin, so the page does not need to know the upstream hostname.
-- The upstream runtime still owns model calling, safety policy, rate limiting, and provider credentials.
+- If `DEEPSEEK_API_KEY` is configured on Cloudflare, the Worker owns model calling, safety policy, rate limiting, and provider credentials directly.
+- If no model key is configured on Cloudflare, the Worker falls back to the old upstream runtime.
 - Once this Worker is live, the page should primarily use `apiPath = "/api/materialist-dialectics/chat"` and treat the external `apiURL` only as a backup.
 - `UPSTREAM_URL` is stored as a normal Worker var because it is a public endpoint, not a credential.
