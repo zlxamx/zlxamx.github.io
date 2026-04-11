@@ -20,13 +20,9 @@ This Worker fixes the access path by terminating requests on `https://luxi.blog/
 - relays the upstream response without changing the page contract
 - returns `502` or `504` when the upstream runtime is unreachable
 
-## Required Secret
-
-- `UPSTREAM_URL`
-  - Example: `https://zlxamx-github-io.vercel.app/api/materialist-dialectics/chat`
-
 ## Configurable Vars
 
+- `UPSTREAM_URL`
 - `ALLOWED_ORIGINS`
 - `REQUEST_TIMEOUT_MS`
 
@@ -37,9 +33,8 @@ Defaults live in [`wrangler.jsonc`](./wrangler.jsonc).
 1. Put the `luxi.blog` zone on Cloudflare.
 2. Ensure the DNS records for `luxi.blog` and `www.luxi.blog` are proxied.
 3. Create a Worker from this directory or use the GitHub Actions workflow in this repository.
-4. Set the Worker secret `UPSTREAM_URL`.
-5. Deploy the Worker.
-6. Confirm that `https://luxi.blog/api/materialist-dialectics/chat` responds.
+4. Deploy the Worker.
+5. Confirm that `https://luxi.blog/api/materialist-dialectics/chat` responds.
 
 ## GitHub Actions Secrets
 
@@ -47,9 +42,6 @@ The included workflow expects these repository secrets:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
-- `DIALECTICS_UPSTREAM_URL`
-
-The workflow will write `DIALECTICS_UPSTREAM_URL` into the Worker secret `UPSTREAM_URL` during deploy.
 
 ## Local Check
 
@@ -63,3 +55,4 @@ npm run check
 - This Worker keeps the front-end path same-origin, so the page does not need to know the upstream hostname.
 - The upstream runtime still owns model calling, safety policy, rate limiting, and provider credentials.
 - Once this Worker is live, the page should primarily use `apiPath = "/api/materialist-dialectics/chat"` and treat the external `apiURL` only as a backup.
+- `UPSTREAM_URL` is stored as a normal Worker var because it is a public endpoint, not a credential.

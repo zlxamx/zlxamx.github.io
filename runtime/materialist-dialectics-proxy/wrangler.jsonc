@@ -15,6 +15,7 @@
     }
   ],
   "vars": {
+    "UPSTREAM_URL": "https://zlxamx-github-io.vercel.app/api/materialist-dialectics/chat",
     "ALLOWED_ORIGINS": "https://luxi.blog,https://www.luxi.blog,http://localhost:1313,http://127.0.0.1:1313",
     "REQUEST_TIMEOUT_MS": "25000"
   }
