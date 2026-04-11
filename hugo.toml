@@ -47,6 +47,11 @@ search = false
 reaction = false
 commentSorting = "latest"
 
+[params.materialistDialectics]
+apiURL = ""
+storageKey = "materialist-dialectics-chat"
+inputLimit = 1600
+
 [[params.social]]
 name = "github"
 url = "https://github.com/zlxamx"

@@ -1,0 +1,174 @@
+{{ define "main" }}
+{{ $apiURL := .Site.Params.materialistDialectics.apiURL | default "" }}
+{{ $storageKey := .Site.Params.materialistDialectics.storageKey | default "materialist-dialectics-chat" }}
+{{ $inputLimit := .Site.Params.materialistDialectics.inputLimit | default 1600 }}
+{{ $runtimeConnected := ne $apiURL "" }}
+{{ $displayTitle := .Params.displayTitle | default .Title }}
+<div
+  class="dialectics-shell"
+  data-dialectics-root
+  data-api-url="{{ $apiURL }}"
+  data-storage-key="{{ $storageKey }}"
+  data-input-limit="{{ $inputLimit }}"
+  data-empty-message="Ask a question that needs analysis, contradiction-splitting, or a decision frame. If key facts are missing, the page will ask one round of follow-up questions first.">
+  <section class="dialectics-hero">
+    <div class="dialectics-hero-copy">
+      <p class="dialectics-kicker">{{ .Params.kicker | default "Materialist Dialectics" }}</p>
+      <h1 class="dialectics-title">{{ $displayTitle }}</h1>
+      <div class="dialectics-intro">
+        {{ .Content }}
+      </div>
+
+      <div class="dialectics-status-row">
+        <span class="dialectics-status-chip {{ if $runtimeConnected }}is-live{{ else }}is-preview{{ end }}">
+          {{ if $runtimeConnected }}Runtime connected{{ else }}Preview mode{{ end }}
+        </span>
+        <p class="dialectics-status-note">
+          {{ if $runtimeConnected }}
+            This page can already send prompts to its backend runtime.
+          {{ else }}
+            The page shell is ready. The backend runtime is the next step.
+          {{ end }}
+        </p>
+      </div>
+    </div>
+
+    <div class="dialectics-signal-grid" aria-label="Page signals">
+      {{ range .Params.signals }}
+      <article class="dialectics-signal-card">
+        <p class="dialectics-signal-label">{{ .label }}</p>
+        <p class="dialectics-signal-value">{{ .value }}</p>
+        <p class="dialectics-signal-note">{{ .note }}</p>
+      </article>
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="dialectics-ledger-grid">
+    <article class="dialectics-panel dialectics-ledger-panel">
+      <div class="dialectics-panel-head">
+        <p class="dialectics-panel-kicker">Method</p>
+        <h2>How The Page Thinks</h2>
+      </div>
+
+      <div class="dialectics-ledger-steps">
+        {{ range .Params.workflowSteps }}
+        <article class="dialectics-ledger-step">
+          <p class="dialectics-ledger-step-title">{{ .title }}</p>
+          <p class="dialectics-ledger-step-note">{{ .note }}</p>
+        </article>
+        {{ end }}
+      </div>
+    </article>
+
+    <article class="dialectics-panel dialectics-ledger-panel">
+      <div class="dialectics-panel-head">
+        <p class="dialectics-panel-kicker">Boundary</p>
+        <h2>Where It Stops</h2>
+      </div>
+
+      <ul class="dialectics-guardrail-list">
+        {{ range .Params.guardrails }}
+        <li>{{ . }}</li>
+        {{ end }}
+      </ul>
+    </article>
+  </section>
+
+  <section class="dialectics-workbench">
+    <article class="dialectics-panel dialectics-chat-panel">
+      <div class="dialectics-panel-head dialectics-chat-head">
+        <div>
+          <p class="dialectics-panel-kicker">Workbench</p>
+          <h2>Conversation Shell</h2>
+        </div>
+        <p class="dialectics-chat-note">V1 response modes: `answer`, `follow_up`, `reject`.</p>
+      </div>
+
+      <div class="dialectics-thread" data-dialectics-thread aria-live="polite">
+        <article class="dialectics-message is-system" data-dialectics-placeholder>
+          <p class="dialectics-message-label">System</p>
+          <p class="dialectics-message-body">
+            Ask a question that needs analysis, contradiction-splitting, or a decision frame. If key facts are missing, the page will ask one round of follow-up questions first.
+          </p>
+        </article>
+      </div>
+
+      <form class="dialectics-composer" data-dialectics-form novalidate>
+        <label class="dialectics-composer-label" for="dialectics-input">Question</label>
+        <textarea
+          id="dialectics-input"
+          class="dialectics-input"
+          name="question"
+          rows="7"
+          maxlength="{{ $inputLimit }}"
+          placeholder="Describe the contradiction, the decision, or the judgment you need to make."
+          data-dialectics-input></textarea>
+
+        <div class="dialectics-composer-meta">
+          <p class="dialectics-inline-note" data-dialectics-status>
+            {{ if $runtimeConnected }}
+              Drafts stay on this device until you send them.
+            {{ else }}
+              Drafts stay on this device. The API is not connected yet.
+            {{ end }}
+          </p>
+          <p class="dialectics-counter"><span data-dialectics-count>0</span> / {{ $inputLimit }}</p>
+        </div>
+
+        <div class="dialectics-composer-actions">
+          <button type="button" class="dialectics-button is-secondary" data-dialectics-reset>Reset</button>
+          <button
+            type="submit"
+            class="dialectics-button is-primary"
+            data-dialectics-submit
+            {{ if not $runtimeConnected }}disabled{{ end }}>
+            {{ if $runtimeConnected }}Send{{ else }}API Pending{{ end }}
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <div class="dialectics-sidebar">
+      <article class="dialectics-panel dialectics-prompt-panel">
+        <div class="dialectics-panel-head">
+          <p class="dialectics-panel-kicker">Prompt Bank</p>
+          <h2>Try One Of These</h2>
+        </div>
+
+        <div class="dialectics-prompt-list">
+          {{ range .Params.examplePrompts }}
+          <button
+            type="button"
+            class="dialectics-prompt-button"
+            {{ printf "data-dialectics-prompt=%q" . | safeHTMLAttr }}>
+            <span class="dialectics-prompt-copy">{{ . }}</span>
+            <span class="dialectics-prompt-action">Use prompt</span>
+          </button>
+          {{ end }}
+        </div>
+      </article>
+
+      <article class="dialectics-panel dialectics-note-panel">
+        <div class="dialectics-panel-head">
+          <p class="dialectics-panel-kicker">V1 Notes</p>
+          <h2>What This Build Already Decides</h2>
+        </div>
+
+        <ul class="dialectics-note-list">
+          <li>The page keeps draft text and local thread state in `localStorage`.</li>
+          <li>V1 is designed around a stateless API contract so the backend can ship without a database.</li>
+          <li>When the API comes online, this shell can start posting real requests without changing the page structure.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+</div>
+
+{{ with resources.Get "js/dialectics.js" }}
+  {{ $opts := dict "minify" true }}
+  {{ with . | js.Build $opts | fingerprint }}
+  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
+  {{ end }}
+{{ end }}
+{{ end }}
