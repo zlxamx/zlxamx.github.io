@@ -1596,37 +1596,16 @@ a:focus-visible {
   --dialectics-danger-soft: rgba(182, 73, 73, 0.1);
   --dialectics-danger-border: rgba(182, 73, 73, 0.24);
   display: block;
-  margin-top: 0.8rem;
+  margin-top: 1rem;
+  position: relative;
 }
 
 .dialectics-stage {
   display: grid;
-  gap: 1.6rem;
-  grid-template-areas:
-    "hero"
-    "chat"
-    "side"
-    "footnote";
+  gap: 1.25rem;
   grid-template-columns: minmax(0, 1fr);
-}
-
-.dialectics-hero {
-  grid-area: hero;
-}
-
-.dialectics-chat-panel {
-  grid-area: chat;
-}
-
-.dialectics-side {
-  align-content: start;
-  display: grid;
-  gap: 1.4rem;
-  grid-area: side;
-}
-
-.dialectics-footnote {
-  grid-area: footnote;
+  margin: 0 auto;
+  max-width: 62rem;
 }
 
 /* --- Panel base --- */
@@ -2155,158 +2134,7 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
-/* --- Desktop layout --- */
-
-@media screen and (min-width: 1024px) {
-  .dialectics-shell {
-    left: 50%;
-    position: relative;
-    transform: translateX(-50%);
-    width: min(1240px, calc(100vw - (2 * var(--main-padding))));
-  }
-
-  .dialectics-stage {
-    align-items: start;
-    grid-template-areas:
-      "hero     hero"
-      "chat     side"
-      "footnote footnote";
-    grid-template-columns: minmax(0, 1fr) minmax(18rem, 20rem);
-  }
-
-  .dialectics-side {
-    position: sticky;
-    top: 1.2rem;
-  }
-
-  .dialectics-hero-body {
-    align-items: start;
-    gap: 1.8rem;
-    grid-template-columns: minmax(0, 1fr) clamp(16rem, 22vw, 22rem);
-  }
-
-  .dialectics-hero-portrait {
-    justify-self: end;
-    width: min(100%, clamp(16rem, 22vw, 22rem));
-  }
-
-  .dialectics-contract {
-    gap: 2.2rem;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  }
-
-  .dialectics-contract-dont {
-    border-left: 1px solid var(--code-border);
-    padding-left: 2rem;
-  }
-}
-
-@media screen and (min-width: 720px) and (max-width: 1023px) {
-  .dialectics-contract {
-    gap: 1.8rem;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-
-  .dialectics-contract-dont {
-    border-left: 1px solid var(--code-border);
-    padding-left: 1.6rem;
-  }
-}
-
-/* --- Tablet --- */
-
-@media screen and (max-width: 1023px) {
-  .dialectics-hero {
-    padding: 1.7rem 1.6rem 1.8rem;
-  }
-
-  .dialectics-signal-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media screen and (max-width: 720px) {
-  .dialectics-stage {
-    gap: 1.2rem;
-  }
-
-  .dialectics-hero {
-    padding: 1.4rem 1.3rem 1.5rem;
-  }
-
-  .dialectics-hero-head {
-    flex-direction: column;
-  }
-
-  .dialectics-panel {
-    padding: 1.1rem 1.15rem;
-  }
-
-  .dialectics-panel-head {
-    flex-direction: column;
-  }
-
-  .dialectics-title {
-    font-size: 1.7rem;
-  }
-
-  .dialectics-signal-grid {
-    grid-template-columns: minmax(0, 1fr);
-    margin-top: 1.3rem;
-  }
-
-  .dialectics-intro {
-    max-width: none;
-  }
-
-  .dialectics-message {
-    max-width: 100%;
-  }
-
-  .dialectics-composer-bar,
-  .dialectics-composer-actions {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .dialectics-composer-actions {
-    width: 100%;
-  }
-
-  .dialectics-button {
-    width: 100%;
-  }
-
-  .dialectics-thread {
-    min-height: 15rem;
-    padding: 0.85rem;
-  }
-
-  .dialectics-prompt-arrow {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 /* --- Dialectics layout refresh --- */
-
-.dialectics-shell {
-  margin-top: 1rem;
-}
-
-.dialectics-stage {
-  gap: 1.25rem;
-  grid-template-areas: none;
-  grid-template-columns: minmax(0, 1fr);
-  margin: 0 auto;
-  max-width: 62rem;
-}
-
-.dialectics-chat-panel,
-.dialectics-prompt-panel,
-.dialectics-closure {
-  grid-area: auto;
-}
 
 .dialectics-chat-topbar {
   align-items: flex-start;
@@ -2452,6 +2280,7 @@ a:focus-visible {
   gap: 1rem;
   justify-items: center;
   margin-top: 0.2rem;
+  width: 100%;
 }
 
 .dialectics-footer-portrait {
@@ -2459,6 +2288,7 @@ a:focus-visible {
   border: 1px solid var(--code-border);
   border-radius: calc(var(--code-border-radius) + 0.15rem);
   margin: 0;
+  margin-inline: auto;
   padding: 0.8rem;
   position: relative;
   width: min(16rem, 52vw);
@@ -2490,8 +2320,8 @@ a:focus-visible {
 
 @media screen and (min-width: 1024px) {
   .dialectics-shell {
-    left: auto;
-    transform: none;
+    left: 50%;
+    transform: translateX(-50%);
     width: min(1040px, calc(100vw - (2 * var(--main-padding))));
   }
 
@@ -2505,8 +2335,46 @@ a:focus-visible {
 }
 
 @media screen and (max-width: 720px) {
+  .dialectics-stage {
+    gap: 1.2rem;
+  }
+
   .dialectics-chat-topbar {
     flex-direction: column;
+  }
+
+  .dialectics-panel {
+    padding: 1.1rem 1.15rem;
+  }
+
+  .dialectics-panel-head {
+    flex-direction: column;
+  }
+
+  .dialectics-title {
+    font-size: 1.7rem;
+  }
+
+  .dialectics-intro {
+    max-width: none;
+  }
+
+  .dialectics-message {
+    max-width: 100%;
+  }
+
+  .dialectics-composer-bar,
+  .dialectics-composer-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dialectics-composer-actions {
+    width: 100%;
+  }
+
+  .dialectics-button {
+    width: 100%;
   }
 
   .dialectics-info-switcher {
@@ -2527,6 +2395,16 @@ a:focus-visible {
 
   .dialectics-info-panel {
     padding: 1rem;
+  }
+
+  .dialectics-thread {
+    min-height: 15rem;
+    padding: 0.85rem;
+  }
+
+  .dialectics-prompt-arrow {
+    opacity: 1;
+    transform: none;
   }
 
   .dialectics-footer-portrait {
