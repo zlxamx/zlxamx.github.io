@@ -42,24 +42,6 @@ jobs:
         working-directory: runtime/materialist-dialectics-proxy
         run: npm install --no-fund --no-audit
 
-      - name: Sync DeepSeek secret
-        if: steps.guard.outputs.deploy == 'true' && secrets.DEEPSEEK_API_KEY != ''
-        working-directory: runtime/materialist-dialectics-proxy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: printf '%s' "${DEEPSEEK_API_KEY}" | npx wrangler secret put DEEPSEEK_API_KEY
-
-      - name: Sync OpenAI secret
-        if: steps.guard.outputs.deploy == 'true' && secrets.OPENAI_API_KEY != ''
-        working-directory: runtime/materialist-dialectics-proxy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: printf '%s' "${OPENAI_API_KEY}" | npx wrangler secret put OPENAI_API_KEY
-
       - name: Deploy Worker
         if: steps.guard.outputs.deploy == 'true'
         working-directory: runtime/materialist-dialectics-proxy
