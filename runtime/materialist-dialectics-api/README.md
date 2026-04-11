@@ -35,6 +35,10 @@ This directory is a standalone Vercel runtime for the public `Dialectics` page.
 - `RATE_LIMIT_WINDOW_MS`
 - `RATE_LIMIT_MAX_REQUESTS`
 
+Suggested starting model for this public page:
+
+- `OPENAI_MODEL=gpt-5.4-mini`
+
 ## Notes
 
 - V1 uses in-memory rate limiting. It is intentionally simple and will not behave like a distributed limiter.
