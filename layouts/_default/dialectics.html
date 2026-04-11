@@ -9,6 +9,7 @@
   class="dialectics-shell"
   data-dialectics-root
   data-api-url="{{ $apiURL }}"
+  data-page-title="{{ $displayTitle }}"
   data-storage-key="{{ $storageKey }}"
   data-input-limit="{{ $inputLimit }}"
   data-empty-message="请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。">
@@ -128,6 +129,7 @@
         </div>
 
         <div class="dialectics-composer-actions">
+          <button type="button" class="dialectics-button is-secondary" data-dialectics-export>导出记录</button>
           <button type="button" class="dialectics-button is-secondary" data-dialectics-reset>清空</button>
           <button
             type="submit"

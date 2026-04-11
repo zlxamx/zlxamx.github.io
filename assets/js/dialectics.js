@@ -41,6 +41,98 @@ function saveState(storageKey, state) {
   }
 }
 
+function getMessageLabel(message) {
+  if (message.role === "user") {
+    return "你";
+  }
+
+  const kind = message.kind || "answer";
+
+  if (kind === "follow_up") {
+    return "页面 · 追问";
+  }
+
+  if (kind === "reject") {
+    return "页面 · 边界";
+  }
+
+  return "页面 · 分析";
+}
+
+function formatExportTimestamp(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+
+  return {
+    display: `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`,
+    file: `${year}-${month}-${day}-${hours}${minutes}${seconds}`,
+  };
+}
+
+function createExportPayload(pageTitle, state) {
+  const timestamp = formatExportTimestamp(new Date());
+  const lines = [
+    `# ${pageTitle}聊天记录`,
+    "",
+    `- 导出时间：${timestamp.display}`,
+    `- 会话 ID：${state.sessionId}`,
+    `- 消息数：${state.messages.length}`,
+  ];
+
+  if (state.messages.length) {
+    lines.push("", "## 对话记录");
+
+    state.messages.forEach((message, index) => {
+      lines.push(
+        "",
+        `### ${index + 1}. ${getMessageLabel(message)}`,
+        "",
+        message.content.trim() || "（空内容）",
+      );
+    });
+  }
+
+  if (state.draft.trim()) {
+    lines.push(
+      "",
+      "## 未发送草稿",
+      "",
+      state.draft.trim(),
+    );
+  }
+
+  return {
+    content: `${lines.join("\n")}\n`,
+    filename: `dialectics-chat-${timestamp.file}.md`,
+  };
+}
+
+function downloadTextFile(filename, content) {
+  const blob = new window.Blob([content], {
+    type: "text/markdown;charset=utf-8",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => {
+    window.URL.revokeObjectURL(url);
+  }, 0);
+}
+
+function hasExportableContent(state) {
+  return state.messages.length > 0 || state.draft.trim().length > 0;
+}
+
 function setRuntimeStatus(button, note, kind) {
   if (!button || !note) {
     return;
@@ -134,6 +226,7 @@ function syncComposer(
   input,
   count,
   status,
+  exportButton,
   submitButton,
   state,
   inputLimit,
@@ -144,6 +237,7 @@ function syncComposer(
   const length = input.value.trim().length;
   count.textContent = String(length);
   saveState(state.storageKey, state);
+  exportButton.disabled = !hasExportableContent(state);
 
   if (pending) {
     submitButton.disabled = true;
@@ -196,6 +290,7 @@ function initDialecticsPage() {
   }
 
   const apiUrl = root.dataset.apiUrl || "";
+  const pageTitle = root.dataset.pageTitle || "唯物辩证法答问";
   const storageKey = root.dataset.storageKey || "materialist-dialectics-chat";
   const inputLimit = Number(root.dataset.inputLimit || 1600);
   const emptyMessage = root.dataset.emptyMessage || "请提出一个需要分析的问题。";
@@ -205,6 +300,7 @@ function initDialecticsPage() {
   const input = root.querySelector("[data-dialectics-input]");
   const count = root.querySelector("[data-dialectics-count]");
   const status = root.querySelector("[data-dialectics-status]");
+  const exportButton = root.querySelector("[data-dialectics-export]");
   const resetButton = root.querySelector("[data-dialectics-reset]");
   const submitButton = root.querySelector("[data-dialectics-submit]");
   const runtimeStatus = root.querySelector("[data-dialectics-runtime-status]");
@@ -219,20 +315,38 @@ function initDialecticsPage() {
   setRuntimeStatus(runtimeStatus, runtimeNote, apiUrl ? "online" : "offline");
   input.value = state.draft;
   renderThread(thread, state.messages, emptyMessage);
-  syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending);
+  syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, apiUrl, pending);
 
   input.addEventListener("input", () => {
     state.draft = input.value;
-    syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending);
+    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, apiUrl, pending);
   });
 
   promptButtons.forEach((button) => {
     button.addEventListener("click", () => {
       input.value = button.dataset.dialecticsPrompt || "";
       state.draft = input.value;
-      syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending);
+      syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, apiUrl, pending);
       input.focus();
     });
+  });
+
+  exportButton.addEventListener("click", () => {
+    state.draft = input.value;
+    saveState(state.storageKey, state);
+
+    if (!state.messages.length && !state.draft.trim()) {
+      status.textContent = "当前没有可导出的聊天记录。";
+      return;
+    }
+
+    try {
+      const payload = createExportPayload(pageTitle, state);
+      downloadTextFile(payload.filename, payload.content);
+      status.textContent = "聊天记录已导出为 Markdown 文件。";
+    } catch (error) {
+      status.textContent = "导出失败，请稍后再试。";
+    }
   });
 
   resetButton.addEventListener("click", () => {
@@ -241,7 +355,7 @@ function initDialecticsPage() {
     state.messages = [];
     input.value = "";
     renderThread(thread, state.messages, emptyMessage);
-    syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending);
+    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, apiUrl, pending);
   });
 
   form.addEventListener("submit", async (event) => {
@@ -265,7 +379,7 @@ function initDialecticsPage() {
     state.draft = "";
     input.value = "";
     renderThread(thread, state.messages, emptyMessage);
-    syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending);
+    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, apiUrl, pending);
     status.textContent = "正在把问题发送到后端...";
 
     let settledStatus = "";
@@ -296,7 +410,7 @@ function initDialecticsPage() {
       settledStatus = "当前无法连接后端。问题草稿已保留在本地。";
     } finally {
       pending = false;
-      syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending, settledStatus);
+      syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, apiUrl, pending, settledStatus);
     }
   });
 }
