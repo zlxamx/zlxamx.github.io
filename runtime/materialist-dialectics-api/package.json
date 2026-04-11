@@ -1,0 +1,10 @@
+{
+  "name": "materialist-dialectics-api",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Vercel runtime for the Luxi dialectics page",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  }
+}
