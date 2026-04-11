@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "materialist-dialectics-proxy",
+  "main": "src/index.js",
+  "compatibility_date": "2026-04-11",
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "luxi.blog/api/*",
+      "zone_name": "luxi.blog"
+    },
+    {
+      "pattern": "www.luxi.blog/api/*",
+      "zone_name": "luxi.blog"
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://luxi.blog,https://www.luxi.blog,http://localhost:1313,http://127.0.0.1:1313",
+    "REQUEST_TIMEOUT_MS": "25000"
+  }
+}

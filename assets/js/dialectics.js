@@ -202,6 +202,51 @@ function hasExportableContent(state) {
   return state.archivedMessages.length > 0 || state.messages.length > 0 || state.draft.trim().length > 0;
 }
 
+function normalizeApiTarget(value) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const target = value.trim();
+  if (!target) {
+    return "";
+  }
+
+  try {
+    return new window.URL(target, window.location.origin).toString();
+  } catch (error) {
+    return "";
+  }
+}
+
+function buildApiTargets(values) {
+  const seen = new Set();
+
+  return values
+    .map(normalizeApiTarget)
+    .filter((target) => {
+      if (!target || seen.has(target)) {
+        return false;
+      }
+
+      seen.add(target);
+      return true;
+    });
+}
+
+function orderApiTargets(activeApiUrl, apiTargets) {
+  const seen = new Set();
+
+  return [activeApiUrl, ...apiTargets].filter((target) => {
+    if (!target || seen.has(target)) {
+      return false;
+    }
+
+    seen.add(target);
+    return true;
+  });
+}
+
 function archiveOverflowMessages(state, maxHistoryMessages) {
   if (maxHistoryMessages <= 0 || state.messages.length <= maxHistoryMessages) {
     return 0;
@@ -215,16 +260,22 @@ function archiveOverflowMessages(state, maxHistoryMessages) {
   return overflowCount;
 }
 
-function setRuntimeStatus(button, note, kind) {
+function setRuntimeStatus(button, note, kind, options = {}) {
   if (!button || !note) {
     return;
   }
 
+  const hasFallback = Boolean(options.hasFallback);
+  const usingFallback = Boolean(options.usingFallback);
   const label = button.querySelector("[data-dialectics-runtime-label]");
   const states = {
     online: {
       label: "后端在线",
-      note: "现在可以直接提交问题并拿到分析回复。",
+      note: usingFallback
+        ? "主接口暂不可用，当前通过备用接口连接后端。"
+        : hasFallback
+          ? "页面会优先尝试主接口；如果主接口暂时不可达，会自动切换到备用接口。"
+          : "现在可以直接提交问题并拿到分析回复。",
     },
     offline: {
       label: "后端离线",
@@ -333,7 +384,7 @@ function syncComposer(
   state,
   inputLimit,
   maxHistoryMessages,
-  apiUrl,
+  hasApiTarget,
   pending,
   statusMessage = "",
 ) {
@@ -354,7 +405,7 @@ function syncComposer(
     return;
   }
 
-  if (!apiUrl) {
+  if (!hasApiTarget) {
     submitButton.disabled = true;
     submitButton.textContent = "接口未就绪";
     status.textContent = statusMessage || storageWarning || "草稿只保存在当前设备，接口暂未接通。";
@@ -393,13 +444,40 @@ async function sendPrompt(apiUrl, payload) {
   return response.json();
 }
 
+async function sendPromptWithFailover(apiTargets, activeApiUrl, payload) {
+  let lastError = null;
+  const requestTargets = orderApiTargets(activeApiUrl, apiTargets);
+  const primaryApiTarget = apiTargets[0] || "";
+
+  for (const apiTarget of requestTargets) {
+    try {
+      const result = await sendPrompt(apiTarget, payload);
+
+      return {
+        result,
+        apiUrl: apiTarget,
+        usingFallback: primaryApiTarget ? apiTarget !== primaryApiTarget : false,
+      };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error("No API target configured.");
+}
+
 function initDialecticsPage() {
   const root = document.querySelector("[data-dialectics-root]");
   if (!root) {
     return;
   }
 
-  const apiUrl = root.dataset.apiUrl || "";
+  const apiTargets = buildApiTargets([
+    root.dataset.apiPath || "",
+    root.dataset.apiUrl || "",
+  ]);
+  const hasApiTarget = apiTargets.length > 0;
+  let activeApiUrl = apiTargets[0] || "";
   const pageTitle = root.dataset.pageTitle || "唯物辩证法答问";
   const storageKey = root.dataset.storageKey || "materialist-dialectics-chat";
   const inputLimit = Number(root.dataset.inputLimit || 1600);
@@ -425,21 +503,23 @@ function initDialecticsPage() {
   let pending = false;
   archiveOverflowMessages(state, maxHistoryMessages);
 
-  setRuntimeStatus(runtimeStatus, runtimeNote, apiUrl ? "online" : "offline");
+  setRuntimeStatus(runtimeStatus, runtimeNote, hasApiTarget ? "online" : "offline", {
+    hasFallback: apiTargets.length > 1,
+  });
   input.value = state.draft;
   renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
-  syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, apiUrl, pending);
+  syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
 
   input.addEventListener("input", () => {
     state.draft = input.value;
-    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, apiUrl, pending);
+    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
   });
 
   promptButtons.forEach((button) => {
     button.addEventListener("click", () => {
       input.value = button.dataset.dialecticsPrompt || "";
       state.draft = input.value;
-      syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, apiUrl, pending);
+      syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
       input.focus();
     });
   });
@@ -474,14 +554,14 @@ function initDialecticsPage() {
     state.messages = [];
     input.value = "";
     renderThread(thread, state.messages, emptyMessage);
-    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, apiUrl, pending);
+    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
   });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const prompt = input.value.trim();
-    if (!prompt || !apiUrl || pending) {
+    if (!prompt || !hasApiTarget || pending) {
       return;
     }
 
@@ -495,18 +575,19 @@ function initDialecticsPage() {
     state.draft = "";
     input.value = "";
     renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
-    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, apiUrl, pending);
+    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
     status.textContent = "正在把问题发送到后端...";
 
     let settledStatus = "";
 
     try {
-      const result = await sendPrompt(apiUrl, {
+      const { result, apiUrl, usingFallback } = await sendPromptWithFailover(apiTargets, activeApiUrl, {
         page: "materialist-dialectics",
         sessionId: state.sessionId,
         messages: previousMessages,
         input: prompt,
       });
+      activeApiUrl = apiUrl;
 
       state.messages.push(
         createMessage(
@@ -517,19 +598,26 @@ function initDialecticsPage() {
       );
       archiveOverflowMessages(state, maxHistoryMessages);
 
-      setRuntimeStatus(runtimeStatus, runtimeNote, "online");
+      setRuntimeStatus(runtimeStatus, runtimeNote, "online", {
+        hasFallback: apiTargets.length > 1,
+        usingFallback,
+      });
       renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
-      settledStatus = "已收到回复。草稿和本地对话记录仍保存在当前设备。";
+      settledStatus = usingFallback
+        ? "已收到回复。主接口暂不可用，当前通过备用接口通道连接后端。"
+        : "已收到回复。草稿和本地对话记录仍保存在当前设备。";
     } catch (error) {
       state.messages = previousMessages;
       state.draft = prompt;
       input.value = prompt;
-      setRuntimeStatus(runtimeStatus, runtimeNote, apiUrl ? "error" : "offline");
+      setRuntimeStatus(runtimeStatus, runtimeNote, hasApiTarget ? "error" : "offline", {
+        hasFallback: apiTargets.length > 1,
+      });
       renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
       settledStatus = "当前无法连接后端。问题草稿已保留在本地。";
     } finally {
       pending = false;
-      syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, apiUrl, pending, settledStatus);
+      syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending, settledStatus);
     }
   });
 }

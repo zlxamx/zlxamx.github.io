@@ -12,6 +12,20 @@ The contract is intentionally small and stateless so the first Vercel runtime ca
 - Path: `/api/materialist-dialectics/chat`
 - Content-Type: `application/json`
 
+## Access Topology
+
+The preferred public path is still `https://luxi.blog/api/materialist-dialectics/chat`.
+
+In production, that path should be terminated by a same-origin gateway layer and then forwarded to the actual model runtime. The current repository now includes a Cloudflare Worker gateway under [`runtime/materialist-dialectics-proxy`](../runtime/materialist-dialectics-proxy/README.md).
+
+Recommended request flow:
+
+1. Browser -> `https://luxi.blog/api/materialist-dialectics/chat`
+2. Cloudflare Worker gateway -> upstream runtime endpoint
+3. Upstream runtime -> model provider
+
+The front-end may keep a direct external fallback endpoint for emergencies, but the gateway path should be treated as the stable primary route.
+
 ## Request Body
 
 ```json

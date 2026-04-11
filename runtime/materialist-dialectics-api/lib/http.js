@@ -1,9 +1,32 @@
-function sendCors(req, res) {
-  const requestOrigin = req.headers.origin;
-  const allowedOrigin = process.env.ALLOWED_ORIGIN || "https://luxi.blog";
-  const origin = requestOrigin === allowedOrigin ? requestOrigin : allowedOrigin;
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://luxi.blog",
+  "https://www.luxi.blog",
+  "http://localhost:1313",
+  "http://127.0.0.1:1313",
+];
 
-  res.setHeader("Access-Control-Allow-Origin", origin);
+function parseAllowedOrigins(env = process.env) {
+  const merged = [
+    env.ALLOWED_ORIGINS || "",
+    env.ALLOWED_ORIGIN || "",
+  ]
+    .join(",")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  const origins = merged.length ? merged : DEFAULT_ALLOWED_ORIGINS;
+  return Array.from(new Set(origins));
+}
+
+function sendCors(req, res) {
+  const requestOrigin = typeof req.headers.origin === "string" ? req.headers.origin.trim() : "";
+  const allowedOrigins = parseAllowedOrigins(process.env);
+  const origin = requestOrigin && allowedOrigins.includes(requestOrigin) ? requestOrigin : "";
+
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -37,6 +60,7 @@ async function readJsonBody(req) {
 
 module.exports = {
   json,
+  parseAllowedOrigins,
   readJsonBody,
   sendCors,
 };

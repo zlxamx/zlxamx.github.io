@@ -1,14 +1,16 @@
 {{ define "main" }}
+{{ $apiPath := .Site.Params.materialistDialectics.apiPath | default "" }}
 {{ $apiURL := .Site.Params.materialistDialectics.apiURL | default "" }}
 {{ $storageKey := .Site.Params.materialistDialectics.storageKey | default "materialist-dialectics-chat" }}
 {{ $inputLimit := .Site.Params.materialistDialectics.inputLimit | default 1600 }}
 {{ $maxHistoryMessages := .Site.Params.materialistDialectics.maxHistoryMessages | default 8 }}
-{{ $runtimeConnected := ne $apiURL "" }}
+{{ $runtimeConnected := or (ne $apiPath "") (ne $apiURL "") }}
 {{ $displayTitle := .Params.displayTitle | default .Title }}
 {{ $portrait := resources.Get "img/dialectics/mao-zedong-red-army.jpg" }}
 <div
   class="dialectics-shell"
   data-dialectics-root
+  data-api-path="{{ $apiPath }}"
   data-api-url="{{ $apiURL }}"
   data-page-title="{{ $displayTitle }}"
   data-storage-key="{{ $storageKey }}"
@@ -41,7 +43,7 @@
 
           <p class="dialectics-status-note" data-dialectics-runtime-note>
             {{ if $runtimeConnected }}
-              现在可以直接提交问题并拿到分析回复。
+              现在可以直接提交问题；如果主接口暂时不可达，页面会自动切换到备用接口。
             {{ else }}
               现在还不能发出请求，但你仍然可以先整理草稿。
             {{ end }}
