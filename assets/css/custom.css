@@ -2175,8 +2175,14 @@ a:focus-visible {
   }
 
   .dialectics-hero-body {
-    gap: 2rem;
-    grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 1fr);
+    align-items: start;
+    gap: 1.8rem;
+    grid-template-columns: minmax(0, 1fr) clamp(16rem, 22vw, 22rem);
+  }
+
+  .dialectics-hero-portrait {
+    justify-self: end;
+    width: min(100%, clamp(16rem, 22vw, 22rem));
   }
 
   .dialectics-contract {
