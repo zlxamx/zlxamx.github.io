@@ -1691,11 +1691,12 @@ a:focus-visible {
 }
 
 .dialectics-stage {
-  align-items: start;
   grid-template-areas:
-    "boundary boundary boundary"
-    "left chat right";
-  grid-template-columns: minmax(15.5rem, 0.9fr) minmax(0, 1.45fr) minmax(18rem, 0.95fr);
+    "boundary"
+    "chat"
+    "left"
+    "right";
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .dialectics-boundary-panel {
@@ -2007,7 +2008,25 @@ a:focus-visible {
   white-space: nowrap;
 }
 
-@media screen and (max-width: 1120px) {
+@media screen and (min-width: 1280px) {
+  .dialectics-shell {
+    left: 50%;
+    position: relative;
+    transform: translateX(-50%);
+    width: min(1240px, calc(100vw - (2 * var(--main-padding))));
+  }
+
+  .dialectics-stage {
+    align-items: start;
+    grid-template-areas:
+      ". boundary ."
+      "left chat right";
+    grid-template-columns: minmax(14rem, 17rem) minmax(0, 45rem) minmax(14rem, 17rem);
+    justify-content: center;
+  }
+}
+
+@media screen and (min-width: 781px) and (max-width: 1279px) {
   .dialectics-stage {
     grid-template-areas:
       "boundary boundary"
