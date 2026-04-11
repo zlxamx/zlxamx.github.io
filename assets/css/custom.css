@@ -1704,9 +1704,19 @@ a:focus-visible {
   margin: 0.5rem 0 0;
 }
 
+.dialectics-hero-body {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 1.2rem;
+}
+
+.dialectics-hero-identity {
+  min-width: 0;
+}
+
 .dialectics-intro {
   color: var(--content-primary);
-  margin-top: 1.2rem;
   max-width: 46rem;
 }
 
@@ -1722,6 +1732,37 @@ a:focus-visible {
 .dialectics-status-note {
   color: var(--content-secondary);
   margin: 1rem 0 0;
+}
+
+/* --- Hero portrait --- */
+
+.dialectics-hero-portrait {
+  align-self: start;
+  background: linear-gradient(180deg, var(--code-background), rgba(255, 255, 255, 0.35));
+  border: 1px solid var(--code-border);
+  border-radius: calc(var(--code-border-radius) + 0.1rem);
+  margin: 0;
+  overflow: hidden;
+  padding: 0.7rem;
+  position: relative;
+}
+
+.dialectics-hero-portrait::before {
+  border: 1px solid rgba(141, 76, 52, 0.12);
+  border-radius: calc(var(--code-border-radius) - 0.02rem);
+  content: "";
+  inset: 0.42rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.dialectics-hero-portrait-image {
+  aspect-ratio: 4 / 5;
+  border-radius: calc(var(--code-border-radius) - 0.08rem);
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
 }
 
 /* --- Contract (capability / boundary) --- */
@@ -2131,6 +2172,11 @@ a:focus-visible {
   .dialectics-side {
     position: sticky;
     top: 1.2rem;
+  }
+
+  .dialectics-hero-body {
+    gap: 2rem;
+    grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 1fr);
   }
 
   .dialectics-contract {

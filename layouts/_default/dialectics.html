@@ -4,6 +4,7 @@
 {{ $inputLimit := .Site.Params.materialistDialectics.inputLimit | default 1600 }}
 {{ $runtimeConnected := ne $apiURL "" }}
 {{ $displayTitle := .Params.displayTitle | default .Title }}
+{{ $portrait := resources.Get "img/dialectics/mao-zedong-red-army.jpg" }}
 <div
   class="dialectics-shell"
   data-dialectics-root
@@ -29,17 +30,34 @@
         </span>
       </div>
 
-      <div class="dialectics-intro">
-        {{ .Content }}
-      </div>
+      <div class="dialectics-hero-body">
+        <div class="dialectics-hero-identity">
+          <div class="dialectics-intro">
+            {{ .Content }}
+          </div>
 
-      <p class="dialectics-status-note" data-dialectics-runtime-note>
-        {{ if $runtimeConnected }}
-          现在可以直接提交问题并拿到分析回复。
-        {{ else }}
-          现在还不能发出请求，但你仍然可以先整理草稿。
-        {{ end }}
-      </p>
+          <p class="dialectics-status-note" data-dialectics-runtime-note>
+            {{ if $runtimeConnected }}
+              现在可以直接提交问题并拿到分析回复。
+            {{ else }}
+              现在还不能发出请求，但你仍然可以先整理草稿。
+            {{ end }}
+          </p>
+        </div>
+
+        <figure class="dialectics-hero-portrait">
+          {{ with $portrait }}
+          <img
+            class="dialectics-hero-portrait-image"
+            src="{{ .RelPermalink }}"
+            width="{{ .Width }}"
+            height="{{ .Height }}"
+            alt="红军时期的毛泽东人物像"
+            loading="eager"
+            decoding="async">
+          {{ end }}
+        </figure>
+      </div>
 
       <div class="dialectics-contract">
         <section class="dialectics-contract-col dialectics-contract-do" aria-label="它能做的事">
