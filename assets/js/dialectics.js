@@ -41,6 +41,38 @@ function saveState(storageKey, state) {
   }
 }
 
+function setRuntimeStatus(button, note, kind) {
+  if (!button || !note) {
+    return;
+  }
+
+  const label = button.querySelector("[data-dialectics-runtime-label]");
+  const states = {
+    online: {
+      label: "后端在线",
+      note: "现在可以直接提交问题并拿到分析回复。",
+    },
+    offline: {
+      label: "后端离线",
+      note: "现在还不能发出请求，但你仍然可以先整理草稿。",
+    },
+    error: {
+      label: "连接异常",
+      note: "刚才这次请求失败，问题草稿已经保留在本地。",
+    },
+  };
+  const nextState = states[kind] || states.offline;
+
+  button.classList.remove("is-online", "is-offline", "is-error");
+  button.classList.add(`is-${kind}`);
+
+  if (label) {
+    label.textContent = nextState.label;
+  }
+
+  note.textContent = nextState.note;
+}
+
 function createMessageElement(message) {
   const article = document.createElement("article");
   const label = document.createElement("p");
@@ -175,6 +207,8 @@ function initDialecticsPage() {
   const status = root.querySelector("[data-dialectics-status]");
   const resetButton = root.querySelector("[data-dialectics-reset]");
   const submitButton = root.querySelector("[data-dialectics-submit]");
+  const runtimeStatus = root.querySelector("[data-dialectics-runtime-status]");
+  const runtimeNote = root.querySelector("[data-dialectics-runtime-note]");
   const promptButtons = Array.from(root.querySelectorAll("[data-dialectics-prompt]"));
 
   const state = loadState(storageKey);
@@ -182,6 +216,7 @@ function initDialecticsPage() {
 
   let pending = false;
 
+  setRuntimeStatus(runtimeStatus, runtimeNote, apiUrl ? "online" : "offline");
   input.value = state.draft;
   renderThread(thread, state.messages, emptyMessage);
   syncComposer(input, count, status, submitButton, state, inputLimit, apiUrl, pending);
@@ -249,12 +284,14 @@ function initDialecticsPage() {
         content: result.message || "后端返回了空内容。",
       });
 
+      setRuntimeStatus(runtimeStatus, runtimeNote, "online");
       renderThread(thread, state.messages, emptyMessage);
       settledStatus = "已收到回复。草稿和本地对话记录仍保存在当前设备。";
     } catch (error) {
       state.messages = previousMessages;
       state.draft = prompt;
       input.value = prompt;
+      setRuntimeStatus(runtimeStatus, runtimeNote, apiUrl ? "error" : "offline");
       renderThread(thread, state.messages, emptyMessage);
       settledStatus = "当前无法连接后端。问题草稿已保留在本地。";
     } finally {

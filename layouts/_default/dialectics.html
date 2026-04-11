@@ -11,41 +11,8 @@
   data-storage-key="{{ $storageKey }}"
   data-input-limit="{{ $inputLimit }}"
   data-empty-message="请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。">
-  <section class="dialectics-hero">
-    <div class="dialectics-hero-copy">
-      <p class="dialectics-kicker">{{ .Params.kicker | default "唯物辩证法" }}</p>
-      <h1 class="dialectics-title">{{ $displayTitle }}</h1>
-      <div class="dialectics-intro">
-        {{ .Content }}
-      </div>
-
-      <div class="dialectics-status-row">
-        <span class="dialectics-status-chip {{ if $runtimeConnected }}is-live{{ else }}is-preview{{ end }}">
-          {{ if $runtimeConnected }}已连接后端{{ else }}预览模式{{ end }}
-        </span>
-        <p class="dialectics-status-note">
-          {{ if $runtimeConnected }}
-            这一页已经可以把问题发送到后端进行分析。
-          {{ else }}
-            页面结构已经准备好，后端接口还没有接通。
-          {{ end }}
-        </p>
-      </div>
-    </div>
-
-    <div class="dialectics-signal-grid" aria-label="页面特征">
-      {{ range .Params.signals }}
-      <article class="dialectics-signal-card">
-        <p class="dialectics-signal-label">{{ .label }}</p>
-        <p class="dialectics-signal-value">{{ .value }}</p>
-        <p class="dialectics-signal-note">{{ .note }}</p>
-      </article>
-      {{ end }}
-    </div>
-  </section>
-
-  <section class="dialectics-ledger-grid is-single">
-    <article class="dialectics-panel dialectics-ledger-panel">
+  <section class="dialectics-stage">
+    <article class="dialectics-panel dialectics-ledger-panel dialectics-boundary-panel">
       <div class="dialectics-panel-head">
         <p class="dialectics-panel-kicker">边界</p>
         <h2>页面不处理什么</h2>
@@ -57,9 +24,7 @@
         {{ end }}
       </ul>
     </article>
-  </section>
 
-  <section class="dialectics-workbench">
     <article class="dialectics-panel dialectics-chat-panel">
       <div class="dialectics-panel-head dialectics-chat-head">
         <div>
@@ -113,7 +78,62 @@
       </form>
     </article>
 
-    <div class="dialectics-sidebar">
+    <aside class="dialectics-side dialectics-side-left">
+      <article class="dialectics-panel dialectics-overview-panel">
+        <div class="dialectics-overview-head">
+          <div>
+            <p class="dialectics-kicker">{{ .Params.kicker | default "唯物辩证法" }}</p>
+            <h1 class="dialectics-title">{{ $displayTitle }}</h1>
+          </div>
+
+          <span
+            class="dialectics-status-button {{ if $runtimeConnected }}is-online{{ else }}is-offline{{ end }}"
+            data-dialectics-runtime-status
+            role="status"
+            aria-live="polite">
+            <span class="dialectics-status-dot" aria-hidden="true"></span>
+            <span data-dialectics-runtime-label>{{ if $runtimeConnected }}后端在线{{ else }}后端离线{{ end }}</span>
+          </span>
+        </div>
+
+        <p class="dialectics-status-note" data-dialectics-runtime-note>
+          {{ if $runtimeConnected }}
+            现在可以直接提交问题并拿到分析回复。
+          {{ else }}
+            现在还不能发出请求，但你仍然可以先整理草稿。
+          {{ end }}
+        </p>
+
+        <div class="dialectics-intro">
+          {{ .Content }}
+        </div>
+
+        <div class="dialectics-signal-grid" aria-label="分析特征">
+          {{ range .Params.signals }}
+          <article class="dialectics-signal-card">
+            <p class="dialectics-signal-label">{{ .label }}</p>
+            <p class="dialectics-signal-value">{{ .value }}</p>
+            <p class="dialectics-signal-note">{{ .note }}</p>
+          </article>
+          {{ end }}
+        </div>
+      </article>
+
+      <article class="dialectics-panel dialectics-note-panel">
+        <div class="dialectics-panel-head">
+          <p class="dialectics-panel-kicker">当前版本</p>
+          <h2>这一版已经确定的事情</h2>
+        </div>
+
+        <ul class="dialectics-note-list">
+          <li>草稿和本地对话记录保存在浏览器本地存储里，不会因为刷新页面立刻丢失。</li>
+          <li>这一版采用无状态接口契约，后端不依赖数据库也能工作。</li>
+          <li>页面与后端是分离的，后续可以继续独立迭代界面和接口实现。</li>
+        </ul>
+      </article>
+    </aside>
+
+    <aside class="dialectics-side dialectics-side-right">
       <article class="dialectics-panel dialectics-prompt-panel">
         <div class="dialectics-panel-head">
           <p class="dialectics-panel-kicker">示例问题</p>
@@ -132,20 +152,7 @@
           {{ end }}
         </div>
       </article>
-
-      <article class="dialectics-panel dialectics-note-panel">
-        <div class="dialectics-panel-head">
-          <p class="dialectics-panel-kicker">当前版本</p>
-          <h2>这一版已经确定的事情</h2>
-        </div>
-
-        <ul class="dialectics-note-list">
-          <li>草稿和本地对话记录保存在浏览器本地存储里，不会因为刷新页面立刻丢失。</li>
-          <li>这一版采用无状态接口契约，后端不依赖数据库也能工作。</li>
-          <li>页面与后端是分离的，后续可以继续独立迭代界面和接口实现。</li>
-        </ul>
-      </article>
-    </div>
+    </aside>
   </section>
 </div>
 
