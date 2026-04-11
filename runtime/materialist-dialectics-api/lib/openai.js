@@ -129,7 +129,7 @@ async function callOpenAI({ apiKey, model, instructions, input, maxOutputTokens,
         text: {
           format: {
             type: "json_schema",
-            ...RESPONSE_SCHEMA,
+            json_schema: RESPONSE_SCHEMA,
           },
         },
       }),
