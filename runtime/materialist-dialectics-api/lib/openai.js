@@ -1,3 +1,45 @@
+const RESPONSE_SCHEMA = {
+  name: "materialist_dialectics_response",
+  strict: true,
+  schema: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      status: {
+        type: "string",
+        enum: ["answer", "follow_up", "reject"],
+      },
+      message: {
+        type: "string",
+      },
+      meta: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          questionType: {
+            type: "string",
+            enum: [
+              "contradiction",
+              "ism_error",
+              "epistemology",
+              "strategy",
+              "alignment",
+              "execution",
+              "out_of_scope",
+              "unknown",
+            ],
+          },
+          disclaimer: {
+            type: "boolean",
+          },
+        },
+        required: ["questionType", "disclaimer"],
+      },
+    },
+    required: ["status", "message", "meta"],
+  },
+};
+
 function extractOutputText(payload) {
   if (typeof payload.output_text === "string" && payload.output_text.trim()) {
     return payload.output_text.trim();
@@ -22,6 +64,28 @@ function extractOutputText(payload) {
   });
 
   return parts.join("").trim();
+}
+
+function extractRefusalText(payload) {
+  if (!Array.isArray(payload.output)) {
+    return "";
+  }
+
+  const parts = [];
+
+  payload.output.forEach((item) => {
+    if (!Array.isArray(item.content)) {
+      return;
+    }
+
+    item.content.forEach((contentItem) => {
+      if (contentItem.type === "refusal" && typeof contentItem.refusal === "string") {
+        parts.push(contentItem.refusal);
+      }
+    });
+  });
+
+  return parts.join("\n").trim();
 }
 
 function parseJsonText(text) {
@@ -64,7 +128,8 @@ async function callOpenAI({ apiKey, model, instructions, input, maxOutputTokens,
         safety_identifier: safetyIdentifier,
         text: {
           format: {
-            type: "json_object",
+            type: "json_schema",
+            ...RESPONSE_SCHEMA,
           },
         },
       }),
@@ -79,12 +144,24 @@ async function callOpenAI({ apiKey, model, instructions, input, maxOutputTokens,
 
     const outputText = extractOutputText(payload);
     const parsed = parseJsonText(outputText);
+    const refusalText = extractRefusalText(payload);
 
-    if (!parsed) {
-      throw new Error("OpenAI returned non-JSON output");
+    if (parsed) {
+      return parsed;
     }
 
-    return parsed;
+    if (refusalText) {
+      return {
+        status: "reject",
+        message: refusalText,
+        meta: {
+          questionType: "out_of_scope",
+          disclaimer: false,
+        },
+      };
+    }
+
+    throw new Error(`OpenAI returned non-JSON output: ${outputText || "[empty]"}`);
   } finally {
     clearTimeout(timeout);
   }
