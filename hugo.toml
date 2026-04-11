@@ -51,6 +51,7 @@ commentSorting = "latest"
 apiURL = "https://zlxamx-github-io.vercel.app/api/materialist-dialectics/chat"
 storageKey = "materialist-dialectics-chat"
 inputLimit = 1600
+maxHistoryMessages = 8
 
 [[params.social]]
 name = "github"

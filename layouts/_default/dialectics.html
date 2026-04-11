@@ -2,6 +2,7 @@
 {{ $apiURL := .Site.Params.materialistDialectics.apiURL | default "" }}
 {{ $storageKey := .Site.Params.materialistDialectics.storageKey | default "materialist-dialectics-chat" }}
 {{ $inputLimit := .Site.Params.materialistDialectics.inputLimit | default 1600 }}
+{{ $maxHistoryMessages := .Site.Params.materialistDialectics.maxHistoryMessages | default 8 }}
 {{ $runtimeConnected := ne $apiURL "" }}
 {{ $displayTitle := .Params.displayTitle | default .Title }}
 {{ $portrait := resources.Get "img/dialectics/mao-zedong-red-army.jpg" }}
@@ -12,6 +13,7 @@
   data-page-title="{{ $displayTitle }}"
   data-storage-key="{{ $storageKey }}"
   data-input-limit="{{ $inputLimit }}"
+  data-max-history-messages="{{ $maxHistoryMessages }}"
   data-empty-message="请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。">
   <section class="dialectics-stage">
     <header class="dialectics-hero">
@@ -167,6 +169,8 @@
     <footer class="dialectics-footnote">
       <span class="dialectics-footnote-label">当前版本</span>
       <span>草稿与对话记录保存在浏览器本地</span>
+      <span aria-hidden="true">·</span>
+      <span>当前分析只参考最近 {{ $maxHistoryMessages }} 条历史消息</span>
       <span aria-hidden="true">·</span>
       <span>无状态接口契约，后端无需数据库</span>
       <span aria-hidden="true">·</span>

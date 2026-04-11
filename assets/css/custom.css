@@ -1911,6 +1911,11 @@ a:focus-visible {
   max-width: 100%;
 }
 
+.dialectics-message.is-archived {
+  background: var(--code-background);
+  border-style: solid;
+}
+
 .dialectics-message.is-user {
   background: linear-gradient(180deg, rgba(141, 76, 52, 0.11), rgba(141, 76, 52, 0.05));
   border-color: var(--dialectics-accent-border);
