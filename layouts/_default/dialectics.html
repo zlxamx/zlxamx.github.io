@@ -12,26 +12,70 @@
   data-input-limit="{{ $inputLimit }}"
   data-empty-message="请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。">
   <section class="dialectics-stage">
-    <article class="dialectics-panel dialectics-ledger-panel dialectics-boundary-panel">
-      <div class="dialectics-panel-head">
-        <p class="dialectics-panel-kicker">边界</p>
-        <h2>页面不处理什么</h2>
+    <header class="dialectics-hero">
+      <div class="dialectics-hero-head">
+        <div class="dialectics-hero-heading">
+          <p class="dialectics-kicker">{{ .Params.kicker | default "唯物辩证法" }}</p>
+          <h1 class="dialectics-title">{{ $displayTitle }}</h1>
+        </div>
+
+        <span
+          class="dialectics-status-button {{ if $runtimeConnected }}is-online{{ else }}is-offline{{ end }}"
+          data-dialectics-runtime-status
+          role="status"
+          aria-live="polite">
+          <span class="dialectics-status-dot" aria-hidden="true"></span>
+          <span data-dialectics-runtime-label>{{ if $runtimeConnected }}后端在线{{ else }}后端离线{{ end }}</span>
+        </span>
       </div>
 
-      <ul class="dialectics-guardrail-list">
-        {{ range .Params.guardrails }}
-        <li>{{ . }}</li>
+      <div class="dialectics-intro">
+        {{ .Content }}
+      </div>
+
+      <p class="dialectics-status-note" data-dialectics-runtime-note>
+        {{ if $runtimeConnected }}
+          现在可以直接提交问题并拿到分析回复。
+        {{ else }}
+          现在还不能发出请求，但你仍然可以先整理草稿。
         {{ end }}
-      </ul>
-    </article>
+      </p>
+
+      <div class="dialectics-contract">
+        <section class="dialectics-contract-col dialectics-contract-do" aria-label="它能做的事">
+          <p class="dialectics-contract-kicker">能力</p>
+          <h2 class="dialectics-contract-heading">它能做的事</h2>
+
+          <ol class="dialectics-signal-list">
+            {{ range .Params.signals }}
+            <li class="dialectics-signal-item">
+              <p class="dialectics-signal-label">{{ .label }}</p>
+              <p class="dialectics-signal-value">{{ .value }}</p>
+              <p class="dialectics-signal-note">{{ .note }}</p>
+            </li>
+            {{ end }}
+          </ol>
+        </section>
+
+        <section class="dialectics-contract-col dialectics-contract-dont" aria-label="它不做的事">
+          <p class="dialectics-contract-kicker">边界</p>
+          <h2 class="dialectics-contract-heading">它不做的事</h2>
+
+          <ul class="dialectics-guardrail-list">
+            {{ range .Params.guardrails }}
+            <li>{{ . }}</li>
+            {{ end }}
+          </ul>
+        </section>
+      </div>
+    </header>
 
     <article class="dialectics-panel dialectics-chat-panel">
-      <div class="dialectics-panel-head dialectics-chat-head">
+      <div class="dialectics-panel-head">
         <div>
-          <p class="dialectics-panel-kicker">问答区</p>
-          <h2>对话区</h2>
+          <p class="dialectics-panel-kicker">对话区</p>
+          <h2>把问题交给它</h2>
         </div>
-        <p class="dialectics-chat-note">当前响应模式：分析回复、补充追问、边界拒答。</p>
       </div>
 
       <div class="dialectics-thread" data-dialectics-thread aria-live="polite">
@@ -49,12 +93,12 @@
           id="dialectics-input"
           class="dialectics-input"
           name="question"
-          rows="7"
+          rows="6"
           maxlength="{{ $inputLimit }}"
           placeholder="把你的处境、矛盾、目标，或者你需要判断的事情说清楚。"
           data-dialectics-input></textarea>
 
-        <div class="dialectics-composer-meta">
+        <div class="dialectics-composer-bar">
           <p class="dialectics-inline-note" data-dialectics-status>
             {{ if $runtimeConnected }}
               草稿只保存在当前设备，发送前不会上传。
@@ -78,66 +122,11 @@
       </form>
     </article>
 
-    <aside class="dialectics-side dialectics-side-left">
-      <article class="dialectics-panel dialectics-overview-panel">
-        <div class="dialectics-overview-head">
-          <div>
-            <p class="dialectics-kicker">{{ .Params.kicker | default "唯物辩证法" }}</p>
-            <h1 class="dialectics-title">{{ $displayTitle }}</h1>
-          </div>
-
-          <span
-            class="dialectics-status-button {{ if $runtimeConnected }}is-online{{ else }}is-offline{{ end }}"
-            data-dialectics-runtime-status
-            role="status"
-            aria-live="polite">
-            <span class="dialectics-status-dot" aria-hidden="true"></span>
-            <span data-dialectics-runtime-label>{{ if $runtimeConnected }}后端在线{{ else }}后端离线{{ end }}</span>
-          </span>
-        </div>
-
-        <p class="dialectics-status-note" data-dialectics-runtime-note>
-          {{ if $runtimeConnected }}
-            现在可以直接提交问题并拿到分析回复。
-          {{ else }}
-            现在还不能发出请求，但你仍然可以先整理草稿。
-          {{ end }}
-        </p>
-
-        <div class="dialectics-intro">
-          {{ .Content }}
-        </div>
-
-        <div class="dialectics-signal-grid" aria-label="分析特征">
-          {{ range .Params.signals }}
-          <article class="dialectics-signal-card">
-            <p class="dialectics-signal-label">{{ .label }}</p>
-            <p class="dialectics-signal-value">{{ .value }}</p>
-            <p class="dialectics-signal-note">{{ .note }}</p>
-          </article>
-          {{ end }}
-        </div>
-      </article>
-
-      <article class="dialectics-panel dialectics-note-panel">
-        <div class="dialectics-panel-head">
-          <p class="dialectics-panel-kicker">当前版本</p>
-          <h2>这一版已经确定的事情</h2>
-        </div>
-
-        <ul class="dialectics-note-list">
-          <li>草稿和本地对话记录保存在浏览器本地存储里，不会因为刷新页面立刻丢失。</li>
-          <li>这一版采用无状态接口契约，后端不依赖数据库也能工作。</li>
-          <li>页面与后端是分离的，后续可以继续独立迭代界面和接口实现。</li>
-        </ul>
-      </article>
-    </aside>
-
-    <aside class="dialectics-side dialectics-side-right">
+    <aside class="dialectics-side">
       <article class="dialectics-panel dialectics-prompt-panel">
         <div class="dialectics-panel-head">
           <p class="dialectics-panel-kicker">示例问题</p>
-          <h2>可以从这些问题开始</h2>
+          <h2>可以从这里开始</h2>
         </div>
 
         <div class="dialectics-prompt-list">
@@ -145,14 +134,24 @@
           <button
             type="button"
             class="dialectics-prompt-button"
+            aria-label="填入问题"
             {{ printf "data-dialectics-prompt=%q" . | safeHTMLAttr }}>
             <span class="dialectics-prompt-copy">{{ . }}</span>
-            <span class="dialectics-prompt-action">填入问题</span>
+            <span class="dialectics-prompt-arrow" aria-hidden="true">→</span>
           </button>
           {{ end }}
         </div>
       </article>
     </aside>
+
+    <footer class="dialectics-footnote">
+      <span class="dialectics-footnote-label">当前版本</span>
+      <span>草稿与对话记录保存在浏览器本地</span>
+      <span aria-hidden="true">·</span>
+      <span>无状态接口契约，后端无需数据库</span>
+      <span aria-hidden="true">·</span>
+      <span>前后端分离，独立迭代</span>
+    </footer>
   </section>
 </div>
 
