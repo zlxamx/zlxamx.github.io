@@ -1,3 +1,12 @@
+---
+title: 希路路克的每周来信Vol.05
+date: 2026-04-12
+slug: ZK5
+categories:
+  - 周刊
+tags:
+  - 周刊
+---
 
 ![](/希路路克的周末来信_vol05_竖版封面.png)
 
