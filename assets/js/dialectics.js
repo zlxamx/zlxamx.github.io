@@ -89,14 +89,14 @@ function getMessageLabel(message) {
   const kind = message.kind || "answer";
 
   if (kind === "follow_up") {
-    return "页面 · 追问";
+    return "追问";
   }
 
   if (kind === "reject") {
-    return "页面 · 边界";
+    return "边界";
   }
 
-  return "页面 · 分析";
+  return "分析";
 }
 
 function formatExportTimestamp(date) {
@@ -145,7 +145,7 @@ function createExportPayload(pageTitle, state) {
     `- 导出时间：${timestamp.display}`,
     `- 会话 ID：${state.sessionId}`,
     `- 消息数：${transcript.length}`,
-    `- 已归档消息数：${state.archivedMessages.length}`,
+    `- 更早的对话条数：${state.archivedMessages.length}`,
   ];
 
   if (transcript.length) {
@@ -275,25 +275,19 @@ function setRuntimeStatus(button, note, kind, options = {}) {
     return;
   }
 
-  const hasFallback = Boolean(options.hasFallback);
-  const usingFallback = Boolean(options.usingFallback);
   const label = button.querySelector("[data-dialectics-runtime-label]");
   const states = {
     online: {
-      label: "后端在线",
-      note: usingFallback
-        ? "主接口暂不可用，当前通过备用接口连接后端。"
-        : hasFallback
-          ? "页面会优先尝试主接口；如果主接口暂时不可达，会自动切换到备用接口。"
-          : "现在可以直接提交问题并拿到分析回复。",
+      label: "在线",
+      note: "把你想搞清楚的事写下来，它会帮你一起拆开来看。",
     },
     offline: {
-      label: "后端离线",
-      note: "现在还不能发出请求，但你仍然可以先整理草稿。",
+      label: "暂不可用",
+      note: "现在暂时没法发送，你可以先把问题写下来。",
     },
     error: {
-      label: "连接异常",
-      note: "刚才这次请求失败，问题草稿已经保留在本地。",
+      label: "发送失败",
+      note: "刚才没发出去，你写的内容没丢。",
     },
   };
   const nextState = states[kind] || states.offline;
@@ -326,11 +320,11 @@ function createMessageElement(message) {
     article.classList.add(`is-${kind}`);
 
     if (kind === "follow_up") {
-      label.textContent = "页面 · 追问";
+      label.textContent = "追问";
     } else if (kind === "reject") {
-      label.textContent = "页面 · 边界";
+      label.textContent = "边界";
     } else {
-      label.textContent = "页面 · 分析";
+      label.textContent = "分析";
     }
   }
 
@@ -347,8 +341,8 @@ function createArchiveNoticeElement(archiveCount, maxHistoryMessages) {
   label.className = "dialectics-message-label";
   body.className = "dialectics-message-body";
 
-  label.textContent = "系统 · 归档";
-  body.textContent = `更早的 ${archiveCount} 条对话已归档，不再参与当前分析。继续提问时，系统只参考最近 ${maxHistoryMessages} 条历史消息；如需保留完整内容，请先导出记录。`;
+  label.textContent = "更早的对话";
+  body.textContent = `更早的 ${archiveCount} 条对话已经不再参与现在的分析。继续提问时，只会看最近 ${maxHistoryMessages} 条。想保留完整内容，可以先点导出。`;
 
   article.append(label, body);
   return article;
@@ -421,7 +415,7 @@ function syncComposer(
   count.textContent = String(length);
   state.storageFailed = !saveState(state.storageKey, state);
   exportButton.disabled = !hasExportableContent(state);
-  const storageWarning = state.storageFailed ? "本地保存失败，刷新后草稿和聊天记录可能丢失。" : "";
+  const storageWarning = state.storageFailed ? "刚才没存成功，刷新页面可能会丢。" : "";
 
   if (pending) {
     submitButton.disabled = true;
@@ -436,8 +430,8 @@ function syncComposer(
 
   if (!hasApiTarget) {
     submitButton.disabled = true;
-    submitButton.textContent = "接口未就绪";
-    status.textContent = statusMessage || storageWarning || "草稿只保存在当前设备，接口暂未接通。";
+    submitButton.textContent = "暂不可用";
+    status.textContent = statusMessage || storageWarning || "这个网站不会保存你的对话数据。";
     return;
   }
 
@@ -449,11 +443,11 @@ function syncComposer(
   } else if (storageWarning) {
     status.textContent = storageWarning;
   } else if (!length) {
-    status.textContent = "草稿只保存在当前设备，发送前不会上传。";
+    status.textContent = "这个网站不会保存你的对话数据。";
   } else if (state.archivedMessages.length && maxHistoryMessages > 0) {
-    status.textContent = `当前分析只参考最近 ${maxHistoryMessages} 条历史消息，更早对话已归档。`;
+    status.textContent = `这次分析只会参考最近 ${maxHistoryMessages} 条对话，更早的不会带进来。`;
   } else {
-    status.textContent = "可以发送了。如果关键信息不足，页面会先追问一轮。";
+    status.textContent = "可以发送了。如果信息不够，会先追问你一句。";
   }
 }
 
@@ -572,21 +566,21 @@ function initDialecticsPage() {
     state.storageFailed = !saveState(state.storageKey, state);
 
     if (!hasExportableContent(state)) {
-      status.textContent = "当前没有可导出的聊天记录。";
+      status.textContent = "现在还没有可以导出的对话。";
       return;
     }
 
     try {
       const payload = createExportPayload(pageTitle, state);
       downloadTextFile(payload.filename, payload.content);
-      status.textContent = "聊天记录已导出为 Markdown 文件。";
+      status.textContent = "对话已经保存到下载文件里。";
     } catch (error) {
       status.textContent = "导出失败，请稍后再试。";
     }
   });
 
   resetButton.addEventListener("click", () => {
-    const shouldReset = window.confirm("清空后，当前会话、已归档记录和未发送草稿都会被删除，且无法恢复。");
+    const shouldReset = window.confirm("清空后，现在的对话和还没发送的内容都会删除，无法恢复。");
     if (!shouldReset) {
       return;
     }
@@ -619,12 +613,12 @@ function initDialecticsPage() {
     input.value = "";
     renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
     syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
-    status.textContent = "正在把问题发送到后端...";
+    status.textContent = "正在发送...";
 
     let settledStatus = "";
 
     try {
-      const { result, apiUrl, usingFallback } = await sendPromptWithFailover(apiTargets, activeApiUrl, {
+      const { result, apiUrl } = await sendPromptWithFailover(apiTargets, activeApiUrl, {
         page: "materialist-dialectics",
         sessionId: state.sessionId,
         messages: previousMessages,
@@ -636,28 +630,21 @@ function initDialecticsPage() {
         createMessage(
           "assistant",
           result.status || "answer",
-          result.message || "后端返回了空内容。",
+          result.message || "这次没拿到回复内容。",
         ),
       );
       archiveOverflowMessages(state, maxHistoryMessages);
 
-      setRuntimeStatus(runtimeStatus, runtimeNote, "online", {
-        hasFallback: apiTargets.length > 1,
-        usingFallback,
-      });
+      setRuntimeStatus(runtimeStatus, runtimeNote, "online");
       renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
-      settledStatus = usingFallback
-        ? "已收到回复。主接口暂不可用，当前通过备用接口通道连接后端。"
-        : "已收到回复。草稿和本地对话记录仍保存在当前设备。";
+      settledStatus = "已收到回复。";
     } catch (error) {
       state.messages = previousMessages;
       state.draft = prompt;
       input.value = prompt;
-      setRuntimeStatus(runtimeStatus, runtimeNote, hasApiTarget ? "error" : "offline", {
-        hasFallback: apiTargets.length > 1,
-      });
+      setRuntimeStatus(runtimeStatus, runtimeNote, hasApiTarget ? "error" : "offline");
       renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
-      settledStatus = "当前无法连接后端。问题草稿已保留在本地。";
+      settledStatus = "没发出去，你写的内容没丢。";
     } finally {
       pending = false;
       syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending, settledStatus);

@@ -17,203 +17,169 @@
   data-input-limit="{{ $inputLimit }}"
   data-max-history-messages="{{ $maxHistoryMessages }}"
   data-empty-message="请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。">
-  <section class="dialectics-stage">
-    <article class="dialectics-panel dialectics-chat-panel">
-      <div class="dialectics-chat-topbar">
-        <div class="dialectics-chat-heading">
-          <p class="dialectics-kicker">{{ .Params.kicker | default "唯物辩证法" }}</p>
-          <h1 class="dialectics-title">{{ $displayTitle }}</h1>
+
+  <header class="dialectics-intro-block">
+    <div class="dialectics-intro-lead">
+      <span class="dialectics-brand">
+        {{ with $portrait }}
+        <img
+          class="dialectics-brand-avatar"
+          src="{{ .RelPermalink }}"
+          width="{{ .Width }}"
+          height="{{ .Height }}"
+          alt=""
+          loading="eager"
+          decoding="async"
+          aria-hidden="true">
+        {{ end }}
+        <span class="dialectics-kicker">{{ .Params.kicker | default "唯物辩证法" }}</span>
+      </span>
+
+      <span
+        class="dialectics-status {{ if $runtimeConnected }}is-online{{ else }}is-offline{{ end }}"
+        data-dialectics-runtime-status
+        role="status"
+        aria-live="polite">
+        <span class="dialectics-status-dot" aria-hidden="true"></span>
+        <span data-dialectics-runtime-label>{{ if $runtimeConnected }}在线{{ else }}暂不可用{{ end }}</span>
+      </span>
+    </div>
+
+    <h1 class="dialectics-title">{{ $displayTitle }}</h1>
+    <p class="dialectics-subtitle" data-dialectics-runtime-note>
+      {{ if $runtimeConnected }}
+        把你想搞清楚的事写下来，它会帮你一起拆开来看。
+      {{ else }}
+        现在暂时没法发送，你可以先把问题写下来。
+      {{ end }}
+    </p>
+
+    <nav class="dialectics-ribbon" aria-label="页面说明">
+      <button
+        type="button"
+        class="dialectics-tab"
+        data-dialectics-info-trigger="intro"
+        aria-controls="dialectics-info-intro"
+        aria-expanded="false">介绍</button>
+      <button
+        type="button"
+        class="dialectics-tab"
+        data-dialectics-info-trigger="capability"
+        aria-controls="dialectics-info-capability"
+        aria-expanded="false">能力</button>
+      <button
+        type="button"
+        class="dialectics-tab"
+        data-dialectics-info-trigger="boundary"
+        aria-controls="dialectics-info-boundary"
+        aria-expanded="false">边界</button>
+    </nav>
+
+    <div class="dialectics-info" data-dialectics-info-panel hidden>
+      <section
+        class="dialectics-info-content"
+        id="dialectics-info-intro"
+        data-dialectics-info-content="intro"
+        hidden>
+        <div class="dialectics-intro">
+          {{ .Content }}
         </div>
+      </section>
 
-        <span
-          class="dialectics-status-button {{ if $runtimeConnected }}is-online{{ else }}is-offline{{ end }}"
-          data-dialectics-runtime-status
-          role="status"
-          aria-live="polite">
-          <span class="dialectics-status-dot" aria-hidden="true"></span>
-          <span data-dialectics-runtime-label>{{ if $runtimeConnected }}后端在线{{ else }}后端离线{{ end }}</span>
-        </span>
-      </div>
-
-      <div class="dialectics-info-shell">
-        <p class="dialectics-status-note" data-dialectics-runtime-note>
-          {{ if $runtimeConnected }}
-            现在可以直接提交问题并拿到分析回复。
-          {{ else }}
-            现在还不能发出请求，但你仍然可以先整理草稿。
+      <section
+        class="dialectics-info-content"
+        id="dialectics-info-capability"
+        data-dialectics-info-content="capability"
+        hidden>
+        <ol class="dialectics-signal-list">
+          {{ range .Params.signals }}
+          <li class="dialectics-signal-item">
+            <p class="dialectics-signal-label">{{ .label }}</p>
+            <p class="dialectics-signal-value">{{ .value }}</p>
+            <p class="dialectics-signal-note">{{ .note }}</p>
+          </li>
           {{ end }}
+        </ol>
+      </section>
+
+      <section
+        class="dialectics-info-content"
+        id="dialectics-info-boundary"
+        data-dialectics-info-content="boundary"
+        hidden>
+        <ul class="dialectics-guardrail-list">
+          {{ range .Params.guardrails }}
+          <li>{{ . }}</li>
+          {{ end }}
+        </ul>
+      </section>
+    </div>
+  </header>
+
+  <section class="dialectics-workspace" aria-label="对话工作台">
+    <div class="dialectics-thread" data-dialectics-thread aria-live="polite">
+      <article class="dialectics-message is-system" data-dialectics-placeholder>
+        <p class="dialectics-message-label">系统</p>
+        <p class="dialectics-message-body">
+          请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。
         </p>
+      </article>
+    </div>
 
-        <div class="dialectics-info-switcher" aria-label="页面说明">
-          <button
-            type="button"
-            class="dialectics-info-button"
-            data-dialectics-info-trigger="intro"
-            aria-controls="dialectics-info-intro"
-            aria-expanded="false">
-            介绍
-          </button>
-          <button
-            type="button"
-            class="dialectics-info-button"
-            data-dialectics-info-trigger="capability"
-            aria-controls="dialectics-info-capability"
-            aria-expanded="false">
-            能力
-          </button>
-          <button
-            type="button"
-            class="dialectics-info-button"
-            data-dialectics-info-trigger="boundary"
-            aria-controls="dialectics-info-boundary"
-            aria-expanded="false">
-            边界
-          </button>
-        </div>
-
-        <div class="dialectics-info-panel" data-dialectics-info-panel hidden>
-          <section
-            class="dialectics-info-content"
-            id="dialectics-info-intro"
-            data-dialectics-info-content="intro"
-            hidden>
-            <p class="dialectics-info-kicker">介绍</p>
-            <div class="dialectics-intro">
-              {{ .Content }}
-            </div>
-          </section>
-
-          <section
-            class="dialectics-info-content"
-            id="dialectics-info-capability"
-            data-dialectics-info-content="capability"
-            hidden>
-            <p class="dialectics-info-kicker">能力</p>
-            <ol class="dialectics-signal-list dialectics-info-signal-list">
-              {{ range .Params.signals }}
-              <li class="dialectics-signal-item dialectics-info-signal-item">
-                <p class="dialectics-signal-label">{{ .label }}</p>
-                <p class="dialectics-signal-value">{{ .value }}</p>
-                <p class="dialectics-signal-note">{{ .note }}</p>
-              </li>
-              {{ end }}
-            </ol>
-          </section>
-
-          <section
-            class="dialectics-info-content"
-            id="dialectics-info-boundary"
-            data-dialectics-info-content="boundary"
-            hidden>
-            <p class="dialectics-info-kicker">边界</p>
-            <ul class="dialectics-guardrail-list dialectics-info-guardrail-list">
-              {{ range .Params.guardrails }}
-              <li>{{ . }}</li>
-              {{ end }}
-            </ul>
-          </section>
-        </div>
+    <aside class="dialectics-suggestions" aria-label="示例问题">
+      <p class="dialectics-suggestions-kicker">可以从这里开始</p>
+      <div class="dialectics-suggestions-list">
+        {{ range .Params.examplePrompts }}
+        <button
+          type="button"
+          class="dialectics-prompt-chip"
+          aria-label="填入问题"
+          {{ printf "data-dialectics-prompt=%q" . | safeHTMLAttr }}>
+          <span class="dialectics-prompt-copy">{{ . }}</span>
+        </button>
+        {{ end }}
       </div>
-      <div class="dialectics-panel-head">
-        <div>
-          <p class="dialectics-panel-kicker">对话区</p>
-          <h2>把问题交给它</h2>
-        </div>
-      </div>
+    </aside>
 
-      <div class="dialectics-thread" data-dialectics-thread aria-live="polite">
-        <article class="dialectics-message is-system" data-dialectics-placeholder>
-          <p class="dialectics-message-label">系统</p>
-          <p class="dialectics-message-body">
-            请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。
-          </p>
-        </article>
-      </div>
+    <form class="dialectics-composer" data-dialectics-form novalidate>
+      <label class="dialectics-composer-label" for="dialectics-input">问题</label>
+      <textarea
+        id="dialectics-input"
+        class="dialectics-input"
+        name="question"
+        rows="3"
+        maxlength="{{ $inputLimit }}"
+        placeholder="把你的处境、矛盾、目标，或者你需要判断的事情说清楚。"
+        data-dialectics-input></textarea>
 
-      <form class="dialectics-composer" data-dialectics-form novalidate>
-        <label class="dialectics-composer-label" for="dialectics-input">问题</label>
-        <textarea
-          id="dialectics-input"
-          class="dialectics-input"
-          name="question"
-          rows="6"
-          maxlength="{{ $inputLimit }}"
-          placeholder="把你的处境、矛盾、目标，或者你需要判断的事情说清楚。"
-          data-dialectics-input></textarea>
-
-        <div class="dialectics-composer-bar">
+      <div class="dialectics-composer-foot">
+        <div class="dialectics-composer-meta">
           <p class="dialectics-inline-note" data-dialectics-status>
-            {{ if $runtimeConnected }}
-              草稿只保存在当前设备，发送前不会上传。
-            {{ else }}
-              草稿只保存在当前设备，接口暂未接通。
-            {{ end }}
+            这个网站不会保存你的对话数据。
           </p>
-          <p class="dialectics-counter"><span data-dialectics-count>0</span> / {{ $inputLimit }}</p>
+          <p class="dialectics-counter"><span data-dialectics-count>0</span>&nbsp;/&nbsp;{{ $inputLimit }}</p>
         </div>
 
         <div class="dialectics-composer-actions">
-          <button type="button" class="dialectics-button is-secondary" data-dialectics-export>导出记录</button>
-          <button type="button" class="dialectics-button is-secondary" data-dialectics-reset>清空</button>
+          <button type="button" class="dialectics-button is-ghost" data-dialectics-export>导出</button>
+          <button type="button" class="dialectics-button is-ghost" data-dialectics-reset>清空</button>
           <button
             type="submit"
             class="dialectics-button is-primary"
             data-dialectics-submit
             {{ if not $runtimeConnected }}disabled{{ end }}>
-            {{ if $runtimeConnected }}发送{{ else }}接口未就绪{{ end }}
+            {{ if $runtimeConnected }}发送{{ else }}暂不可用{{ end }}
           </button>
         </div>
-      </form>
-    </article>
-
-    <article class="dialectics-panel dialectics-prompt-panel">
-      <div class="dialectics-panel-head">
-        <div>
-          <p class="dialectics-panel-kicker">示例问题</p>
-          <h2>可以从这里开始</h2>
-        </div>
       </div>
-
-      <div class="dialectics-prompt-list">
-        {{ range .Params.examplePrompts }}
-        <button
-          type="button"
-          class="dialectics-prompt-button"
-          aria-label="填入问题"
-          {{ printf "data-dialectics-prompt=%q" . | safeHTMLAttr }}>
-          <span class="dialectics-prompt-copy">{{ . }}</span>
-          <span class="dialectics-prompt-arrow" aria-hidden="true">→</span>
-        </button>
-        {{ end }}
-      </div>
-    </article>
-
-    <footer class="dialectics-closure">
-      <figure class="dialectics-footer-portrait">
-        {{ with $portrait }}
-        <img
-          class="dialectics-footer-portrait-image"
-          src="{{ .RelPermalink }}"
-          width="{{ .Width }}"
-          height="{{ .Height }}"
-          alt="红军时期的毛泽东人物像"
-          loading="eager"
-          decoding="async">
-        {{ end }}
-      </figure>
-
-      <div class="dialectics-footnote">
-        <span class="dialectics-footnote-label">当前版本</span>
-        <span>草稿与对话记录保存在浏览器本地</span>
-        <span aria-hidden="true">·</span>
-        <span>当前分析只参考最近 {{ $maxHistoryMessages }} 条历史消息</span>
-        <span aria-hidden="true">·</span>
-        <span>无状态接口契约，后端无需数据库</span>
-        <span aria-hidden="true">·</span>
-        <span>前后端分离，独立迭代</span>
-      </div>
-    </footer>
+    </form>
   </section>
+
+  <footer class="dialectics-footnote">
+    <span>这个网站不会保存你的对话数据</span>
+    <span aria-hidden="true">·</span>
+    <span>每次分析只会参考最近 {{ $maxHistoryMessages }} 条对话</span>
+  </footer>
 </div>
 
 {{ with resources.Get "js/dialectics.js" }}
