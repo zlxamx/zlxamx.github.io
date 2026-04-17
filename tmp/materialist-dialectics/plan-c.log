@@ -1,0 +1,49 @@
+# Plan C 实施日志
+
+方案目标：在现有问答模式基础上，为每次回答增加可折叠的"本次分析路径"段。
+用户可选择展开查看本次用到的唯物辩证法方法论标签，默认折叠不打扰轻用户。
+
+衡量指标：展开率。
+- 展开率 < 5%：用户是工具心态，不再升级为教学模式
+- 展开率 > 15%：有学习需求，再把教学模式作为 C 的升级版做出来
+
+---
+
+## 2026-04-17 08:42 +0800 — 日志文件创建
+
+建立本日志文件，用于记录 Plan C 的每一次改动与时间戳。
+记录位置：`tmp/materialist-dialectics/plan-c.log`
+
+---
+
+## 2026-04-17 08:45 +0800 — Step 1：后端 schema + 归一化
+
+**目的**：先定后端契约，后续 prompt / 前端都围绕这个 schema 走。
+
+**改动**：
+
+1. `runtime/materialist-dialectics-api/lib/openai.js`
+   - `RESPONSE_SCHEMA.meta.properties` 新增 `analysisPaths` 字段，
+     类型 `array<string>`，items enum 6 条：
+     `contradiction_analysis` / `concrete_analysis` / `primary_secondary`
+     / `quantity_quality` / `practice_test` / `internal_external`
+   - 加入 `required` 列表（OpenAI strict 模式要求所有 properties 都在 required 里）
+
+2. `runtime/materialist-dialectics-api/api/materialist-dialectics/chat.js`
+   - 新增 `ANALYSIS_PATH_ENUM` 常量 + `normalizeAnalysisPaths` 函数
+     （白名单过滤、去重、最多 4 条）
+   - `normalizeModelResult` 的返回值 meta 里多写一个 `analysisPaths`
+   - fallback 对象同步补 `analysisPaths: []`
+   - `directPolicyBlock` 的两个返回（自伤、违法）各补 `analysisPaths: []`
+
+3. `runtime/materialist-dialectics-proxy/src/index.js`（Cloudflare Worker 镜像）
+   - 以上所有改动同步一份，保持双后端契约一致
+   - 含 OpenAI refusal 路径的 meta
+
+**约束**：数量/频率约束（1–4 条）写在 prompt 层，不进 schema。
+OpenAI strict 模式对 minItems/maxItems 支持有限，放 prompt 更稳。
+
+**不破坏性验证**：
+- 老字段 `questionType` / `disclaimer` 原样保留，只是多一个字段
+- 前端若没读 `analysisPaths` 也完全不受影响
+- DeepSeek 路径走 json_object 模式、不吃 schema，靠 prompt 约束

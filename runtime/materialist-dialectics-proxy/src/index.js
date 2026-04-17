@@ -46,8 +46,22 @@ const RESPONSE_SCHEMA = {
           disclaimer: {
             type: "boolean",
           },
+          analysisPaths: {
+            type: "array",
+            items: {
+              type: "string",
+              enum: [
+                "contradiction_analysis",
+                "concrete_analysis",
+                "primary_secondary",
+                "quantity_quality",
+                "practice_test",
+                "internal_external",
+              ],
+            },
+          },
         },
-        required: ["questionType", "disclaimer"],
+        required: ["questionType", "disclaimer", "analysisPaths"],
       },
     },
     required: ["status", "message", "meta"],
@@ -234,6 +248,7 @@ function directPolicyBlock(input) {
       meta: {
         questionType: "out_of_scope",
         disclaimer: true,
+        analysisPaths: [],
       },
     };
   }
@@ -250,11 +265,38 @@ function directPolicyBlock(input) {
       meta: {
         questionType: "out_of_scope",
         disclaimer: false,
+        analysisPaths: [],
       },
     };
   }
 
   return null;
+}
+
+const ANALYSIS_PATH_ENUM = [
+  "contradiction_analysis",
+  "concrete_analysis",
+  "primary_secondary",
+  "quantity_quality",
+  "practice_test",
+  "internal_external",
+];
+
+function normalizeAnalysisPaths(raw) {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  const seen = new Set();
+  const out = [];
+  raw.forEach((value) => {
+    if (typeof value !== "string") return;
+    if (!ANALYSIS_PATH_ENUM.includes(value)) return;
+    if (seen.has(value)) return;
+    seen.add(value);
+    out.push(value);
+  });
+  return out.slice(0, 4);
 }
 
 function normalizeModelResult(result, sessionId) {
@@ -264,6 +306,7 @@ function normalizeModelResult(result, sessionId) {
     meta: {
       questionType: "unknown",
       disclaimer: false,
+      analysisPaths: [],
       sessionId,
     },
   };
@@ -300,6 +343,7 @@ function normalizeModelResult(result, sessionId) {
     meta: {
       questionType,
       disclaimer: Boolean(meta.disclaimer),
+      analysisPaths: normalizeAnalysisPaths(meta.analysisPaths),
       sessionId,
     },
   };
@@ -715,6 +759,7 @@ async function callOpenAI({ apiKey, model, baseUrl, instructions, input, maxOutp
       meta: {
         questionType: "out_of_scope",
         disclaimer: false,
+        analysisPaths: [],
       },
     };
   }

@@ -32,8 +32,22 @@ const RESPONSE_SCHEMA = {
           disclaimer: {
             type: "boolean",
           },
+          analysisPaths: {
+            type: "array",
+            items: {
+              type: "string",
+              enum: [
+                "contradiction_analysis",
+                "concrete_analysis",
+                "primary_secondary",
+                "quantity_quality",
+                "practice_test",
+                "internal_external",
+              ],
+            },
+          },
         },
-        required: ["questionType", "disclaimer"],
+        required: ["questionType", "disclaimer", "analysisPaths"],
       },
     },
     required: ["status", "message", "meta"],
