@@ -136,3 +136,65 @@ Schema 层解决"字段存在 + 值合法"，prompt 层解决"字段真实反映
   （`kind !== "answer"` 已过滤）
 
 **待完成**：Step 4 文档同步（SKILL.md + Obsidian vault 说明新字段）。
+
+---
+
+## 2026-04-17 09:27 +0800 — Step 4：SKILL.md 文档同步
+
+**目的**：把 analysisPaths 这个新字段的行为规则写进 canonical SKILL.md，
+避免下次迭代 prompt / skill 时遗忘它。三层一致性闭合。
+
+**改动**：
+
+两份 SKILL.md 各追加新节「## 十、分析路径标签（前端折叠展示）」：
+
+1. `tmp/materialist-dialectics/SKILL.md`（git 追踪）
+2. `~/付费专栏/知识库/skills/materialist-dialectics/SKILL.md`（Obsidian canonical）
+
+新节内容：
+- 简短定位："这不是贴标签装门面。是让用户看到你真做了什么。"
+- 六个合法取值表（与 prompt.js 完全对齐）
+- 填写规则 5 条（1–4 条、必须真用到、轻中重档位、按支撑强度排序、
+  reject/follow_up 填空数组）
+- 四类典型组合（非强制，仅参考）
+- 反形式主义提醒
+
+**顺手修掉的旧分歧**：
+
+发现两份 SKILL.md 在本次改动前就有一条小分歧——
+canonical 末尾有「如果第五条答案是"更像表演"，就重写」
+这句补丁，tracked 副本里没有。趁这次同步顺手把 tracked 也补上，
+两份现在 `diff` 返回 IDENTICAL。
+
+**三层一致性现状**：
+- SKILL.md（两份）：✅ 一致
+- prompt.js（Vercel）：✅ 已部署（需要手动 promote 到 production）
+- index.js（Worker）：✅ 已部署（只做代理，无业务逻辑差异）
+- 前端 dialectics.js + dialectics.css：✅ 已上线
+
+---
+
+## Plan C 整体小结
+
+✅ **已完成**
+- Step 1：后端 schema 加 analysisPaths 字段
+- Step 2：prompt 指示模型回填
+- Step 3：前端折叠 UI + 导出附带
+- Step 4：SKILL.md 文档同步
+
+🎯 **KPI 观察**
+待用户自然流量跑一段时间后，观察「本次用到的分析路径」折叠块的展开率：
+- < 5% → 用户以工具心态为主，不升级教学模式
+- > 15% → 有学习型用户群，考虑把教学模式作为 C 的升级版
+
+初步验证（截图测试）：
+- 折叠块正确挂在 disclaimer 之后、消息最末
+- 模型填的 3 条路径（具体问题具体分析 / 矛盾分析 / 实践检验）
+  都能在正文里找到对应动作，不是贴标签
+- 通俗化文案可读
+
+📝 **遗留**
+1. disclaimer 字段偶有过度（execution 类不该挂"仅供参考"尾巴），
+   属边缘瑕疵，未来可在 prompt 再收紧一次
+2. Vercel 生产部署需手动 promote（或把 master 设为生产分支）——
+   部署配置问题，下次部署前先根治
