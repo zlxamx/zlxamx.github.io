@@ -81,3 +81,58 @@ Schema 层解决"字段存在 + 值合法"，prompt 层解决"字段真实反映
 - 原有"# 六、disclaimer 字段"等编号都不变；只在末尾追加新节
 - 新节写法与 disclaimer 字段节平行，模型熟悉这个模式
 - 五项自检维持 5 条，不加第 6 条，避免 prompt 臃肿
+
+---
+
+## 2026-04-17 08:55 +0800 — Step 3：前端折叠展示
+
+**目的**：在 assistant 的 `answer` 消息底下挂一个默认折叠的
+「本次用到的分析路径」块，展开后显示保留的辩证法术语标签 + 通俗化解释。
+
+**UI 形态**：原生 `<details>` / `<summary>` —— 最轻、零 JS、键盘可达、
+浏览器内置折叠行为。
+
+**文案**：标签保留辩证法原词（钩子 = 教学价值），
+解释改为通俗版（老用户不反感、新用户能看懂）。六条最终文案：
+
+- 矛盾分析：这件事里真正在打架的是什么？先找出来，再看谁是主角、谁是配角
+- 具体问题具体分析：就这个人、这件事、这个处境来判断，不套通用公式
+- 主次矛盾：分清哪个是根子问题、哪个只是表面，先解决根子
+- 量变质变：小变化慢慢积累，到某个点突然变性质——看现在处在哪一段
+- 实践检验：想不清的事，用行动去试一试，真假会自己暴露
+- 内因外因：问题出在自己身上还是环境？外面的条件解释不通，就回头看自己
+
+**改动**：
+
+1. `assets/js/dialectics.js`
+   - 新增 `ANALYSIS_PATHS` 常量（6 条，key + label + note）
+   - 新增 `ANALYSIS_PATH_INDEX` 查表
+   - 新增 `normalizeAnalysisPaths` 前端兜底（白名单 + 去重 + 最多 4 条）
+   - `normalizeStoredMessage` 扩展：从 localStorage 读回时保留 analysisPaths
+   - `createMessage` 扩展：多接一个 analysisPaths 参数
+   - 新增 `createAnalysisPathsElement(paths)` 渲染 `<details>` + `<ul>`
+   - `createMessageElement` 在 role=assistant && kind=answer && paths>0 时
+     追加折叠块；追问 / 拒答 / 用户消息不挂
+   - 接 API 响应处传入 `result.meta.analysisPaths`
+   - `createExportPayload` 把分析路径附加写入导出的 markdown
+
+2. `assets/css/dialectics.css`
+   - 新增 `.dialectics-paths` 块样式：
+     - 顶部虚线分隔、0.7rem 上边距
+     - `<summary>` 等宽小字 + 自绘三角箭头，移除浏览器默认 marker
+     - 打开时三角旋转 90deg（CSS transition）
+     - 列表项：label 粗体 0.88rem，note 淡色 0.85rem
+     - 复用现有 CSS 变量：`--d-hairline` / `--d-ink` / `--d-ink-soft` / `--font-mono`
+
+**验证**：
+- `node -c` 语法检查通过
+- 本地 Hugo build 通过（Chinese 被转成 `\uXXXX` 转义字面量，无语义差）
+
+**兼容性**：
+- 旧 localStorage 里存的消息没有 analysisPaths → `normalizeStoredMessage`
+  兜底成 `[]` → 条件判断过不去，旧消息不显示折叠块，完全不破坏
+- `meta.analysisPaths` 在旧后端响应里不存在 → 兜底成 `[]` → 同上
+- 追问 / 拒答消息按规则 `analysisPaths` 应为 `[]`，即使模型错填一条也不显示
+  （`kind !== "answer"` 已过滤）
+
+**待完成**：Step 4 文档同步（SKILL.md + Obsidian vault 说明新字段）。

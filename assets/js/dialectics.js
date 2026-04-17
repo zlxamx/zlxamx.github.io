@@ -1,3 +1,60 @@
+const ANALYSIS_PATHS = [
+  {
+    key: "contradiction_analysis",
+    label: "矛盾分析",
+    note: "这件事里真正在打架的是什么？先找出来，再看谁是主角、谁是配角。",
+  },
+  {
+    key: "concrete_analysis",
+    label: "具体问题具体分析",
+    note: "就这个人、这件事、这个处境来判断，不套通用公式。",
+  },
+  {
+    key: "primary_secondary",
+    label: "主次矛盾",
+    note: "分清哪个是根子问题、哪个只是表面，先解决根子。",
+  },
+  {
+    key: "quantity_quality",
+    label: "量变质变",
+    note: "小变化慢慢积累，到某个点突然变性质——看现在处在哪一段。",
+  },
+  {
+    key: "practice_test",
+    label: "实践检验",
+    note: "想不清的事，用行动去试一试，真假会自己暴露。",
+  },
+  {
+    key: "internal_external",
+    label: "内因外因",
+    note: "问题出在自己身上还是环境？外面的条件解释不通，就回头看自己。",
+  },
+];
+
+const ANALYSIS_PATH_INDEX = ANALYSIS_PATHS.reduce((acc, item) => {
+  acc[item.key] = item;
+  return acc;
+}, {});
+
+function normalizeAnalysisPaths(raw) {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  const seen = new Set();
+  const out = [];
+
+  raw.forEach((value) => {
+    if (typeof value !== "string") return;
+    if (!ANALYSIS_PATH_INDEX[value]) return;
+    if (seen.has(value)) return;
+    seen.add(value);
+    out.push(value);
+  });
+
+  return out.slice(0, 4);
+}
+
 function createSessionId() {
   if (window.crypto && typeof window.crypto.randomUUID === "function") {
     return window.crypto.randomUUID();
@@ -23,6 +80,7 @@ function normalizeStoredMessage(message) {
     kind: typeof message.kind === "string" ? message.kind : "",
     content,
     createdAt: typeof message.createdAt === "string" ? message.createdAt : "",
+    analysisPaths: normalizeAnalysisPaths(message.analysisPaths),
   };
 }
 
@@ -127,13 +185,49 @@ function formatMessageTimestamp(value) {
   return formatExportTimestamp(date).display;
 }
 
-function createMessage(role, kind, content) {
+function createMessage(role, kind, content, analysisPaths = []) {
   return {
     role,
     kind,
     content,
     createdAt: new Date().toISOString(),
+    analysisPaths: normalizeAnalysisPaths(analysisPaths),
   };
+}
+
+function createAnalysisPathsElement(paths) {
+  const details = document.createElement("details");
+  details.className = "dialectics-paths";
+
+  const summary = document.createElement("summary");
+  summary.className = "dialectics-paths-summary";
+  summary.textContent = `本次用到的分析路径（${paths.length}）`;
+  details.append(summary);
+
+  const list = document.createElement("ul");
+  list.className = "dialectics-paths-list";
+
+  paths.forEach((key) => {
+    const meta = ANALYSIS_PATH_INDEX[key];
+    if (!meta) return;
+
+    const item = document.createElement("li");
+    item.className = "dialectics-paths-item";
+
+    const label = document.createElement("span");
+    label.className = "dialectics-paths-label";
+    label.textContent = meta.label;
+
+    const note = document.createElement("span");
+    note.className = "dialectics-paths-note";
+    note.textContent = meta.note;
+
+    item.append(label, note);
+    list.append(item);
+  });
+
+  details.append(list);
+  return details;
 }
 
 function createExportPayload(pageTitle, state) {
@@ -163,6 +257,20 @@ function createExportPayload(pageTitle, state) {
         "",
         message.content.trim() || "（空内容）",
       );
+
+      const paths = Array.isArray(message.analysisPaths) ? message.analysisPaths : [];
+      if (
+        message.role === "assistant" &&
+        (message.kind || "answer") === "answer" &&
+        paths.length > 0
+      ) {
+        lines.push("", "本次用到的分析路径：");
+        paths.forEach((key) => {
+          const meta = ANALYSIS_PATH_INDEX[key];
+          if (!meta) return;
+          lines.push(`- ${meta.label}：${meta.note}`);
+        });
+      }
     });
   }
 
@@ -329,6 +437,16 @@ function createMessageElement(message) {
   }
 
   article.append(label, body);
+
+  const paths = Array.isArray(message.analysisPaths) ? message.analysisPaths : [];
+  if (
+    message.role === "assistant" &&
+    (message.kind || "answer") === "answer" &&
+    paths.length > 0
+  ) {
+    article.append(createAnalysisPathsElement(paths));
+  }
+
   return article;
 }
 
@@ -631,6 +749,7 @@ function initDialecticsPage() {
           "assistant",
           result.status || "answer",
           result.message || "这次没拿到回复内容。",
+          result && result.meta ? result.meta.analysisPaths : [],
         ),
       );
       archiveOverflowMessages(state, maxHistoryMessages);

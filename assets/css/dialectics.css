@@ -387,6 +387,70 @@
   padding: 0.05rem 0 0.05rem 1rem;
 }
 
+/* Analysis paths — folded disclosure under an answer */
+.dialectics-paths {
+  border-top: 1px dashed var(--d-hairline);
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+}
+
+.dialectics-paths-summary {
+  color: var(--d-ink-soft);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  list-style: none;
+  padding: 0.1rem 0;
+  user-select: none;
+}
+
+.dialectics-paths-summary::-webkit-details-marker {
+  display: none;
+}
+
+.dialectics-paths-summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 0.45rem;
+  transition: transform 0.18s ease;
+}
+
+.dialectics-paths[open] > .dialectics-paths-summary::before {
+  transform: rotate(90deg);
+}
+
+.dialectics-paths-summary:hover,
+.dialectics-paths-summary:focus-visible {
+  color: var(--d-ink);
+  outline: none;
+}
+
+.dialectics-paths-list {
+  display: grid;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0.55rem 0 0.15rem;
+  padding: 0;
+}
+
+.dialectics-paths-item {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.dialectics-paths-label {
+  color: var(--d-ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.dialectics-paths-note {
+  color: var(--d-ink-soft);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
 /* Follow-up — tinted card */
 .dialectics-message.is-follow_up {
   background: var(--d-accent-tint);
