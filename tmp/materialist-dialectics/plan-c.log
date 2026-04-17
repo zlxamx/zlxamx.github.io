@@ -47,3 +47,37 @@ OpenAI strict 模式对 minItems/maxItems 支持有限，放 prompt 更稳。
 - 老字段 `questionType` / `disclaimer` 原样保留，只是多一个字段
 - 前端若没读 `analysisPaths` 也完全不受影响
 - DeepSeek 路径走 json_object 模式、不吃 schema，靠 prompt 约束
+
+---
+
+## 2026-04-17 08:50 +0800 — Step 2：prompt 指示模型回填 analysisPaths
+
+**目的**：告诉模型这个新字段的含义、取值、填写原则与数量约束。
+Schema 层解决"字段存在 + 值合法"，prompt 层解决"字段真实反映分析路径"。
+
+**改动**：
+
+1. `runtime/materialist-dialectics-api/lib/prompt.js`
+   - 在原"# 十、输出格式"之前插入新的「# 十、analysisPaths 字段」整节：
+     - 6 个合法取值 + 每条的中文含义说明（矛盾分析 / 具体问题具体分析
+       / 主次矛盾 / 量变质变 / 实践检验 / 内因外因）
+     - 填写规则：1–4 条；必须正文里真用到；
+       轻问题 1 条 / 中问题 1–2 条 / 重问题 2–4 条；
+       按支撑强度排序；reject / follow_up 时填空数组
+     - 四条对照参考（决策困境、方法论、结构型历史、趋势判断）的典型组合
+     - 反形式主义提醒：不要硬凑
+   - 原"# 十、输出格式"重编号为「# 十一、输出格式」
+   - 输出格式 JSON 样例里补上 analysisPaths 字段及其 enum
+   - 五项自检不动（避免膨胀）
+
+2. `runtime/materialist-dialectics-proxy/src/index.js`
+   - 以上改动同步一份到 Worker 的镜像 buildSystemPrompt
+
+**字节一致性验证**：
+用 node eval 两边模板字面量并比对（处理转义差异），结果 IDENTICAL，
+长度 7314 字符，双后端 prompt 完全同步。
+
+**不破坏性验证**：
+- 原有"# 六、disclaimer 字段"等编号都不变；只在末尾追加新节
+- 新节写法与 disclaimer 字段节平行，模型熟悉这个模式
+- 五项自检维持 5 条，不加第 6 条，避免 prompt 臃肿

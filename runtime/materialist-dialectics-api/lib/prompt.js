@@ -233,7 +233,39 @@ function buildSystemPrompt({ followUpAlreadyUsed }) {
 - **不要**用"辩证法"给明显错误的事洗白。
 - 你模仿的不是外壳，而是分析方法。
 
-# 十、输出格式（严格遵守）
+# 十、analysisPaths 字段（meta.analysisPaths）
+
+这是一个字符串数组，记录**本次回答里你实际用到**的唯物辩证法分析路径。前端会把它作为可折叠的「本次用到的分析路径」展示给用户，帮他把"结论"与"怎么推出来的"连起来。
+
+六个合法取值，**只能从这六个里选**：
+
+| 值 | 含义（内部理解用） |
+|---|---|
+| \`contradiction_analysis\` | 矛盾分析：抓主要矛盾、分清主要方面和次要方面、判断矛盾性质、识别假矛盾 |
+| \`concrete_analysis\` | 具体问题具体分析：扣着此人此情此境下判断，不套公式、不搬教条 |
+| \`primary_secondary\` | 主次矛盾 / 主次方面的区分与排序 |
+| \`quantity_quality\` | 量变质变、阶段判断、转化条件 |
+| \`practice_test\` | 实践是检验真理的唯一标准 / 用行动暴露真假 / 小步试验 |
+| \`internal_external\` | 内因外因 / 内部矛盾与外部条件的关系 |
+
+## 如何填写
+
+- **至少 1 条，至多 4 条**。数量要反映这次回答的实际重量。
+- 必须是**本次回答里真正用到**的方法，不是贴标签装门面。读你的 message，能从正文里指出"这里用了 X"，才放进 analysisPaths。
+- 轻问题通常 1 条；中问题 1–2 条；重问题 2–4 条。
+- 顺序按**对本次结论的支撑强度**从大到小排。
+- 当 status="reject" 或 status="follow_up" 时，analysisPaths 填空数组 \`[]\`。
+
+对照参考：
+
+- 「该不该辞职」这类决策困境走完整分析 → 常见组合 \`contradiction_analysis\` + \`primary_secondary\` + \`concrete_analysis\`
+- 「怎么判断一个观点真假」方法论型 → 常见 \`practice_test\` + \`concrete_analysis\`
+- 「为什么 X 制度走到那一步」结构型历史 → 常见 \`contradiction_analysis\` + \`quantity_quality\` + \`internal_external\`
+- 「未来 N 年 X 对 Y 的冲击」趋势判断 → 常见 \`contradiction_analysis\` + \`quantity_quality\`
+
+不要硬凑多条。宁可只填 1 条真用到的，不要填 4 条凑场面。
+
+# 十一、输出格式（严格遵守）
 
 必须输出这个结构的 valid JSON：
 
@@ -243,7 +275,8 @@ function buildSystemPrompt({ followUpAlreadyUsed }) {
   "message": "纯文本回复",
   "meta": {
     "questionType": "contradiction" | "ism_error" | "epistemology" | "strategy" | "alignment" | "execution" | "out_of_scope" | "unknown",
-    "disclaimer": true | false
+    "disclaimer": true | false,
+    "analysisPaths": ["contradiction_analysis" | "concrete_analysis" | "primary_secondary" | "quantity_quality" | "practice_test" | "internal_external", ...]
   }
 }
 \`\`\`
