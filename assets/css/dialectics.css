@@ -1,44 +1,54 @@
 /*
- * Dialectics — workspace redesign
+ * Dialectics — Materialist redesign
  *
- * Structure:
+ * Aesthetic: "Analytical Archive" — editorial, authoritative, hard-edged.
+ * Blood-red accent replaces terracotta; squared geometry replaces pill/round;
+ * Monaspace used aggressively for all UI chrome; dot-grid intro texture.
+ *
+ * Structure (unchanged):
  *   .dialectics-shell
- *     .dialectics-intro-block (hero + inline info tabs + optional info panel)
- *     .dialectics-workspace   (unified card containing thread + suggestions + composer)
- *     .dialectics-footnote    (thin meta strip)
+ *     .dialectics-intro-block  (hero + info tabs + info panel)
+ *     .dialectics-workspace    (unified card: thread + suggestions + composer)
+ *     .dialectics-footnote     (meta strip)
  *
- * Must preserve (consumed by assets/js/dialectics.js):
- *   data-* hooks on root, form, input, thread, runtime-status, info-*,
+ * JS hooks preserved (consumed by assets/js/dialectics.js):
+ *   data-* on root, form, input, thread, runtime-status, info-*,
  *   prompt buttons, export/reset/submit.
- *   Class state names: is-user, is-system, is-archived, is-answer,
+ *   State classes: is-user, is-system, is-archived, is-answer,
  *   is-follow_up, is-reject, is-online, is-offline, is-error, is-active.
  */
 
 .dialectics-shell {
-  --d-accent: light-dark(#a14f31, #d98968);
-  --d-accent-ink: light-dark(#7a3a22, #f0a382);
-  --d-accent-tint: light-dark(rgba(161, 79, 49, 0.07), rgba(217, 137, 104, 0.12));
-  --d-accent-glow: light-dark(rgba(161, 79, 49, 0.18), rgba(217, 137, 104, 0.24));
-  --d-accent-edge: light-dark(rgba(161, 79, 49, 0.32), rgba(217, 137, 104, 0.34));
+  /* ── Accent: blood red ─────────────────────────────────────── */
+  --d-accent:       light-dark(#be2c2c, #e84848);
+  --d-accent-ink:   light-dark(#891e1e, #ff7272);
+  --d-accent-tint:  light-dark(rgba(190, 44, 44, 0.07), rgba(232, 72, 72, 0.10));
+  --d-accent-glow:  light-dark(rgba(190, 44, 44, 0.16), rgba(232, 72, 72, 0.22));
+  --d-accent-edge:  light-dark(rgba(190, 44, 44, 0.28), rgba(232, 72, 72, 0.36));
 
-  --d-hairline: light-dark(rgba(26, 23, 20, 0.09), rgba(231, 222, 211, 0.12));
-  --d-hairline-strong: light-dark(rgba(26, 23, 20, 0.18), rgba(231, 222, 211, 0.22));
+  /* ── Chrome ────────────────────────────────────────────────── */
+  --d-hairline:        light-dark(rgba(54, 48, 43, 0.10), rgba(231, 222, 211, 0.09));
+  --d-hairline-strong: light-dark(rgba(54, 48, 43, 0.22), rgba(231, 222, 211, 0.20));
 
-  --d-surface: light-dark(#ffffff, rgba(255, 255, 255, 0.025));
-  --d-surface-warm: light-dark(rgb(250, 248, 244), rgba(255, 255, 255, 0.035));
-  --d-surface-tint: light-dark(rgba(251, 249, 246, 0.72), rgba(255, 255, 255, 0.025));
+  /* ── Surfaces ──────────────────────────────────────────────── */
+  --d-surface:      light-dark(#f8f4ee, rgba(255, 255, 255, 0.028));
+  --d-surface-warm: light-dark(#f0e9dc, rgba(255, 255, 255, 0.040));
+  --d-surface-tint: light-dark(rgba(228, 216, 196, 0.42), rgba(255, 255, 255, 0.022));
 
-  --d-ink: var(--content-primary);
+  /* ── Ink ───────────────────────────────────────────────────── */
+  --d-ink:      var(--content-primary);
   --d-ink-soft: var(--content-secondary);
 
-  --d-success: light-dark(#1f7a43, #6ed28c);
-  --d-success-tint: light-dark(rgba(31, 122, 67, 0.12), rgba(110, 210, 140, 0.14));
-  --d-danger: light-dark(#b14242, #f08686);
-  --d-danger-tint: light-dark(rgba(177, 66, 66, 0.1), rgba(240, 134, 134, 0.12));
+  /* ── Semantic ──────────────────────────────────────────────── */
+  --d-success:      light-dark(#1a6e3a, #5eca80);
+  --d-success-tint: light-dark(rgba(26, 110, 58, 0.10), rgba(94, 202, 128, 0.12));
+  --d-danger:       light-dark(#b03030, #ef8080);
+  --d-danger-tint:  light-dark(rgba(176, 48, 48, 0.09), rgba(239, 128, 128, 0.11));
 
-  --d-radius-sm: 10px;
-  --d-radius: 14px;
-  --d-radius-lg: 22px;
+  /* ── Geometry: hard-edged ──────────────────────────────────── */
+  --d-radius-sm:   2px;
+  --d-radius:      4px;
+  --d-radius-lg:   6px;
   --d-radius-pill: 999px;
 
   color: var(--d-ink);
@@ -54,77 +64,101 @@
 
 .dialectics-intro-block {
   display: grid;
-  gap: 1rem;
+  gap: 0;
+  /* Subtle dot-grid texture on the intro area */
+  background-image: radial-gradient(
+    circle,
+    var(--d-hairline) 1px,
+    transparent 1px
+  );
+  background-position: 0 0;
+  background-size: 22px 22px;
+  padding-bottom: 0.25rem;
 }
 
 .dialectics-intro-lead {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem 1rem;
+  gap: 0.65rem 1rem;
   justify-content: space-between;
+  margin-bottom: 1.1rem;
 }
 
 .dialectics-brand {
   align-items: center;
   display: inline-flex;
-  gap: 0.7rem;
+  gap: 0.65rem;
   min-width: 0;
 }
 
 .dialectics-brand-avatar {
   aspect-ratio: 1;
-  border-radius: 999px;
-  box-shadow:
-    0 0 0 1px var(--d-hairline-strong),
-    0 6px 16px -10px var(--d-accent-glow);
+  border-radius: 50%;
+  filter: grayscale(0.35) contrast(1.08);
   flex-shrink: 0;
-  height: 2rem;
+  height: 2.1rem;
   object-fit: cover;
   object-position: 50% 28%;
-  width: 2rem;
+  outline: 2px solid var(--d-accent-edge);
+  outline-offset: 2px;
+  width: 2.1rem;
 }
 
 .dialectics-kicker {
   color: var(--d-ink-soft);
   font-family: var(--font-mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.16em;
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
+/* Title — oversized, with a full-width red rule beneath */
 .dialectics-title {
-  font-size: clamp(2.1rem, 1.5rem + 2.4vw, 3rem);
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1.04;
-  margin: 0.1rem 0 0;
+  font-size: clamp(2.4rem, 1.5rem + 3.6vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
+  margin: 0;
+  padding-bottom: 0.75rem;
+  position: relative;
+}
+
+.dialectics-title::after {
+  background: var(--d-accent);
+  bottom: 0;
+  content: "";
+  display: block;
+  height: 3px;
+  left: 0;
+  position: absolute;
+  width: 100%;
 }
 
 .dialectics-subtitle {
   color: var(--d-ink-soft);
   font-size: 1rem;
   line-height: 1.72;
-  margin: 0;
-  max-width: 34rem;
+  margin: 0.85rem 0 0;
+  max-width: 36rem;
 }
 
-/* Status chip --------------------------------------------------------- */
+/* ── Status badge: rectangular, no pill ──────────────────────────── */
 
 .dialectics-status {
   align-items: center;
-  background: var(--d-surface-tint);
-  border: 1px solid var(--d-hairline);
-  border-radius: var(--d-radius-pill);
+  background: transparent;
+  border: 1px solid var(--d-hairline-strong);
+  border-radius: var(--d-radius-sm);
   color: var(--d-ink-soft);
   display: inline-flex;
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 0.73rem;
-  gap: 0.5rem;
-  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  gap: 0.45rem;
+  letter-spacing: 0.08em;
   line-height: 1;
-  padding: 0.44rem 0.78rem 0.44rem 0.68rem;
+  padding: 0.42rem 0.72rem;
   white-space: nowrap;
 }
 
@@ -132,19 +166,18 @@
   background: currentColor;
   border-radius: 999px;
   display: block;
-  height: 0.42rem;
+  height: 0.38rem;
   position: relative;
-  width: 0.42rem;
+  width: 0.38rem;
 }
 
 .dialectics-status.is-online {
-  background: var(--d-success-tint);
-  border-color: transparent;
+  border-color: var(--d-success);
   color: var(--d-success);
 }
 
 .dialectics-status.is-online .dialectics-status-dot::after {
-  animation: d-pulse 2.2s ease-out infinite;
+  animation: d-pulse 2.4s ease-out infinite;
   background: currentColor;
   border-radius: 999px;
   content: "";
@@ -161,79 +194,68 @@
 
 .dialectics-status.is-offline,
 .dialectics-status.is-error {
-  background: var(--d-danger-tint);
-  border-color: transparent;
+  border-color: var(--d-danger);
   color: var(--d-danger);
 }
 
-/* Inline info tabs (demoted, textual) -------------------------------- */
+/* ── Info tabs: background-fill style, monospace ─────────────────── */
 
 .dialectics-ribbon {
   align-items: center;
-  border-top: 1px solid var(--d-hairline);
+  border-top: 1px solid var(--d-hairline-strong);
   display: flex;
   flex-wrap: wrap;
-  gap: 0 1.5rem;
-  margin-top: 0.35rem;
-  padding-top: 0.65rem;
+  gap: 0 0.25rem;
+  margin-top: 1rem;
+  padding-top: 0.55rem;
 }
 
 .dialectics-tab {
   background: transparent;
   border: 0;
+  border-radius: var(--d-radius-sm);
   color: var(--d-ink-soft);
   cursor: pointer;
   font: inherit;
-  font-size: 0.88rem;
-  letter-spacing: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
   margin: 0;
-  padding: 0.45rem 0;
+  padding: 0.4rem 0.7rem;
   position: relative;
-  transition: color 0.18s ease;
+  transition: color 0.14s ease, background-color 0.14s ease;
 }
 
 .dialectics-tab:hover,
 .dialectics-tab:focus-visible {
+  background: var(--d-accent-tint);
   color: var(--d-ink);
   outline: none;
 }
 
 .dialectics-tab.is-active {
-  color: var(--d-ink);
-  font-weight: 600;
+  background: var(--d-accent-tint);
+  color: var(--d-accent);
+  font-weight: 700;
 }
 
-.dialectics-tab::after {
-  background: var(--d-accent);
-  border-radius: 999px;
-  bottom: -1px;
-  content: "";
-  height: 2px;
-  left: 0;
-  opacity: 0;
-  position: absolute;
-  right: 0;
-  transform: scaleX(0.4);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
+/* No underline animation */
+.dialectics-tab::after { display: none; }
 
-.dialectics-tab.is-active::after {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-/* Info panel --------------------------------------------------------- */
+/* ── Info panel: left-bordered ───────────────────────────────────── */
 
 .dialectics-info {
-  animation: d-info-in 0.24s ease-out both;
+  animation: d-info-in 0.20s ease-out both;
   background: var(--d-surface-warm);
   border: 1px solid var(--d-hairline);
-  border-radius: var(--d-radius);
-  padding: 1.25rem 1.35rem;
+  border-left: 3px solid var(--d-accent);
+  border-radius: 0 var(--d-radius) var(--d-radius) 0;
+  margin-top: 0.7rem;
+  padding: 1.2rem 1.3rem;
 }
 
 @keyframes d-info-in {
-  from { opacity: 0; transform: translateY(-4px); }
+  from { opacity: 0; transform: translateY(-3px); }
   to   { opacity: 1; transform: none; }
 }
 
@@ -244,17 +266,17 @@
 
 .dialectics-intro {
   color: var(--d-ink);
-  font-size: 0.98rem;
+  font-size: 0.97rem;
   line-height: 1.78;
 }
 
-.dialectics-intro p { margin: 0 0 0.75rem; }
+.dialectics-intro p { margin: 0 0 0.7rem; }
 .dialectics-intro p:last-child { margin-bottom: 0; }
 
 .dialectics-signal-list {
   display: grid;
-  gap: 0.95rem;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   list-style: none;
   margin: 0;
   padding: 0;
@@ -262,29 +284,29 @@
 
 .dialectics-signal-item {
   border-left: 2px solid var(--d-accent);
-  padding: 0.05rem 0 0.25rem 0.95rem;
+  padding: 0.05rem 0 0.2rem 0.9rem;
 }
 
 .dialectics-signal-label {
   color: var(--d-ink-soft);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-size: 0.69rem;
+  letter-spacing: 0.14em;
   margin: 0;
   text-transform: uppercase;
 }
 
 .dialectics-signal-value {
-  font-size: 1.08rem;
-  font-weight: 600;
+  font-size: 1.06rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
-  margin: 0.2rem 0 0.35rem;
+  margin: 0.18rem 0 0.3rem;
 }
 
 .dialectics-signal-note {
   color: var(--d-ink-soft);
-  font-size: 0.92rem;
-  line-height: 1.65;
+  font-size: 0.89rem;
+  line-height: 1.62;
   margin: 0;
 }
 
@@ -298,45 +320,46 @@
 
 .dialectics-guardrail-list li {
   color: var(--d-ink);
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 0.94rem;
+  line-height: 1.68;
   margin: 0;
-  padding: 0 0 0 1.35rem;
+  padding: 0 0 0 1.4rem;
   position: relative;
 }
 
 .dialectics-guardrail-list li::before {
   color: var(--d-danger);
-  content: "—";
+  content: "×";
   font-family: var(--font-mono);
-  left: 0;
+  font-weight: 700;
+  left: 0.1rem;
   position: absolute;
-  top: 0;
+  top: 0.04rem;
 }
 
 /* ======================================================================
- * Workspace — unified card (thread + suggestions + composer)
+ * Workspace — unified card: hard top border, squared geometry
  * =================================================================== */
 
 .dialectics-workspace {
-  background: var(--d-surface-warm);
-  border: 1px solid var(--d-hairline);
+  background: var(--d-surface);
+  border: 1px solid var(--d-hairline-strong);
   border-radius: var(--d-radius-lg);
+  border-top: 3px solid var(--d-accent);
   display: grid;
   overflow: hidden;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.18s ease;
 }
 
 .dialectics-workspace:focus-within {
-  border-color: var(--d-accent-edge);
-  box-shadow: 0 0 0 4px var(--d-accent-tint);
+  box-shadow: 0 0 0 3px var(--d-accent-tint);
 }
 
-/* Thread -------------------------------------------------------------- */
+/* ── Thread ──────────────────────────────────────────────────────── */
 
 .dialectics-thread {
   display: grid;
-  gap: 1.15rem;
+  gap: 1.1rem;
   max-height: min(54vh, 28rem);
   min-height: 15rem;
   overflow-y: auto;
@@ -346,30 +369,32 @@
   scrollbar-width: thin;
 }
 
-.dialectics-thread::-webkit-scrollbar { width: 6px; }
+.dialectics-thread::-webkit-scrollbar { width: 4px; }
 .dialectics-thread::-webkit-scrollbar-track { background: transparent; }
 .dialectics-thread::-webkit-scrollbar-thumb {
   background: var(--d-accent-edge);
-  border-radius: 999px;
+  border-radius: 0;
 }
 
+/* ── Message base ────────────────────────────────────────────────── */
+
 .dialectics-message {
-  animation: d-message-in 0.28s ease-out both;
+  animation: d-message-in 0.24s ease-out both;
   display: grid;
-  gap: 0.32rem;
+  gap: 0.26rem;
   max-width: 100%;
 }
 
 @keyframes d-message-in {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: none; }
 }
 
 .dialectics-message-label {
   color: var(--d-ink-soft);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
   margin: 0;
   text-transform: uppercase;
 }
@@ -381,16 +406,17 @@
   white-space: pre-wrap;
 }
 
-/* Assistant default — subtle accent bar */
+/* Answer: stronger left bar (3px) */
 .dialectics-message.is-answer {
-  border-left: 2px solid var(--d-accent);
-  padding: 0.05rem 0 0.05rem 1rem;
+  border-left: 3px solid var(--d-accent);
+  padding: 0.08rem 0 0.08rem 1rem;
 }
 
-/* Analysis paths — folded disclosure under an answer */
+/* ── Analysis paths disclosure ───────────────────────────────────── */
+
 .dialectics-paths {
-  border-top: 1px dashed var(--d-hairline);
-  margin-top: 0.7rem;
+  border-top: 1px dashed var(--d-hairline-strong);
+  margin-top: 0.75rem;
   padding-top: 0.55rem;
 }
 
@@ -398,22 +424,21 @@
   color: var(--d-ink-soft);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
   list-style: none;
   padding: 0.1rem 0;
+  text-transform: uppercase;
   user-select: none;
 }
 
-.dialectics-paths-summary::-webkit-details-marker {
-  display: none;
-}
+.dialectics-paths-summary::-webkit-details-marker { display: none; }
 
 .dialectics-paths-summary::before {
   content: "▸";
   display: inline-block;
   margin-right: 0.45rem;
-  transition: transform 0.18s ease;
+  transition: transform 0.15s ease;
 }
 
 .dialectics-paths[open] > .dialectics-paths-summary::before {
@@ -422,13 +447,13 @@
 
 .dialectics-paths-summary:hover,
 .dialectics-paths-summary:focus-visible {
-  color: var(--d-ink);
+  color: var(--d-accent);
   outline: none;
 }
 
 .dialectics-paths-list {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.48rem;
   list-style: none;
   margin: 0.55rem 0 0.15rem;
   padding: 0;
@@ -436,61 +461,62 @@
 
 .dialectics-paths-item {
   display: grid;
-  gap: 0.15rem;
+  gap: 0.12rem;
 }
 
 .dialectics-paths-label {
   color: var(--d-ink);
-  font-size: 0.88rem;
+  font-size: 0.87rem;
   font-weight: 600;
 }
 
 .dialectics-paths-note {
   color: var(--d-ink-soft);
-  font-size: 0.85rem;
-  line-height: 1.6;
+  font-size: 0.84rem;
+  line-height: 1.58;
 }
 
-/* Follow-up — tinted card */
+/* Follow-up: accent-tinted, left border */
 .dialectics-message.is-follow_up {
   background: var(--d-accent-tint);
   border: 1px solid var(--d-accent-edge);
-  border-radius: var(--d-radius);
-  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--d-accent);
+  border-radius: 0 var(--d-radius) var(--d-radius) 0;
+  padding: 0.88rem 1.05rem;
 }
 
 .dialectics-message.is-follow_up .dialectics-message-label {
   color: var(--d-accent-ink);
 }
 
-/* Reject — boundary */
+/* Reject: dashed danger border */
 .dialectics-message.is-reject {
   background: var(--d-danger-tint);
   border: 1px dashed var(--d-danger);
   border-radius: var(--d-radius);
-  padding: 0.85rem 1rem;
+  padding: 0.88rem 1.05rem;
 }
 
 .dialectics-message.is-reject .dialectics-message-label {
   color: var(--d-danger);
 }
 
-/* User bubble — right pill */
+/* User: hard rectangle, accent fill, cut bottom-right corner */
 .dialectics-message.is-user {
   background: var(--d-accent);
-  border-radius: 1.1rem 1.1rem 0.4rem 1.1rem;
-  color: light-dark(#fff8f3, #1a1714);
+  border-radius: var(--d-radius-sm) var(--d-radius-sm) 0 var(--d-radius-sm);
+  color: light-dark(#fff4f0, #1a0808);
   justify-self: end;
-  max-width: min(86%, 34rem);
-  padding: 0.78rem 1.05rem;
+  max-width: min(88%, 34rem);
+  padding: 0.82rem 1.1rem;
 }
 
 .dialectics-message.is-user .dialectics-message-label {
   color: inherit;
-  opacity: 0.75;
+  opacity: 0.68;
 }
 
-/* System placeholder — quiet centered */
+/* System placeholder: centered, muted */
 .dialectics-message.is-system {
   color: var(--d-ink-soft);
   font-size: 0.9rem;
@@ -511,7 +537,7 @@
   line-height: 1.65;
 }
 
-/* Archived notice — subtle block */
+/* Archived notice */
 .dialectics-message.is-system.is-archived {
   background: var(--d-surface-tint);
   border: 1px dashed var(--d-hairline-strong);
@@ -527,56 +553,56 @@
   display: block;
 }
 
-/* Suggestions (inside workspace, empty-state only) ------------------- */
+/* ── Suggestions: left-bordered list style ───────────────────────── */
 
 .dialectics-suggestions {
   border-top: 1px dashed var(--d-hairline);
   display: grid;
-  gap: 0.65rem;
-  padding: 1rem 1.25rem 0.95rem;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem 0.9rem;
 }
 
 .dialectics-suggestions-kicker {
   color: var(--d-ink-soft);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  font-size: 0.69rem;
+  letter-spacing: 0.16em;
   margin: 0;
   text-transform: uppercase;
 }
 
 .dialectics-suggestions-list {
   display: grid;
-  gap: 0.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: 0.42rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr));
 }
 
 .dialectics-prompt-chip {
-  background: var(--d-surface);
-  border: 1px solid var(--d-hairline);
-  border-radius: var(--d-radius);
+  background: transparent;
+  border: 1px solid var(--d-hairline-strong);
+  border-left: 3px solid var(--d-hairline-strong);
+  border-radius: 0 var(--d-radius-sm) var(--d-radius-sm) 0;
   color: var(--d-ink);
   cursor: pointer;
   font: inherit;
-  font-size: 0.92rem;
-  line-height: 1.6;
-  padding: 0.78rem 0.95rem;
+  font-size: 0.90rem;
+  line-height: 1.58;
+  padding: 0.72rem 2.2rem 0.72rem 0.9rem;
   position: relative;
   text-align: left;
-  transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  transition: background-color 0.14s ease, border-color 0.14s ease;
 }
 
 .dialectics-prompt-chip:hover,
 .dialectics-prompt-chip:focus-visible {
   background: var(--d-accent-tint);
   border-color: var(--d-accent-edge);
+  border-left-color: var(--d-accent);
   outline: none;
-  transform: translateY(-1px);
 }
 
 .dialectics-prompt-copy {
   display: block;
-  padding-right: 1.2rem;
 }
 
 .dialectics-prompt-chip::after {
@@ -586,17 +612,18 @@
   opacity: 0;
   position: absolute;
   right: 0.85rem;
-  top: 0.78rem;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  transition: opacity 0.14s ease, transform 0.14s ease;
 }
 
 .dialectics-prompt-chip:hover::after,
 .dialectics-prompt-chip:focus-visible::after {
   opacity: 1;
-  transform: translateX(3px);
+  transform: translateY(-50%) translateX(0);
 }
 
-/* CSS-only empty-state switch: hide suggestions when any real message exists */
+/* CSS-only hide when conversation started */
 .dialectics-shell:has(.dialectics-message.is-user) .dialectics-suggestions,
 .dialectics-shell:has(.dialectics-message.is-answer) .dialectics-suggestions,
 .dialectics-shell:has(.dialectics-message.is-follow_up) .dialectics-suggestions,
@@ -604,21 +631,21 @@
   display: none;
 }
 
-/* Composer (inside workspace) ---------------------------------------- */
+/* ── Composer ────────────────────────────────────────────────────── */
 
 .dialectics-composer {
   border-top: 1px solid var(--d-hairline);
   display: grid;
-  gap: 0.45rem;
-  padding: 1.05rem 1.25rem 0.95rem;
+  gap: 0.4rem;
+  padding: 0.95rem 1.25rem 0.9rem;
   position: relative;
 }
 
 .dialectics-composer-label {
   color: var(--d-ink-soft);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  font-size: 0.69rem;
+  letter-spacing: 0.16em;
   margin: 0;
   text-transform: uppercase;
 }
@@ -638,7 +665,7 @@
 
 .dialectics-input::placeholder {
   color: var(--d-ink-soft);
-  opacity: 0.65;
+  opacity: 0.58;
 }
 
 .dialectics-input:focus-visible { outline: none; }
@@ -647,22 +674,22 @@
   align-items: end;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.7rem 1rem;
+  gap: 0.65rem 1rem;
   justify-content: space-between;
-  padding-top: 0.15rem;
+  padding-top: 0.18rem;
 }
 
 .dialectics-composer-meta {
   display: grid;
   flex: 1 1 14rem;
-  gap: 0.2rem;
+  gap: 0.18rem;
   min-width: 0;
 }
 
 .dialectics-inline-note,
 .dialectics-counter {
   color: var(--d-ink-soft);
-  font-size: 0.82rem;
+  font-size: 0.80rem;
   margin: 0;
 }
 
@@ -674,21 +701,24 @@
   align-items: center;
   display: flex;
   flex-shrink: 0;
-  gap: 0.4rem;
+  gap: 0.32rem;
 }
+
+/* ── Buttons: rectangular, monospace ─────────────────────────────── */
 
 .dialectics-button {
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--d-radius-pill);
+  border-radius: var(--d-radius-sm);
   color: var(--d-ink);
   cursor: pointer;
   font: inherit;
-  font-size: 0.88rem;
-  letter-spacing: 0.01em;
+  font-family: var(--font-mono);
+  font-size: 0.80rem;
+  letter-spacing: 0.04em;
   line-height: 1;
-  padding: 0.58rem 1.05rem;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  padding: 0.58rem 0.92rem;
+  transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 }
 
 .dialectics-button.is-ghost {
@@ -698,30 +728,29 @@
 .dialectics-button.is-ghost:not(:disabled):hover,
 .dialectics-button.is-ghost:not(:disabled):focus-visible {
   background: var(--d-surface-tint);
-  border-color: var(--d-hairline);
+  border-color: var(--d-hairline-strong);
   color: var(--d-ink);
   outline: none;
 }
 
 .dialectics-button.is-primary {
   background: var(--d-accent);
-  box-shadow: 0 6px 18px -10px var(--d-accent-glow);
-  color: light-dark(#fff8f3, #1a1714);
-  font-weight: 500;
-  padding: 0.62rem 1.25rem;
+  border-color: var(--d-accent);
+  color: light-dark(#fff4f0, #1a0808);
+  font-weight: 700;
+  padding: 0.60rem 1.15rem;
 }
 
 .dialectics-button.is-primary:not(:disabled):hover,
 .dialectics-button.is-primary:not(:disabled):focus-visible {
   background: var(--d-accent-ink);
-  box-shadow: 0 10px 22px -10px var(--d-accent-glow);
+  border-color: var(--d-accent-ink);
   outline: none;
-  transform: translateY(-1px);
 }
 
 .dialectics-button:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.38;
 }
 
 /* ======================================================================
@@ -734,10 +763,10 @@
   display: flex;
   flex-wrap: wrap;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
-  gap: 0.4rem 0.75rem;
+  font-size: 0.72rem;
+  gap: 0.4rem 0.72rem;
   justify-content: center;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   margin: 0;
   text-align: center;
 }
@@ -747,16 +776,16 @@
 }
 
 /* ======================================================================
- * Responsive + reduced motion
+ * Responsive
  * =================================================================== */
 
 @media (max-width: 600px) {
   .dialectics-title {
-    font-size: 1.95rem;
+    font-size: 2.15rem;
   }
 
   .dialectics-ribbon {
-    gap: 0 1rem;
+    gap: 0 0.1rem;
   }
 
   .dialectics-thread {
@@ -790,7 +819,7 @@
   .dialectics-status.is-online .dialectics-status-dot::after,
   .dialectics-button,
   .dialectics-prompt-chip,
-  .dialectics-tab::after,
+  .dialectics-tab,
   .dialectics-workspace {
     animation: none !important;
     transition: none !important;
