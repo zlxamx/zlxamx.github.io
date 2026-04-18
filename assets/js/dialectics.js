@@ -576,7 +576,7 @@ async function sendPrompt(apiUrl, payload) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
-    signal: createRequestSignal(15000),
+    signal: createRequestSignal(45000),
   });
 
   if (!response.ok) {
