@@ -265,6 +265,7 @@ module.exports = async function handler(req, res) {
       input: buildModelInput(messages, input),
       maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS || "900"),
       safetyIdentifier: buildSafetyIdentifier(clientIp),
+      timeoutMs: Number(process.env.MODEL_TIMEOUT_MS || "50000"),
     });
 
     json(res, 200, normalizeModelResult(result, sessionId));

@@ -1,11 +1,6 @@
-# Plan C 实施日志
+# Materialist Dialectics 开发日志
 
-方案目标：在现有问答模式基础上，为每次回答增加可折叠的"本次分析路径"段。
-用户可选择展开查看本次用到的唯物辩证法方法论标签，默认折叠不打扰轻用户。
-
-衡量指标：展开率。
-- 展开率 < 5%：用户是工具心态，不再升级为教学模式
-- 展开率 > 15%：有学习需求，再把教学模式作为 C 的升级版做出来
+本文件合并记录 Plan C（分析路径标签）与后续 UI 重设计的所有改动。
 
 ---
 
@@ -16,7 +11,7 @@
 
 ---
 
-## 2026-04-17 08:45 +0800 — Step 1：后端 schema + 归一化
+## 2026-04-17 08:45 +0800 — Plan C Step 1：后端 schema + 归一化
 
 **目的**：先定后端契约，后续 prompt / 前端都围绕这个 schema 走。
 
@@ -50,7 +45,7 @@ OpenAI strict 模式对 minItems/maxItems 支持有限，放 prompt 更稳。
 
 ---
 
-## 2026-04-17 08:50 +0800 — Step 2：prompt 指示模型回填 analysisPaths
+## 2026-04-17 08:50 +0800 — Plan C Step 2：prompt 指示模型回填 analysisPaths
 
 **目的**：告诉模型这个新字段的含义、取值、填写原则与数量约束。
 Schema 层解决"字段存在 + 值合法"，prompt 层解决"字段真实反映分析路径"。
@@ -84,7 +79,7 @@ Schema 层解决"字段存在 + 值合法"，prompt 层解决"字段真实反映
 
 ---
 
-## 2026-04-17 08:55 +0800 — Step 3：前端折叠展示
+## 2026-04-17 08:55 +0800 — Plan C Step 3：前端折叠展示
 
 **目的**：在 assistant 的 `answer` 消息底下挂一个默认折叠的
 「本次用到的分析路径」块，展开后显示保留的辩证法术语标签 + 通俗化解释。
@@ -135,11 +130,9 @@ Schema 层解决"字段存在 + 值合法"，prompt 层解决"字段真实反映
 - 追问 / 拒答消息按规则 `analysisPaths` 应为 `[]`，即使模型错填一条也不显示
   （`kind !== "answer"` 已过滤）
 
-**待完成**：Step 4 文档同步（SKILL.md + Obsidian vault 说明新字段）。
-
 ---
 
-## 2026-04-17 09:27 +0800 — Step 4：SKILL.md 文档同步
+## 2026-04-17 09:27 +0800 — Plan C Step 4：SKILL.md 文档同步
 
 **目的**：把 analysisPaths 这个新字段的行为规则写进 canonical SKILL.md，
 避免下次迭代 prompt / skill 时遗忘它。三层一致性闭合。
@@ -198,3 +191,55 @@ canonical 末尾有「如果第五条答案是"更像表演"，就重写」
    属边缘瑕疵，未来可在 prompt 再收紧一次
 2. Vercel 生产部署需手动 promote（或把 master 设为生产分支）——
    部署配置问题，下次部署前先根治
+
+---
+
+## 2026-04-17 10:xx +0800 — UI 重设计：Analytical Archive
+
+**目的**：重新设计 dialectics 页面视觉界面，保留所有 JS 功能钩子不变。
+
+**设计方向：「Analytical Archive — 分析档案室」**
+
+血红色代替赭石色，方角几何代替圆角，深化排版层次，增加点阵纹理背景。
+目标感：更硬朗、更权威、更具编辑感。
+
+**探索阶段读取的文件**：
+- `layouts/_default/dialectics.html`、`assets/css/dialectics.css`、`content/dialectics.md`
+- `themes/typo/assets/css/vars.css` — 字体变量（`--font-mono: Monaspace`，`--font-body: Literata`）
+- `assets/css/colors/linen.css` — 当前颜色主题（`colorPalette = "linen"`）
+- `themes/typo/assets/css/main.css` — CSS 变量映射
+
+**改动**：`assets/css/dialectics.css`（完全重写，799 行 → 新版）
+
+| 设计元素 | 旧设计 | 新设计 |
+|---|---|---|
+| Accent 颜色 | 暖赭石 `#a14f31` | 血红 `#be2c2c / #e84848` |
+| 圆角半径 | `--d-radius-lg: 22px` | `--d-radius-lg: 6px` |
+| 标题字号 | `clamp(2.1rem, … 3rem)` | `clamp(2.4rem, … 3.8rem)` |
+| 标题装饰 | 无 | 全宽 3px 红色底边线（`::after`） |
+| 状态徽章 | 胶囊形 pill | 方形矩形 `border-radius: 2px` |
+| Info 面板 | 全四周圆角边框 | 左侧 3px 红色边框，右侧轻圆角 |
+| Workspace 卡片 | 顶部细发线边框 | 顶部 3px 红色粗边框 |
+| 用户消息 | 圆角聊天气泡 | 硬矩形，切右下角 `2px/2px/0/2px` |
+| 回答消息左边框 | 2px | 3px（更粗更醒目） |
+| 追问消息 | 全圆角卡片 | 左侧 3px 红色边框，右侧轻圆角 |
+| 建议 chips | 圆角卡片 + 悬停上移 | 左边框 list item 风格，悬停填色 |
+| 按钮形状 | pill 形 | 方形矩形 `border-radius: 2px` |
+| 按钮字体 | 继承 body font | `var(--font-mono)` |
+| Intro 背景 | 纯色 | 22px 点阵纹理（`radial-gradient`） |
+| 头像样式 | 圆形，无滤镜 | 圆形 + `grayscale(0.35) contrast(1.08)` + 红色 outline |
+| 标签页激活态 | 红色底边动画 | 背景填色 + 红色文字 |
+| 保护栏列表图标 | `—` 连字符 | `×` 叉号 |
+| Scrollbar | 圆角 | 直角 |
+| 动画时长 | `0.28s` | `0.24s`（更快更干脆） |
+
+**验证**：
+- Hugo 开发服务器（端口 1314）截图确认全部视觉改动正常渲染
+- 无控制台错误
+
+**约束保留**：
+- 所有 `data-dialectics-*` 钩子完整保留
+- 状态类名：`is-user`、`is-system`、`is-archived`、`is-answer`、`is-follow_up`、`is-reject`、`is-online`、`is-offline`、`is-error`、`is-active`
+- HTML 结构未改动（仅 CSS 变更）
+
+**Git**：commit `d1c0855`，已推送 origin/master。

@@ -156,9 +156,9 @@ function resolveProviderConfig(env) {
   };
 }
 
-async function callOpenAI({ apiKey, model, instructions, input, maxOutputTokens, safetyIdentifier }) {
+async function callOpenAI({ apiKey, model, instructions, input, maxOutputTokens, safetyIdentifier, timeoutMs = 50000 }) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
@@ -216,9 +216,9 @@ async function callOpenAI({ apiKey, model, instructions, input, maxOutputTokens,
   }
 }
 
-async function callDeepSeek({ apiKey, model, baseUrl, instructions, input, maxOutputTokens }) {
+async function callDeepSeek({ apiKey, model, baseUrl, instructions, input, maxOutputTokens, timeoutMs = 50000 }) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(`${baseUrl.replace(/\/$/, "")}/chat/completions`, {
@@ -259,7 +259,7 @@ async function callDeepSeek({ apiKey, model, baseUrl, instructions, input, maxOu
   }
 }
 
-async function callModel({ config, instructions, input, maxOutputTokens, safetyIdentifier }) {
+async function callModel({ config, instructions, input, maxOutputTokens, safetyIdentifier, timeoutMs }) {
   if (config.provider === "deepseek") {
     return callDeepSeek({
       apiKey: config.apiKey,
@@ -268,6 +268,7 @@ async function callModel({ config, instructions, input, maxOutputTokens, safetyI
       instructions,
       input,
       maxOutputTokens,
+      timeoutMs,
     });
   }
 
@@ -278,6 +279,7 @@ async function callModel({ config, instructions, input, maxOutputTokens, safetyI
     input,
     maxOutputTokens,
     safetyIdentifier,
+    timeoutMs,
   });
 }
 
