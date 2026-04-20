@@ -169,8 +169,16 @@ a:focus-visible {
   display: flex;
   flex: 1;
   flex-wrap: wrap;
+  gap: 0 0.15rem;
   justify-content: flex-end;
   padding-top: 0;
+}
+
+/* 覆盖主题 font-mono，改回正文字体，间距放开 */
+.header-menu p {
+  font-family: var(--font-body);
+  font-size: 0.97rem;
+  margin-right: 0.55rem;
 }
 
 .header-menu a {
