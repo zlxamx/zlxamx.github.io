@@ -555,10 +555,13 @@
 
 /* ── Empty state (inside thread, with inline prompts) ───────────── */
 
-/* When empty placeholder is present, center its contents vertically. */
+/* When empty placeholder is present: show all content, no scrolling */
 .dialectics-thread:has(.dialectics-empty) {
   align-items: center;
   justify-content: center;
+  max-height: none;
+  min-height: 0;
+  overflow: visible;
 }
 
 .dialectics-empty {

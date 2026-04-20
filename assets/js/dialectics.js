@@ -694,13 +694,14 @@ function initDialecticsPage() {
     syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
   });
 
-  promptButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      input.value = button.dataset.dialecticsPrompt || "";
-      state.draft = input.value;
-      syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
-      input.focus();
-    });
+  // 事件委托：挂在 thread 父容器上，动态重建的 chips 也能命中
+  thread.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-dialectics-prompt]");
+    if (!chip) return;
+    input.value = chip.dataset.dialecticsPrompt || "";
+    state.draft = input.value;
+    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
+    input.focus();
   });
 
   infoTriggers.forEach((button) => {
