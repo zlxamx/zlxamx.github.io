@@ -147,6 +147,7 @@
 .header-title {
   font-size: 1.15rem;
   line-height: 1;
+  margin: 0;
 }
 
 .header-title-text {
@@ -178,7 +179,7 @@ a:focus-visible {
 .header-menu p {
   font-family: var(--font-body);
   font-size: 0.97rem;
-  margin-right: 0.55rem;
+  margin: 0 0.55rem 0 0;
 }
 
 .header-menu a {
