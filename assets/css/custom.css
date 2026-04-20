@@ -111,8 +111,21 @@
   max-width: 100%;
 }
 
+/* ── Header: single horizontal bar ─────────────────────────────── */
+
+.header {
+  align-items: center;
+  border-bottom: 1px solid var(--code-border);
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+
 .header-brand {
-  margin-bottom: 0.1rem;
+  flex-shrink: 0;
+  margin-bottom: 0;
 }
 
 .header-brand-link {
@@ -126,12 +139,13 @@
 .header-avatar {
   background: var(--code-background);
   border-color: var(--code-border);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   flex-shrink: 0;
-  width: 3.45rem;
+  width: 2.6rem;
 }
 
 .header-title {
+  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -152,6 +166,11 @@ a:focus-visible {
 
 .header-menu {
   align-items: center;
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  padding-top: 0;
 }
 
 .header-menu a {
