@@ -7,6 +7,7 @@
 {{ $runtimeConnected := or (ne $apiPath "") (ne $apiURL "") }}
 {{ $displayTitle := .Params.displayTitle | default .Title }}
 {{ $portrait := resources.Get "img/dialectics/mao-zedong-red-army.jpg" }}
+{{ $emptyMessage := "请提出一个需要分析的问题。关键信息不足时，会先追问一轮。" }}
 <div
   class="dialectics-shell"
   data-dialectics-root
@@ -16,7 +17,7 @@
   data-storage-key="{{ $storageKey }}"
   data-input-limit="{{ $inputLimit }}"
   data-max-history-messages="{{ $maxHistoryMessages }}"
-  data-empty-message="请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。">
+  data-empty-message="{{ $emptyMessage }}">
 
   <header class="dialectics-intro-block">
     <div class="dialectics-intro-lead">
@@ -118,28 +119,26 @@
 
   <section class="dialectics-workspace" aria-label="对话工作台">
     <div class="dialectics-thread" data-dialectics-thread aria-live="polite">
-      <article class="dialectics-message is-system" data-dialectics-placeholder>
-        <p class="dialectics-message-label">系统</p>
-        <p class="dialectics-message-body">
-          请提出一个需要分析的问题。如果关键信息不足，页面会先追问一轮，再继续判断。
-        </p>
-      </article>
-    </div>
-
-    <aside class="dialectics-suggestions" aria-label="示例问题">
-      <p class="dialectics-suggestions-kicker">可以从这里开始</p>
-      <div class="dialectics-suggestions-list">
-        {{ range .Params.examplePrompts }}
-        <button
-          type="button"
-          class="dialectics-prompt-chip"
-          aria-label="填入问题"
-          {{ printf "data-dialectics-prompt=%q" . | safeHTMLAttr }}>
-          <span class="dialectics-prompt-copy">{{ . }}</span>
-        </button>
+      <div class="dialectics-empty" data-dialectics-placeholder>
+        <p class="dialectics-empty-lead">{{ $emptyMessage }}</p>
+        {{ with .Params.examplePrompts }}
+        <p class="dialectics-empty-kicker">或从下面这几个开始</p>
+        <ul class="dialectics-empty-chips">
+          {{ range . }}
+          <li>
+            <button
+              type="button"
+              class="dialectics-prompt-chip"
+              aria-label="填入问题"
+              {{ printf "data-dialectics-prompt=%q" . | safeHTMLAttr }}>
+              <span class="dialectics-prompt-copy">{{ . }}</span>
+            </button>
+          </li>
+          {{ end }}
+        </ul>
         {{ end }}
       </div>
-    </aside>
+    </div>
 
     <form class="dialectics-composer" data-dialectics-form novalidate>
       <label class="dialectics-composer-label" for="dialectics-input">问题</label>
@@ -147,7 +146,7 @@
         id="dialectics-input"
         class="dialectics-input"
         name="question"
-        rows="3"
+        rows="2"
         maxlength="{{ $inputLimit }}"
         placeholder="把你的处境、矛盾、目标，或者你需要判断的事情说清楚。"
         data-dialectics-input></textarea>
@@ -161,8 +160,8 @@
         </div>
 
         <div class="dialectics-composer-actions">
+          <button type="button" class="dialectics-button is-ghost is-reset" data-dialectics-reset>清空</button>
           <button type="button" class="dialectics-button is-ghost" data-dialectics-export>导出</button>
-          <button type="button" class="dialectics-button is-ghost" data-dialectics-reset>清空</button>
           <button
             type="submit"
             class="dialectics-button is-primary"

@@ -553,52 +553,94 @@
   display: block;
 }
 
-/* ── Suggestions: left-bordered list style ───────────────────────── */
+/* ── Empty state (inside thread, with inline prompts) ───────────── */
 
-.dialectics-suggestions {
-  border-top: 1px dashed var(--d-hairline);
-  display: grid;
-  gap: 0.6rem;
-  padding: 1rem 1.25rem 0.9rem;
+/* When empty placeholder is present, center its contents vertically. */
+.dialectics-thread:has(.dialectics-empty) {
+  align-items: center;
+  justify-content: center;
 }
 
-.dialectics-suggestions-kicker {
+.dialectics-empty {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: center;
+  max-width: 36rem;
+  padding: 1rem 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.dialectics-empty-lead {
+  color: var(--d-ink-soft);
+  font-size: 0.97rem;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 28rem;
+}
+
+.dialectics-empty-kicker {
   color: var(--d-ink-soft);
   font-family: var(--font-mono);
-  font-size: 0.69rem;
-  letter-spacing: 0.16em;
-  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  margin: 0.15rem 0 -0.2rem;
+  opacity: 0.75;
   text-transform: uppercase;
 }
 
-.dialectics-suggestions-list {
+.dialectics-empty-chips {
+  counter-reset: chip;
   display: grid;
-  gap: 0.42rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr));
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  width: 100%;
 }
+
+.dialectics-empty-chips > li { margin: 0; }
 
 .dialectics-prompt-chip {
   background: transparent;
   border: 1px solid var(--d-hairline-strong);
-  border-left: 3px solid var(--d-hairline-strong);
-  border-radius: 0 var(--d-radius-sm) var(--d-radius-sm) 0;
+  border-radius: var(--d-radius-sm);
   color: var(--d-ink);
+  counter-increment: chip;
   cursor: pointer;
+  display: block;
   font: inherit;
-  font-size: 0.90rem;
+  font-size: 0.9rem;
   line-height: 1.58;
-  padding: 0.72rem 2.2rem 0.72rem 0.9rem;
+  padding: 0.72rem 2.2rem 0.72rem 2.6rem;
   position: relative;
   text-align: left;
   transition: background-color 0.14s ease, border-color 0.14s ease;
+  width: 100%;
+}
+
+.dialectics-prompt-chip::before {
+  color: var(--d-ink-soft);
+  content: counter(chip, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  left: 0.9rem;
+  position: absolute;
+  top: 0.82rem;
 }
 
 .dialectics-prompt-chip:hover,
 .dialectics-prompt-chip:focus-visible {
   background: var(--d-accent-tint);
   border-color: var(--d-accent-edge);
-  border-left-color: var(--d-accent);
   outline: none;
+}
+
+.dialectics-prompt-chip:hover::before,
+.dialectics-prompt-chip:focus-visible::before {
+  color: var(--d-accent);
 }
 
 .dialectics-prompt-copy {
@@ -621,14 +663,6 @@
 .dialectics-prompt-chip:focus-visible::after {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
-}
-
-/* CSS-only hide when conversation started */
-.dialectics-shell:has(.dialectics-message.is-user) .dialectics-suggestions,
-.dialectics-shell:has(.dialectics-message.is-answer) .dialectics-suggestions,
-.dialectics-shell:has(.dialectics-message.is-follow_up) .dialectics-suggestions,
-.dialectics-shell:has(.dialectics-message.is-reject) .dialectics-suggestions {
-  display: none;
 }
 
 /* ── Composer ────────────────────────────────────────────────────── */
@@ -657,7 +691,8 @@
   display: block;
   font: inherit;
   line-height: 1.78;
-  min-height: 4.5rem;
+  min-height: 2.8rem;
+  max-height: 17.5rem;
   padding: 0;
   resize: vertical;
   width: 100%;
@@ -702,6 +737,17 @@
   display: flex;
   flex-shrink: 0;
   gap: 0.32rem;
+}
+
+/* Reset button sits left of the action cluster and carries a muted-danger hover */
+.dialectics-button.is-reset {
+  margin-right: auto;
+}
+
+.dialectics-button.is-ghost.is-reset:hover,
+.dialectics-button.is-ghost.is-reset:focus-visible {
+  border-color: color-mix(in oklab, var(--d-accent) 55%, transparent);
+  color: var(--d-accent);
 }
 
 /* ── Buttons: rectangular, monospace ─────────────────────────────── */
@@ -793,14 +839,10 @@
     padding: 1.15rem 1.1rem;
   }
 
-  .dialectics-suggestions,
+  .dialectics-empty,
   .dialectics-composer {
     padding-left: 1.1rem;
     padding-right: 1.1rem;
-  }
-
-  .dialectics-suggestions-list {
-    grid-template-columns: 1fr;
   }
 
   .dialectics-composer-foot {

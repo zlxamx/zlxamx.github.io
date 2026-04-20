@@ -466,7 +466,14 @@ function createArchiveNoticeElement(archiveCount, maxHistoryMessages) {
   return article;
 }
 
-function renderThread(thread, messages, emptyMessage, archiveCount = 0, maxHistoryMessages = 0) {
+function renderThread(
+  thread,
+  messages,
+  emptyMessage,
+  archiveCount = 0,
+  maxHistoryMessages = 0,
+  examplePrompts = []
+) {
   thread.innerHTML = "";
 
   if (archiveCount > 0 && maxHistoryMessages > 0) {
@@ -474,19 +481,41 @@ function renderThread(thread, messages, emptyMessage, archiveCount = 0, maxHisto
   }
 
   if (!messages.length) {
-    const placeholder = document.createElement("article");
-    const label = document.createElement("p");
-    const body = document.createElement("p");
+    const empty = document.createElement("div");
+    empty.className = "dialectics-empty";
+    empty.dataset.dialecticsPlaceholder = "";
 
-    placeholder.className = "dialectics-message is-system";
-    label.className = "dialectics-message-label";
-    body.className = "dialectics-message-body";
+    const lead = document.createElement("p");
+    lead.className = "dialectics-empty-lead";
+    lead.textContent = emptyMessage;
+    empty.append(lead);
 
-    label.textContent = "系统";
-    body.textContent = emptyMessage;
+    if (examplePrompts.length) {
+      const kicker = document.createElement("p");
+      kicker.className = "dialectics-empty-kicker";
+      kicker.textContent = "或从下面这几个开始";
+      empty.append(kicker);
 
-    placeholder.append(label, body);
-    thread.append(placeholder);
+      const list = document.createElement("ul");
+      list.className = "dialectics-empty-chips";
+      examplePrompts.forEach((prompt) => {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "dialectics-prompt-chip";
+        btn.setAttribute("aria-label", "填入问题");
+        btn.dataset.dialecticsPrompt = prompt;
+        const span = document.createElement("span");
+        span.className = "dialectics-prompt-copy";
+        span.textContent = prompt;
+        btn.append(span);
+        li.append(btn);
+        list.append(li);
+      });
+      empty.append(list);
+    }
+
+    thread.append(empty);
     return;
   }
 
@@ -637,6 +666,9 @@ function initDialecticsPage() {
   const runtimeStatus = root.querySelector("[data-dialectics-runtime-status]");
   const runtimeNote = root.querySelector("[data-dialectics-runtime-note]");
   const promptButtons = Array.from(root.querySelectorAll("[data-dialectics-prompt]"));
+  const examplePrompts = Array.from(
+    root.querySelectorAll("[data-dialectics-placeholder] [data-dialectics-prompt]")
+  ).map((el) => el.dataset.dialecticsPrompt);
   const infoPanel = root.querySelector("[data-dialectics-info-panel]");
   const infoTriggers = Array.from(root.querySelectorAll("[data-dialectics-info-trigger]"));
   const infoContents = Array.from(root.querySelectorAll("[data-dialectics-info-content]"));
@@ -654,7 +686,7 @@ function initDialecticsPage() {
   });
   syncInfoPanel(infoPanel, infoTriggers, infoContents, activeInfoKey);
   input.value = state.draft;
-  renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
+  renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
   syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
 
   input.addEventListener("input", () => {
@@ -708,7 +740,7 @@ function initDialecticsPage() {
     state.archivedMessages = [];
     state.messages = [];
     input.value = "";
-    renderThread(thread, state.messages, emptyMessage);
+    renderThread(thread, state.messages, emptyMessage, 0, 0, examplePrompts);
     syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
   });
 
@@ -729,7 +761,7 @@ function initDialecticsPage() {
     state.messages.push(userMessage);
     state.draft = "";
     input.value = "";
-    renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
+    renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
     syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
     status.textContent = "正在发送...";
 
@@ -755,14 +787,14 @@ function initDialecticsPage() {
       archiveOverflowMessages(state, maxHistoryMessages);
 
       setRuntimeStatus(runtimeStatus, runtimeNote, "online");
-      renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
+      renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
       settledStatus = "已收到回复。";
     } catch (error) {
       state.messages = previousMessages;
       state.draft = prompt;
       input.value = prompt;
       setRuntimeStatus(runtimeStatus, runtimeNote, hasApiTarget ? "error" : "offline");
-      renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages);
+      renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
       settledStatus = "没发出去，你写的内容没丢。";
     } finally {
       pending = false;
