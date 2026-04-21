@@ -383,3 +383,51 @@ node 双侧渲染 `buildSystemPrompt({followUpAlreadyUsed:false})` 比对——
 - 新旧数据混合时不会崩
 
 **验证**：`node -c assets/js/dialectics.js` 通过。
+
+---
+
+## 2026-04-21 — Plan C+ Step D：SKILL.md §10 同步到 v2
+
+**目的**：canonical SKILL.md 记录 v2 规则，避免下次迭代遗忘新结构。
+
+**改动**：
+
+两份 SKILL.md 的「## 十、分析路径标签（前端折叠展示）」整节重写：
+- 定位：对象数组 + 扣住具体文本 + 每次展开不同
+- 每项四字段结构（key / quote / source / explanation）
+- quote 硬约束（原文可查、后端子串校验会筛）
+- source 两种语义说明
+- explanation 写法（不复述 quote / 不空话 / 不超过三句）
+- 数量与排序
+- 反形式主义提醒
+
+1. `tmp/materialist-dialectics/SKILL.md`（git tracked）
+2. `~/付费专栏/知识库/skills/materialist-dialectics/SKILL.md`（Obsidian canonical）
+
+`cp` 同步 + `diff -q` 返回 IDENTICAL。
+
+---
+
+## Plan C+ 整体小结
+
+✅ **已完成（四步）**
+- Step A：后端 schema items 从 string 改为 object，加引文子串校验
+- Step B：prompt §10 重写为 v2 + 硬约束引文原文可查
+- Step C：前端渲染三段式引文卡，静态通俗化文案退役
+- Step D：两份 SKILL.md §10 同步到 v2
+
+**两道反幻觉闸门**：
+1. prompt 层告诉模型"一字不改"
+2. 后端 `isQuoteGrounded` 去空白子串校验，过不了就丢弃——
+   幻觉的 quote 永远到不了前端
+
+**三层一致性**：
+- SKILL.md 两份 IDENTICAL
+- prompt.js（API）vs Worker buildSystemPrompt byte-identical 8515 字符
+- chat.js vs Worker 后端 normalize 逻辑镜像一致
+
+**上线后的观察点**：
+- 子串校验被触发的频率（后端日志里 raw 有但 normalize 后被丢弃的条数）——
+  如果居高不下，说明模型还是爱改写，要收紧 prompt
+- 折叠块展开率与 v1 的对比——新版内容有具体性，预期比 v1 更高
+- 单次回答里路径条数分布——看模型是否理解"宁少勿滥"
