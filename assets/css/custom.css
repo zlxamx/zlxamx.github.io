@@ -170,7 +170,7 @@ a:focus-visible {
   display: flex;
   flex: 1;
   flex-wrap: wrap;
-  gap: 0 0.15rem;
+  gap: 0 1.25rem;
   justify-content: flex-end;
   padding-top: 0;
 }
@@ -179,7 +179,7 @@ a:focus-visible {
 .header-menu p {
   font-family: var(--font-body);
   font-size: 0.9rem;
-  margin: 0 0.55rem 0 0;
+  margin: 0;
 }
 
 .header-menu a {
@@ -193,7 +193,7 @@ a:focus-visible {
 }
 
 .theme-toggle-shell {
-  margin-left: auto;
+  margin-left: 0;
   margin-right: 0;
 }
 
