@@ -340,3 +340,46 @@ node 双侧渲染 `buildSystemPrompt({followUpAlreadyUsed:false})` 比对——
 - 后端层（Step A）：去空白子串校验，过不了就直接丢弃这条路径
 模型犯错（生成近似但非原文的 quote），后端兜底丢弃，前端看不到——
 不会把幻觉展示给用户。代价是该条路径这次不显示，属可接受的降级。
+
+---
+
+## 2026-04-21 — Plan C+ Step C：前端适配对象结构 + 渲染三段式
+
+**目的**：让前端读得懂新的对象结构，并把 label / 引文 / 解释三段都
+展示出来。同时把 localStorage 旧数据、API 旧响应的兼容考虑好。
+
+**改动**：
+
+1. `assets/js/dialectics.js`
+   - `ANALYSIS_PATHS` 只保留 `{key, label}`（v1 的 `note` 静态通俗化
+     文案退役——新结构里 explanation 由模型动态产出）
+   - 新增 `ANALYSIS_PATH_SOURCE_LABEL`：`user` → 「你的提问」，
+     `assistant` → 「本次分析」（展示给用户的中文标签）
+   - `normalizeAnalysisPaths` 重写：只接受 `{key, quote, source, explanation}`
+     对象；非对象（如 v1 的字符串）直接丢弃；白名单过滤 key / source；
+     trim 字段；key 去重；最多 4 条。前端 normalize 不重做子串校验——
+     后端已过滤过，前端重复校验会牵进用户输入，负担太重
+   - `createAnalysisPathsElement` 重写：每个 item 渲染三段——
+     `.dialectics-paths-label`（术语）+
+     `.dialectics-paths-quote`（引文 + 小号 source 标签）+
+     `.dialectics-paths-explanation`（一两句话解释）
+   - `createExportPayload` 重写分析路径导出：每条 markdown 三行缩进——
+     「- 术语 / - 引文「...」（出自 xx）/ - 解释」
+
+2. `assets/css/dialectics.css`
+   - `.dialectics-paths-item` 加 2px accent 左边框 + padding，做出
+     "引文卡"的视觉层次
+   - 删除旧 `.dialectics-paths-note`
+   - 新增：
+     - `.dialectics-paths-quote` 块容器
+     - `.dialectics-paths-quote-text` 斜体引文样式
+     - `.dialectics-paths-source` 等宽字体小号标签（例「— 本次分析」）
+     - `.dialectics-paths-explanation` 淡色解释段
+
+**兼容性**：
+- 旧 localStorage 里 analysisPaths 是字符串数组 → normalize 全部丢弃 → `[]`
+  → 条件判断 paths.length>0 过不去 → 旧消息不再显示折叠块（也是预期的，
+  因为旧数据里没有 quote/explanation 无法渲染新三段式）
+- 新旧数据混合时不会崩
+
+**验证**：`node -c assets/js/dialectics.js` 通过。

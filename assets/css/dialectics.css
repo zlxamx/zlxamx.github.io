@@ -461,7 +461,9 @@
 
 .dialectics-paths-item {
   display: grid;
-  gap: 0.12rem;
+  gap: 0.22rem;
+  padding: 0.4rem 0.55rem;
+  border-left: 2px solid var(--d-accent);
 }
 
 .dialectics-paths-label {
@@ -470,10 +472,30 @@
   font-weight: 600;
 }
 
-.dialectics-paths-note {
-  color: var(--d-ink-soft);
+.dialectics-paths-quote {
+  display: block;
+  color: var(--d-ink);
   font-size: 0.84rem;
-  line-height: 1.58;
+  line-height: 1.55;
+}
+
+.dialectics-paths-quote-text {
+  font-style: italic;
+}
+
+.dialectics-paths-source {
+  color: var(--d-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  margin-left: 0.35rem;
+  white-space: nowrap;
+}
+
+.dialectics-paths-explanation {
+  color: var(--d-ink-soft);
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
 
 /* Follow-up: accent-tinted, left border */

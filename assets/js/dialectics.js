@@ -1,34 +1,10 @@
 const ANALYSIS_PATHS = [
-  {
-    key: "contradiction_analysis",
-    label: "矛盾分析",
-    note: "这件事里真正在打架的是什么？先找出来，再看谁是主角、谁是配角。",
-  },
-  {
-    key: "concrete_analysis",
-    label: "具体问题具体分析",
-    note: "就这个人、这件事、这个处境来判断，不套通用公式。",
-  },
-  {
-    key: "primary_secondary",
-    label: "主次矛盾",
-    note: "分清哪个是根子问题、哪个只是表面，先解决根子。",
-  },
-  {
-    key: "quantity_quality",
-    label: "量变质变",
-    note: "小变化慢慢积累，到某个点突然变性质——看现在处在哪一段。",
-  },
-  {
-    key: "practice_test",
-    label: "实践检验",
-    note: "想不清的事，用行动去试一试，真假会自己暴露。",
-  },
-  {
-    key: "internal_external",
-    label: "内因外因",
-    note: "问题出在自己身上还是环境？外面的条件解释不通，就回头看自己。",
-  },
+  { key: "contradiction_analysis", label: "矛盾分析" },
+  { key: "concrete_analysis", label: "具体问题具体分析" },
+  { key: "primary_secondary", label: "主次矛盾" },
+  { key: "quantity_quality", label: "量变质变" },
+  { key: "practice_test", label: "实践检验" },
+  { key: "internal_external", label: "内因外因" },
 ];
 
 const ANALYSIS_PATH_INDEX = ANALYSIS_PATHS.reduce((acc, item) => {
@@ -36,20 +12,32 @@ const ANALYSIS_PATH_INDEX = ANALYSIS_PATHS.reduce((acc, item) => {
   return acc;
 }, {});
 
+const ANALYSIS_PATH_SOURCE_LABEL = {
+  user: "你的提问",
+  assistant: "本次分析",
+};
+
 function normalizeAnalysisPaths(raw) {
   if (!Array.isArray(raw)) {
     return [];
   }
 
-  const seen = new Set();
+  const seenKeys = new Set();
   const out = [];
 
-  raw.forEach((value) => {
-    if (typeof value !== "string") return;
-    if (!ANALYSIS_PATH_INDEX[value]) return;
-    if (seen.has(value)) return;
-    seen.add(value);
-    out.push(value);
+  raw.forEach((entry) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return;
+
+    const key = typeof entry.key === "string" && ANALYSIS_PATH_INDEX[entry.key] ? entry.key : "";
+    const quote = typeof entry.quote === "string" ? entry.quote.trim() : "";
+    const source = entry.source === "user" || entry.source === "assistant" ? entry.source : "";
+    const explanation = typeof entry.explanation === "string" ? entry.explanation.trim() : "";
+
+    if (!key || !quote || !source || !explanation) return;
+    if (seenKeys.has(key)) return;
+
+    seenKeys.add(key);
+    out.push({ key, quote, source, explanation });
   });
 
   return out.slice(0, 4);
@@ -207,8 +195,8 @@ function createAnalysisPathsElement(paths) {
   const list = document.createElement("ul");
   list.className = "dialectics-paths-list";
 
-  paths.forEach((key) => {
-    const meta = ANALYSIS_PATH_INDEX[key];
+  paths.forEach((path) => {
+    const meta = ANALYSIS_PATH_INDEX[path.key];
     if (!meta) return;
 
     const item = document.createElement("li");
@@ -218,11 +206,21 @@ function createAnalysisPathsElement(paths) {
     label.className = "dialectics-paths-label";
     label.textContent = meta.label;
 
-    const note = document.createElement("span");
-    note.className = "dialectics-paths-note";
-    note.textContent = meta.note;
+    const quoteWrap = document.createElement("span");
+    quoteWrap.className = "dialectics-paths-quote";
+    const quoteText = document.createElement("span");
+    quoteText.className = "dialectics-paths-quote-text";
+    quoteText.textContent = `「${path.quote}」`;
+    const quoteSource = document.createElement("span");
+    quoteSource.className = "dialectics-paths-source";
+    quoteSource.textContent = `— ${ANALYSIS_PATH_SOURCE_LABEL[path.source] || ""}`;
+    quoteWrap.append(quoteText, quoteSource);
 
-    item.append(label, note);
+    const explanation = document.createElement("span");
+    explanation.className = "dialectics-paths-explanation";
+    explanation.textContent = path.explanation;
+
+    item.append(label, quoteWrap, explanation);
     list.append(item);
   });
 
@@ -265,10 +263,15 @@ function createExportPayload(pageTitle, state) {
         paths.length > 0
       ) {
         lines.push("", "本次用到的分析路径：");
-        paths.forEach((key) => {
-          const meta = ANALYSIS_PATH_INDEX[key];
+        paths.forEach((path) => {
+          const meta = ANALYSIS_PATH_INDEX[path.key];
           if (!meta) return;
-          lines.push(`- ${meta.label}：${meta.note}`);
+          const sourceLabel = ANALYSIS_PATH_SOURCE_LABEL[path.source] || "";
+          lines.push(
+            `- ${meta.label}`,
+            `  - 引文「${path.quote}」${sourceLabel ? `（出自${sourceLabel}）` : ""}`,
+            `  - ${path.explanation}`,
+          );
         });
       }
     });
