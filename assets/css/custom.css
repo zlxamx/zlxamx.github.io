@@ -1327,63 +1327,62 @@ a:focus-visible {
   font-family: var(--font-mono);
 }
 
-.home-featured {
+.home-list-section {
   margin-top: 2.5rem;
 }
 
-.home-section-head {
+.home-list-head {
   align-items: baseline;
   display: flex;
-  gap: 1rem;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.9rem;
 }
 
-.home-section-head h1 {
-  margin: 0 0 0.25rem;
-}
-
-.home-featured-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.home-featured-card {
-  border: 1px solid var(--code-border);
-  border-radius: var(--code-border-radius);
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.1rem 1.2rem 1rem;
-  text-decoration: none;
-  transition: border-color 0.15s ease;
-}
-
-.home-featured-card:hover {
-  border-color: var(--content-secondary);
-}
-
-.home-featured-cat {
-  color: var(--content-secondary);
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-}
-
-.home-featured-title {
-  flex: 1;
-  font-size: 1.05rem;
-  line-height: 1.45;
+.home-list-title {
+  font-size: 1.1rem;
+  font-weight: 700;
   margin: 0;
 }
 
-.home-featured-date {
+.home-list-more {
+  color: var(--content-secondary);
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.home-list-more:hover {
+  color: var(--content-primary);
+}
+
+.home-list-entries {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.home-list-entry {
+  align-items: baseline;
+  color: inherit;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 3.5rem 1fr;
+  text-decoration: none;
+}
+
+.home-list-entry:hover .home-list-name {
+  opacity: 0.65;
+}
+
+.home-list-date {
   color: var(--content-secondary);
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  margin-top: auto;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.home-list-name {
+  font-size: 1rem;
+  transition: opacity 0.15s ease;
 }
 
 .home-letter-line {
@@ -1472,10 +1471,6 @@ a:focus-visible {
 
   .home-shell .pagination {
     justify-content: center;
-  }
-
-  .home-featured-grid {
-    grid-template-columns: 1fr;
   }
 
   .home-letters-head {

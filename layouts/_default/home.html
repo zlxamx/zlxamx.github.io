@@ -31,18 +31,15 @@
 {{ $featured = $featured.ByDate.Reverse }}
 
 {{ if gt (len $featured) 0 }}
-<section class="home-featured">
-  <div class="home-section-head">
-    <h1>精选文章</h1>
+<section class="home-list-section">
+  <div class="home-list-head">
+    <h2 class="home-list-title">精选文章</h2>
   </div>
-  <div class="home-featured-grid">
+  <div class="home-list-entries">
     {{ range $featured }}
-    <a class="home-featured-card" href="{{ .RelPermalink }}">
-      {{ with .Params.categories }}
-      <span class="home-featured-cat">{{ index . 0 }}</span>
-      {{ end }}
-      <p class="home-featured-title">{{ .Title }}</p>
-      <span class="home-featured-date">{{ .Date | time.Format "2006-01-02" }}</span>
+    <a class="home-list-entry" href="{{ .RelPermalink }}">
+      <span class="home-list-date">{{ .Date | time.Format "01-02" }}</span>
+      <span class="home-list-name">{{ .Title }}</span>
     </a>
     {{ end }}
   </div>
@@ -52,33 +49,21 @@
 {{ $letters := where .Site.RegularPages "Section" "post" }}
 {{ $letters = where $letters "Params.tags" "intersect" (slice "周刊") }}
 {{ $letters = $letters.ByDate.Reverse }}
-{{ $letterCount := len $letters }}
 
-{{ if gt $letterCount 0 }}
-<section class="home-letters list-container">
-  <div class="home-letters-head">
-    <h1>Weekend Letter</h1>
-    <p class="home-letters-link">
-      <a href="{{ "/weekly" | relURL }}">View all</a>
-    </p>
+{{ if gt (len $letters) 0 }}
+<section class="home-list-section">
+  <div class="home-list-head">
+    <h2 class="home-list-title">Weekend Letter</h2>
+    <a class="home-list-more" href="{{ "/weekly" | relURL }}">更多 →</a>
   </div>
-
-  {{ range $index, $page := first 3 $letters }}
-  <div class="post-line home-letter-line">
-    <p class="line-date home-letter-meta">
-      <span>{{ $page.Date | time.Format ($.Site.Params.listDateFormat | default "2006-01-02") }}</span>
-      <span class="home-letter-issue">Letter {{ sub $letterCount $index }}</span>
-    </p>
-
-    <div>
-      <p class="line-title">
-        <a href="{{ $page.RelPermalink }}">
-          {{ $page.Title }}
-        </a>
-      </p>
-    </div>
+  <div class="home-list-entries">
+    {{ range first 7 $letters }}
+    <a class="home-list-entry" href="{{ .RelPermalink }}">
+      <span class="home-list-date">{{ .Date | time.Format "01-02" }}</span>
+      <span class="home-list-name">{{ .Title }}</span>
+    </a>
+    {{ end }}
   </div>
-  {{ end }}
 </section>
 {{ end }}
 </div>
