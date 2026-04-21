@@ -1,25 +1,19 @@
 {{ $showFooter := default true .Site.Params.showFooter }}
 {{ if $showFooter }}
-    {{ partial "functions/get_hook.html" (dict "hook" "footer_start" "context" .) }}
-
-    <div class="footer-inner">
-      {{ if not .Site.Params.footerContent }}
-      <p>Powered by
-          <a href="https://gohugo.io/">Hugo</a>
-          and
-          <a href="https://github.com/tomfran/typo">tomfran/typo</a>
-      </p>
-      {{ end }}
-
-      {{ with .Site.Params.footerContent }}
-      <p>{{ . | markdownify }}</p>
-      {{ end }}
-
-      <a href="/library" class="footer-library-link" aria-label="Library" title="Library">
-        <svg class="footer-library-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        </svg>
-      </a>
-    </div>
+<div class="footer-inner">
+  <div class="footer-left">
+    <p>© {{ now.Year }} {{ .Site.Params.author | default .Site.Title }}</p>
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        {{ with site.Params.menu }}
+          {{ range . }}
+          <li><a href="{{ .url }}">{{ .name }}</a></li>
+          {{ end }}
+        {{ end }}
+      </ul>
+    </nav>
+  </div>
+</div>
 {{ end }}
