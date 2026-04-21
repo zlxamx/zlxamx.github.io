@@ -47,4 +47,5 @@ hideBackToTop: true
 我是一个认真生活，也认真理解生活的人。
 
 如果你想从内容开始认识我，可以先去 [Writing](/post) 看看；
-如果你想看看最近有哪些书在影响我，也可以去 [Library](/library)。
+如果你想看看最近有哪些书在影响我，也可以去 [Library](/library)；
+如果你想知道我最近在做什么，可以看 [Now](/now)。
