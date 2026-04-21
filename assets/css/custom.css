@@ -1624,12 +1624,14 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .footer-library-link {
   position: absolute;
   right: 0;
-  bottom: 0;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
