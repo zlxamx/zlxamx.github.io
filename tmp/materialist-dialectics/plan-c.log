@@ -303,3 +303,40 @@ prompt 可以告诉模型"引原文"，但仍可能被改写、摘要、翻译�
 - Step B：prompt §10 改写为 v2 规则（对象结构 + 引文必须原文可查 + source 语义）
 - Step C：前端 normalize / 渲染 / 导出三处适配，CSS 补 quote / explanation 样式
 - Step D：两份 SKILL.md §10 同步到 v2
+
+---
+
+## 2026-04-21 — Plan C+ Step B：prompt §10 改写为 v2 结构 + 引文硬约束
+
+**目的**：告诉模型按新对象结构填 analysisPaths，并把"引文必须原文可查"
+作为**硬约束**写进 prompt（配合 Step A 的后端子串校验形成两道闸门）。
+
+**改动**：
+
+1. `runtime/materialist-dialectics-api/lib/prompt.js` §10 全面改写：
+   - 开头点明："对象数组 + 扣着这一轮具体文本 + 不是贴通用标签"
+   - 写清每项对象的四个字段 key / quote / source / explanation
+   - **quote 字段单列一节做硬约束**：必须原文、一字不改、后端会做子串
+     校验、过不了就丢弃；典型长度 8–40 字；source=user 时来自这一轮提问，
+     source=assistant 时来自本次 message（不是历史消息）
+   - source 字段：两种语义各配一句话说明场景
+   - explanation 字段：要有信息量、不要复述 quote、不要写空话模板、
+     不要超过三句；给了具体例子（quote + key + 好的 explanation）
+   - 数量与排序规则保留（1–4 条、key 去重、按支撑强度排）
+   - 反形式主义三条明确写：不硬凑、不模板化、宁少勿滥
+   - 追加一个完整对照示例（辞职问题两条路径），示范 quote 长度、
+     source 混用、explanation 信息量
+
+2. §11 输出格式 JSON 示例里 analysisPaths 也改为新对象结构
+
+3. `runtime/materialist-dialectics-proxy/src/index.js` 镜像同步
+
+**字节一致性验证**：
+node 双侧渲染 `buildSystemPrompt({followUpAlreadyUsed:false})` 比对——
+长度 8515 字符，IDENTICAL。
+
+**反幻觉的两道闸门**：
+- prompt 层：告诉模型"一字不改、过不了就丢弃"
+- 后端层（Step A）：去空白子串校验，过不了就直接丢弃这条路径
+模型犯错（生成近似但非原文的 quote），后端兜底丢弃，前端看不到——
+不会把幻觉展示给用户。代价是该条路径这次不显示，属可接受的降级。

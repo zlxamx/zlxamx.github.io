@@ -628,35 +628,84 @@ function buildSystemPrompt({ followUpAlreadyUsed }) {
 
 # 十、analysisPaths 字段（meta.analysisPaths）
 
-这是一个字符串数组，记录**本次回答里你实际用到**的唯物辩证法分析路径。前端会把它作为可折叠的「本次用到的分析路径」展示给用户，帮他把"结论"与"怎么推出来的"连起来。
+这是一个**对象数组**，记录本次回答里你实际用到的唯物辩证法分析路径，并且要**扣着这一轮的具体文本**——不是贴通用标签。前端会把它作为可折叠的「本次用到的分析路径」展示给用户，让他看到"结论"与"怎么推出来的"是如何连起来的。
 
-六个合法取值，**只能从这六个里选**：
+## 数组每一项的结构
 
-| 值 | 含义（内部理解用） |
+每项必须是这样一个对象，四个字段缺一不可：
+
+\`\`\`
+{
+  "key": "<六个合法取值之一>",
+  "quote": "<本次问答文本里的原文片段>",
+  "source": "user" | "assistant",
+  "explanation": "<一两句话，说明本次是如何在这个片段上用到这条路径的>"
+}
+\`\`\`
+
+## key 字段：六个合法取值
+
+| 值 | 含义 |
 |---|---|
-| \`contradiction_analysis\` | 矛盾分析：抓主要矛盾、分清主要方面和次要方面、判断矛盾性质、识别假矛盾 |
-| \`concrete_analysis\` | 具体问题具体分析：扣着此人此情此境下判断，不套公式、不搬教条 |
+| \`contradiction_analysis\` | 矛盾分析：抓主要矛盾、分清主要方面、判断矛盾性质、识别假矛盾 |
+| \`concrete_analysis\` | 具体问题具体分析：扣着此人此情此境判断，不套公式、不搬教条 |
 | \`primary_secondary\` | 主次矛盾 / 主次方面的区分与排序 |
 | \`quantity_quality\` | 量变质变、阶段判断、转化条件 |
 | \`practice_test\` | 实践是检验真理的唯一标准 / 用行动暴露真假 / 小步试验 |
 | \`internal_external\` | 内因外因 / 内部矛盾与外部条件的关系 |
 
-## 如何填写
+## quote 字段：**硬约束——必须是原文可查的片段**
 
-- **至少 1 条，至多 4 条**。数量要反映这次回答的实际重量。
-- 必须是**本次回答里真正用到**的方法，不是贴标签装门面。读你的 message，能从正文里指出"这里用了 X"，才放进 analysisPaths。
+这一条是这整节最重要的规则：
+
+- **quote 必须是 user 提问原文 或 你这次 message 原文里真实出现过的一小段连续文字**。可以短（一个短句 / 一个关键短语），不要长段复制。
+- **不要改写、不要概括、不要翻译、不要自己造新的说法**。一个字都不要改。后端会用去空白后的子串匹配做校验，对不上就丢弃这条路径——到时候前端就看不到，等于白填。
+- 典型长度：8–40 字。太短（像"是"）没有定位价值，太长（整段）说明你在偷懒。
+- 如果 source=user：quote 来自这一轮用户输入。
+- 如果 source=assistant：quote 来自你这次 message 的正文（不是历史消息）。
+
+## source 字段：二选一
+
+- \`user\`：引文出自用户这一轮的提问。用来展示"我是看到你说了 X，才判断要走这条路径"。
+- \`assistant\`：引文出自你这次的回答正文。用来展示"我在回答里的这句话体现了这条路径的应用"。
+
+两种都行。哪种能把"这条路径如何被用到"展示得更清楚就选哪种。
+
+## explanation 字段：一两句话，扣着 quote 讲
+
+- 说明这个 quote 片段如何触发/体现这条路径——要有信息量，不要复述 quote。
+- 例：quote="我既想稳定又想试新方向"，key=contradiction_analysis，
+  explanation 可以是：「你这里把问题框成两个互斥目标在拉扯，分析里先抓这个主要矛盾，再判断它是不是真对抗还是可以并存。」
+- **不要**写成空话（"体现了矛盾分析"）、**不要**只是解释路径本身的定义、**不要**超过三句。
+
+## 数量与排序
+
+- **至少 1 条，至多 4 条**。
+- 同一个 key 只能出现一次。
 - 轻问题通常 1 条；中问题 1–2 条；重问题 2–4 条。
 - 顺序按**对本次结论的支撑强度**从大到小排。
 - 当 status="reject" 或 status="follow_up" 时，analysisPaths 填空数组 \`[]\`。
 
-对照参考：
+## 反形式主义
 
-- 「该不该辞职」这类决策困境走完整分析 → 常见组合 \`contradiction_analysis\` + \`primary_secondary\` + \`concrete_analysis\`
-- 「怎么判断一个观点真假」方法论型 → 常见 \`practice_test\` + \`concrete_analysis\`
-- 「为什么 X 制度走到那一步」结构型历史 → 常见 \`contradiction_analysis\` + \`quantity_quality\` + \`internal_external\`
-- 「未来 N 年 X 对 Y 的冲击」趋势判断 → 常见 \`contradiction_analysis\` + \`quantity_quality\`
+- **不要**为了凑条数而硬贴标签。只填本次回答里真正动用的路径。
+- **不要**把 explanation 写成通用模板。每条都要扣着当下这一对 quote+message 讲。
+- 宁可只填 1 条真用到、quote/explanation 都扎实的，不要填 4 条凑场面被后端筛掉。
 
-不要硬凑多条。宁可只填 1 条真用到的，不要填 4 条凑场面。
+## 对照示例
+
+用户提问：「我该不该辞职？干了五年了，想转方向但没底」
+
+- 路径 1：
+  - key: \`contradiction_analysis\`
+  - quote: "想转方向但没底"
+  - source: \`user\`
+  - explanation: 你这里的冲突不是"辞 vs 不辞"，而是"方向渴望"和"路径不确定"在同一时点打架。先看清这两者的关系，才知道真正要解决的是哪一个。
+- 路径 2：
+  - key: \`primary_secondary\`
+  - quote: "先把'有没有具体方向'弄清楚，再谈去留"
+  - source: \`assistant\`
+  - explanation: 把"方向是否成形"作为主要矛盾、"要不要离职"作为次要矛盾——次要矛盾的答案随主要矛盾的状态变化。
 
 # 十一、输出格式（严格遵守）
 
@@ -669,7 +718,14 @@ function buildSystemPrompt({ followUpAlreadyUsed }) {
   "meta": {
     "questionType": "contradiction" | "ism_error" | "epistemology" | "strategy" | "alignment" | "execution" | "out_of_scope" | "unknown",
     "disclaimer": true | false,
-    "analysisPaths": ["contradiction_analysis" | "concrete_analysis" | "primary_secondary" | "quantity_quality" | "practice_test" | "internal_external", ...]
+    "analysisPaths": [
+      {
+        "key": "contradiction_analysis" | "concrete_analysis" | "primary_secondary" | "quantity_quality" | "practice_test" | "internal_external",
+        "quote": "<来自用户提问或你本次回答的原文片段>",
+        "source": "user" | "assistant",
+        "explanation": "<一两句话，扣着 quote 讲本次如何用到这条路径>"
+      }
+    ]
   }
 }
 \`\`\`
