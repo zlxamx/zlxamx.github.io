@@ -1383,6 +1383,7 @@ a:focus-visible {
 }
 
 .home-list-title {
+  color: var(--accent);
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
