@@ -1613,3 +1613,39 @@ a:focus-visible {
   }
 }
 
+/* ── Footer library icon ─────────────────────────────────── */
+
+footer {
+  position: relative;
+}
+
+.footer-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-library-link {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary);
+  opacity: 0.45;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+}
+
+.footer-library-link:hover {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.footer-library-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
