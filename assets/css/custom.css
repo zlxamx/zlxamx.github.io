@@ -157,11 +157,13 @@
 }
 
 a {
+  color: var(--accent);
   text-decoration: none;
 }
 
 a:hover,
 a:focus-visible {
+  opacity: 0.75;
   text-decoration: none;
 }
 
@@ -183,13 +185,21 @@ a:focus-visible {
 }
 
 .header-menu a {
+  color: var(--content-primary);
   text-decoration: none;
 }
 
 .header-menu a:hover,
 .header-menu a:focus-visible {
-  color: var(--content-secondary);
+  color: var(--accent);
+  opacity: 1;
   outline: none;
+}
+
+.header-menu p + p:not(.theme-toggle-shell)::before {
+  content: "/";
+  color: var(--content-secondary);
+  margin-right: 1.25rem;
 }
 
 .theme-toggle-shell {
@@ -243,6 +253,10 @@ a:focus-visible {
 
 .home-shell .intro p {
   max-width: 40rem;
+}
+
+.header-menu .bold a {
+  color: var(--content-primary);
 }
 
 .home-shell .intro h1 {
@@ -427,6 +441,13 @@ a:focus-visible {
 .single-shell.is-post-page .single-content ol {
   margin-bottom: 1.8rem;
   margin-top: 1.25rem;
+}
+
+.single-shell.is-post-page .single-content h2::before {
+  color: var(--accent);
+  content: "# ";
+  font-weight: 400;
+  opacity: 0.8;
 }
 
 .single-shell.is-post-page .single-content h2 {
@@ -1301,9 +1322,12 @@ a:focus-visible {
 }
 
 :root {
-  --font-body: "PingFang SC", "苹方-简", -apple-system, BlinkMacSystemFont,
-    "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --p-line-height: 1.75em;
+  --font-body: "Menlo", "Meslo LG", ui-monospace, "Cascadia Code",
+    "PingFang SC", "Microsoft YaHei", monospace;
+  --p-line-height: 1.725em;
+  --main-width: 42rem;
+  --single-main-width: 42rem;
+  --accent: light-dark(#d44375, #2bbc8a);
   --waline-theme-color: var(--content-primary);
   --waline-active-color: var(--content-secondary);
   --waline-color: var(--content-primary);
