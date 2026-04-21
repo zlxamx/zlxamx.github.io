@@ -49,15 +49,32 @@ const RESPONSE_SCHEMA = {
           analysisPaths: {
             type: "array",
             items: {
-              type: "string",
-              enum: [
-                "contradiction_analysis",
-                "concrete_analysis",
-                "primary_secondary",
-                "quantity_quality",
-                "practice_test",
-                "internal_external",
-              ],
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                key: {
+                  type: "string",
+                  enum: [
+                    "contradiction_analysis",
+                    "concrete_analysis",
+                    "primary_secondary",
+                    "quantity_quality",
+                    "practice_test",
+                    "internal_external",
+                  ],
+                },
+                quote: {
+                  type: "string",
+                },
+                source: {
+                  type: "string",
+                  enum: ["user", "assistant"],
+                },
+                explanation: {
+                  type: "string",
+                },
+              },
+              required: ["key", "quote", "source", "explanation"],
             },
           },
         },
@@ -282,24 +299,49 @@ const ANALYSIS_PATH_ENUM = [
   "internal_external",
 ];
 
-function normalizeAnalysisPaths(raw) {
+const ANALYSIS_PATH_SOURCE_ENUM = ["user", "assistant"];
+
+function collapseForMatch(value) {
+  if (typeof value !== "string") return "";
+  return value.replace(/\s+/g, "");
+}
+
+function isQuoteGrounded(quote, source, userInput, assistantMessage) {
+  const hay = source === "user" ? userInput : assistantMessage;
+  const needle = collapseForMatch(quote);
+  const haystack = collapseForMatch(hay);
+  if (!needle || !haystack) return false;
+  return haystack.includes(needle);
+}
+
+function normalizeAnalysisPaths(raw, userInput, assistantMessage) {
   if (!Array.isArray(raw)) {
     return [];
   }
 
-  const seen = new Set();
+  const seenKeys = new Set();
   const out = [];
-  raw.forEach((value) => {
-    if (typeof value !== "string") return;
-    if (!ANALYSIS_PATH_ENUM.includes(value)) return;
-    if (seen.has(value)) return;
-    seen.add(value);
-    out.push(value);
+
+  raw.forEach((entry) => {
+    if (!isPlainObject(entry)) return;
+
+    const key = ANALYSIS_PATH_ENUM.includes(entry.key) ? entry.key : null;
+    const quote = typeof entry.quote === "string" ? entry.quote.trim() : "";
+    const source = ANALYSIS_PATH_SOURCE_ENUM.includes(entry.source) ? entry.source : null;
+    const explanation = typeof entry.explanation === "string" ? entry.explanation.trim() : "";
+
+    if (!key || !quote || !source || !explanation) return;
+    if (seenKeys.has(key)) return;
+    if (!isQuoteGrounded(quote, source, userInput, assistantMessage)) return;
+
+    seenKeys.add(key);
+    out.push({ key, quote, source, explanation });
   });
+
   return out.slice(0, 4);
 }
 
-function normalizeModelResult(result, sessionId) {
+function normalizeModelResult(result, sessionId, userInput = "") {
   const fallback = {
     status: "reject",
     message: "服务端暂时没有整理出可交付的响应。请稍后重试。",
@@ -343,7 +385,7 @@ function normalizeModelResult(result, sessionId) {
     meta: {
       questionType,
       disclaimer: Boolean(meta.disclaimer),
-      analysisPaths: normalizeAnalysisPaths(meta.analysisPaths),
+      analysisPaths: normalizeAnalysisPaths(meta.analysisPaths, userInput, message),
       sessionId,
     },
   };
@@ -1038,7 +1080,7 @@ async function handleDirectRuntime(request, env, origin, allowedOrigins) {
       timeoutMs: parseTimeoutMs(env.REQUEST_TIMEOUT_MS),
     });
 
-    return json(200, normalizeModelResult(result, sessionId), origin, allowedOrigins);
+    return json(200, normalizeModelResult(result, sessionId, input), origin, allowedOrigins);
   } catch (error) {
     return json(
       500,

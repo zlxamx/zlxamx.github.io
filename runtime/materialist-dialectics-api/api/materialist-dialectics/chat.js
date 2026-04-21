@@ -88,24 +88,49 @@ const ANALYSIS_PATH_ENUM = [
   "internal_external",
 ];
 
-function normalizeAnalysisPaths(raw) {
+const ANALYSIS_PATH_SOURCE_ENUM = ["user", "assistant"];
+
+function collapseForMatch(value) {
+  if (typeof value !== "string") return "";
+  return value.replace(/\s+/g, "");
+}
+
+function isQuoteGrounded(quote, source, userInput, assistantMessage) {
+  const hay = source === "user" ? userInput : assistantMessage;
+  const needle = collapseForMatch(quote);
+  const haystack = collapseForMatch(hay);
+  if (!needle || !haystack) return false;
+  return haystack.includes(needle);
+}
+
+function normalizeAnalysisPaths(raw, userInput, assistantMessage) {
   if (!Array.isArray(raw)) {
     return [];
   }
 
-  const seen = new Set();
+  const seenKeys = new Set();
   const out = [];
-  raw.forEach((value) => {
-    if (typeof value !== "string") return;
-    if (!ANALYSIS_PATH_ENUM.includes(value)) return;
-    if (seen.has(value)) return;
-    seen.add(value);
-    out.push(value);
+
+  raw.forEach((entry) => {
+    if (!isPlainObject(entry)) return;
+
+    const key = ANALYSIS_PATH_ENUM.includes(entry.key) ? entry.key : null;
+    const quote = typeof entry.quote === "string" ? entry.quote.trim() : "";
+    const source = ANALYSIS_PATH_SOURCE_ENUM.includes(entry.source) ? entry.source : null;
+    const explanation = typeof entry.explanation === "string" ? entry.explanation.trim() : "";
+
+    if (!key || !quote || !source || !explanation) return;
+    if (seenKeys.has(key)) return;
+    if (!isQuoteGrounded(quote, source, userInput, assistantMessage)) return;
+
+    seenKeys.add(key);
+    out.push({ key, quote, source, explanation });
   });
+
   return out.slice(0, 4);
 }
 
-function normalizeModelResult(result, sessionId) {
+function normalizeModelResult(result, sessionId, userInput = "") {
   const fallback = {
     status: "reject",
     message: "服务端暂时没有整理出可交付的响应。请稍后重试。",
@@ -149,7 +174,7 @@ function normalizeModelResult(result, sessionId) {
     meta: {
       questionType,
       disclaimer: Boolean(meta.disclaimer),
-      analysisPaths: normalizeAnalysisPaths(meta.analysisPaths),
+      analysisPaths: normalizeAnalysisPaths(meta.analysisPaths, userInput, message),
       sessionId,
     },
   };
@@ -268,7 +293,7 @@ module.exports = async function handler(req, res) {
       timeoutMs: Number(process.env.MODEL_TIMEOUT_MS || "50000"),
     });
 
-    json(res, 200, normalizeModelResult(result, sessionId));
+    json(res, 200, normalizeModelResult(result, sessionId, input));
   } catch (error) {
     json(res, 500, {
       error: {

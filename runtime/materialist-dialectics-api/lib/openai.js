@@ -35,15 +35,32 @@ const RESPONSE_SCHEMA = {
           analysisPaths: {
             type: "array",
             items: {
-              type: "string",
-              enum: [
-                "contradiction_analysis",
-                "concrete_analysis",
-                "primary_secondary",
-                "quantity_quality",
-                "practice_test",
-                "internal_external",
-              ],
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                key: {
+                  type: "string",
+                  enum: [
+                    "contradiction_analysis",
+                    "concrete_analysis",
+                    "primary_secondary",
+                    "quantity_quality",
+                    "practice_test",
+                    "internal_external",
+                  ],
+                },
+                quote: {
+                  type: "string",
+                },
+                source: {
+                  type: "string",
+                  enum: ["user", "assistant"],
+                },
+                explanation: {
+                  type: "string",
+                },
+              },
+              required: ["key", "quote", "source", "explanation"],
             },
           },
         },
