@@ -12,66 +12,28 @@
 
   <div class="weekly-shell">
     <section class="weekly-intro">
-      <p class="weekly-kicker">A Weekend Letter</p>
+      <p class="weekly-kicker">Letters</p>
       <h1>{{ .Title }}</h1>
       <div class="weekly-description">
         {{ .Content }}
       </div>
-
-      <div class="weekly-meta">
-        <span>{{ $count }} {{ if eq $count 1 }}Letter{{ else }}Letters{{ end }}</span>
-        {{ if gt $count 0 }}
-          {{ with index $pages 0 }}
-            <span>Latest · {{ .Date | time.Format ($.Site.Params.listDateFormat | default "2006-01-02") }}</span>
-          {{ end }}
-        {{ end }}
-        <span>Series · 周刊</span>
-      </div>
+      {{ if gt $count 0 }}
+      <p class="weekly-count">{{ $count }} {{ if eq $count 1 }}letter{{ else }}letters{{ end }}</p>
+      {{ end }}
     </section>
 
     {{ if gt $count 0 }}
-      {{ with index $pages 0 }}
-      <section class="weekly-featured">
-        <p class="weekly-label">Latest Letter</p>
-        <h2>
-          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-        </h2>
-        <p class="weekly-featured-date">{{ .Date | time.Format ($.Site.Params.listDateFormat | default "2006-01-02") }}</p>
-        <p class="weekly-featured-note">每一篇周刊，都是对过去一周留下来的事物做一次安静的整理。</p>
-        <p class="weekly-featured-link">
-          <a href="{{ .RelPermalink }}">Read the latest letter</a>
-        </p>
-      </section>
+    <div class="weekly-list">
+      {{ range $index, $page := $pages }}
+      <a class="weekly-list-entry{{ if eq $index 0 }} weekly-list-entry--latest{{ end }}" href="{{ $page.RelPermalink }}">
+        <span class="weekly-list-date">{{ $page.Date | time.Format "01-02" }}</span>
+        <span class="weekly-list-title">{{ $page.Title }}</span>
+        {{ if eq $index 0 }}<span class="weekly-list-new">new</span>{{ end }}
+      </a>
       {{ end }}
-
-      <section class="weekly-archive">
-        <div class="weekly-archive-head">
-          <div>
-            <p class="weekly-label">Past Letters</p>
-            <p class="weekly-archive-note">所有带有“周刊”标签的文章，都会自动归档在这里。</p>
-          </div>
-        </div>
-
-        <div class="weekly-archive-list">
-          {{ range $index, $page := $pages }}
-          <article class="weekly-entry">
-            <div class="weekly-entry-meta">
-              <p class="weekly-entry-date">{{ $page.Date | time.Format ($.Site.Params.listDateFormat | default "2006-01-02") }}</p>
-              <p class="weekly-entry-issue">Letter {{ sub $count $index }}</p>
-            </div>
-            <div class="weekly-entry-body">
-              <h3>
-                <a href="{{ $page.RelPermalink }}">{{ $page.Title }}</a>
-              </h3>
-            </div>
-          </article>
-          {{ end }}
-        </div>
-      </section>
+    </div>
     {{ else }}
-      <div class="weekly-empty">
-        <p>这里暂时还没有周刊内容。</p>
-      </div>
+    <p class="weekly-count">这里暂时还没有周刊内容。</p>
     {{ end }}
   </div>
 {{ else if eq .Layout "library" }}
