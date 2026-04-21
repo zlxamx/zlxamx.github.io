@@ -188,7 +188,7 @@ a:focus-visible {
   font-weight: 200;
   margin: 0;
   padding: 0 0.8rem;
-  border-right: 1px dotted var(--content-secondary);
+  border-right: 1px dotted var(--accent);
 }
 
 .header-menu p:last-child,
@@ -202,7 +202,7 @@ a:focus-visible {
 }
 
 .header-menu a {
-  color: var(--content-primary);
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -268,7 +268,8 @@ a:focus-visible {
 }
 
 .header-menu .bold a {
-  color: var(--content-primary);
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .home-shell .intro h1 {
@@ -464,11 +465,12 @@ a:focus-visible {
 .single-shell.is-post-page .single-content h2::before {
   color: var(--accent);
   content: "#";
-  font-weight: 400;
-  left: -1.2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  left: -1rem;
   opacity: 0.8;
   position: absolute;
-  top: 0;
+  top: -4px;
 }
 
 .single-shell.is-post-page .single-content h3 {
@@ -1735,7 +1737,7 @@ a:focus-visible {
 }
 
 .footer-right li {
-  border-right: 1px dotted var(--content-secondary);
+  border-right: 1px solid var(--content-secondary);
   margin-right: 0.8rem;
   padding-right: 0.8rem;
 }
