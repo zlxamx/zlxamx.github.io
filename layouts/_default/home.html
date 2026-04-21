@@ -27,6 +27,28 @@
 </div>
 {{ end }}
 
+{{ $featured := where .Site.RegularPages "Params.featured" true }}
+{{ $featured = $featured.ByDate.Reverse }}
+
+{{ if gt (len $featured) 0 }}
+<section class="home-featured">
+  <div class="home-section-head">
+    <h1>精选文章</h1>
+  </div>
+  <div class="home-featured-grid">
+    {{ range $featured }}
+    <a class="home-featured-card" href="{{ .RelPermalink }}">
+      {{ with .Params.categories }}
+      <span class="home-featured-cat">{{ index . 0 }}</span>
+      {{ end }}
+      <p class="home-featured-title">{{ .Title }}</p>
+      <span class="home-featured-date">{{ .Date | time.Format "2006-01-02" }}</span>
+    </a>
+    {{ end }}
+  </div>
+</section>
+{{ end }}
+
 {{ $letters := where .Site.RegularPages "Section" "post" }}
 {{ $letters = where $letters "Params.tags" "intersect" (slice "周刊") }}
 {{ $letters = $letters.ByDate.Reverse }}

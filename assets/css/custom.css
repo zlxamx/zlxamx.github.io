@@ -1327,6 +1327,65 @@ a:focus-visible {
   font-family: var(--font-mono);
 }
 
+.home-featured {
+  margin-top: 2.5rem;
+}
+
+.home-section-head {
+  align-items: baseline;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.home-section-head h1 {
+  margin: 0 0 0.25rem;
+}
+
+.home-featured-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.home-featured-card {
+  border: 1px solid var(--code-border);
+  border-radius: var(--code-border-radius);
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.1rem 1.2rem 1rem;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.home-featured-card:hover {
+  border-color: var(--content-secondary);
+}
+
+.home-featured-cat {
+  color: var(--content-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+}
+
+.home-featured-title {
+  flex: 1;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.home-featured-date {
+  color: var(--content-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  margin-top: auto;
+}
+
 .home-letter-line {
   margin-bottom: 0.5rem;
 }
@@ -1413,6 +1472,10 @@ a:focus-visible {
 
   .home-shell .pagination {
     justify-content: center;
+  }
+
+  .home-featured-grid {
+    grid-template-columns: 1fr;
   }
 
   .home-letters-head {
