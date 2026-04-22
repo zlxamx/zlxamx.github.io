@@ -62,21 +62,21 @@ name = "github"
 url = "https://github.com/zlxamx"
 
 [[params.menu]]
-name = "Writing"
+name = "写作"
 url = "/post"
 weight = 2
 
 [[params.menu]]
-name = "Letters"
+name = "来信"
 url = "/weekly"
 weight = 3
 
 [[params.menu]]
-name = "Dialectics"
+name = "辩证"
 url = "/dialectics"
 weight = 5
 
 [[params.menu]]
-name = "About"
+name = "关于我"
 url = "/about"
 weight = 7

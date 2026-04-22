@@ -229,7 +229,11 @@ a:focus-visible {
 /* ── Hero ─────────────────────────────────────────────────── */
 
 .home-hero {
-  background: light-dark(#fce7ef, #1e2a25);
+  background: light-dark(
+    linear-gradient(135deg, #fce7ef 0%, #fdf1f5 55%, #fff7fa 100%),
+    linear-gradient(135deg, #1e2a25 0%, #1a241f 55%, #182119 100%)
+  );
+  border: 1px solid light-dark(rgba(212, 67, 117, 0.08), rgba(43, 188, 138, 0.1));
   border-radius: 1rem;
   display: flex;
   align-items: center;
@@ -238,6 +242,17 @@ a:focus-visible {
   margin-bottom: 2.5rem;
   overflow: hidden;
   padding: 2.5rem 2rem;
+  position: relative;
+}
+
+.home-hero-name {
+  color: var(--accent);
+}
+
+.home-hero-accent {
+  background: linear-gradient(transparent 62%, light-dark(rgba(212, 67, 117, 0.25), rgba(43, 188, 138, 0.28)) 62%);
+  color: var(--accent);
+  padding: 0 0.1em;
 }
 
 .home-hero-badge {
@@ -316,10 +331,18 @@ a:focus-visible {
 }
 
 .home-section-title {
+  align-items: center;
   color: var(--accent);
+  display: inline-flex;
   font-size: 1rem;
   font-weight: 700;
+  gap: 0.45rem;
   margin: 0;
+}
+
+.home-section-icon {
+  height: 1rem;
+  width: 1rem;
 }
 
 .home-section-more {
@@ -342,19 +365,45 @@ a:focus-visible {
 }
 
 .home-card {
+  align-items: stretch;
   border: 1px solid var(--code-border);
   border-left: 3px solid var(--accent);
   border-radius: 0.5rem;
   color: var(--content-primary);
-  display: block;
+  display: grid;
+  gap: 0.95rem;
+  grid-template-columns: 64px 1fr;
   padding: 0.9rem 1.1rem;
   text-decoration: none;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.15s;
 }
 
 .home-card:hover {
   background: light-dark(rgba(212, 67, 117, 0.04), rgba(43, 188, 138, 0.05));
   opacity: 1;
+  transform: translateY(-1px);
+}
+
+.home-card-thumb {
+  align-items: center;
+  background: light-dark(rgba(212, 67, 117, 0.08), rgba(43, 188, 138, 0.1));
+  border-radius: 0.45rem;
+  color: var(--accent);
+  display: flex;
+  flex-shrink: 0;
+  height: 64px;
+  justify-content: center;
+  width: 64px;
+}
+
+.home-card-thumb svg {
+  height: 26px;
+  width: 26px;
+}
+
+.home-card-body {
+  display: block;
+  min-width: 0;
 }
 
 .home-card-date {
@@ -425,12 +474,21 @@ a:focus-visible {
 }
 
 .home-sidebar-label {
+  align-items: center;
   color: var(--content-secondary);
+  display: flex;
   font-size: 0.75rem;
   font-weight: 700;
+  gap: 0.4rem;
   letter-spacing: 0.06em;
   margin: 0 0 0.75rem;
   text-transform: uppercase;
+}
+
+.home-sidebar-icon {
+  color: var(--accent);
+  height: 0.9rem;
+  width: 0.9rem;
 }
 
 .home-about-head {
@@ -473,6 +531,26 @@ a:focus-visible {
 .home-quote-card {
   background: light-dark(#fce7ef, #1e2a25);
   border-color: transparent;
+  overflow: hidden;
+  position: relative;
+}
+
+.home-quote-mark {
+  color: var(--accent);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 4.5rem;
+  font-weight: 700;
+  left: 0.5rem;
+  line-height: 1;
+  opacity: 0.22;
+  position: absolute;
+  top: -0.5rem;
+  user-select: none;
+}
+
+.home-quote-card .home-quote-text,
+.home-quote-card .home-quote-author {
+  position: relative;
 }
 
 .home-quote-text {
@@ -509,17 +587,33 @@ a:focus-visible {
 /* Contact icons */
 .home-contact-icons {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin-top: 0.25rem;
 }
 
-.home-contact-icons a {
+.home-contact-icon-box {
+  align-items: center;
+  background: light-dark(rgba(212, 67, 117, 0.06), rgba(43, 188, 138, 0.08));
+  border: 1px solid light-dark(rgba(212, 67, 117, 0.12), rgba(43, 188, 138, 0.15));
+  border-radius: 0.5rem;
   color: var(--content-secondary);
+  display: inline-flex;
+  height: 2rem;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+  width: 2rem;
 }
 
-.home-contact-icons a:hover {
-  color: var(--accent);
+.home-contact-icon-box:hover {
+  background: var(--accent);
+  color: #fff;
   opacity: 1;
+  transform: translateY(-1px);
+}
+
+.home-contact-icon-box svg {
+  height: 1rem;
+  width: 1rem;
 }
 
 .single-content figure,
@@ -1602,6 +1696,16 @@ body.is-home {
 
   .home-hero-art {
     width: 100px;
+  }
+
+  .home-card {
+    grid-template-columns: 52px 1fr;
+    gap: 0.75rem;
+  }
+
+  .home-card-thumb {
+    height: 52px;
+    width: 52px;
   }
 
   .single-shell.is-post-page {

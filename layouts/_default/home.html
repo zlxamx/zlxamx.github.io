@@ -6,7 +6,7 @@
   <section class="home-hero">
     <div class="home-hero-text">
       <span class="home-hero-badge">你好呀 👋</span>
-      <h1 class="home-hero-title">{{ .Site.Params.homeIntroTitle }}</h1>
+      <h1 class="home-hero-title">我是 <span class="home-hero-name">Luxi</span>，一个<span class="home-hero-accent">认真生活</span>的人。</h1>
       {{ with .Site.Params.homeIntroContent }}
       <p class="home-hero-desc">{{ . | markdownify }}</p>
       {{ end }}
@@ -31,15 +31,23 @@
       {{ if gt (len $featured) 0 }}
       <section class="home-section">
         <div class="home-section-head">
-          <h2 class="home-section-title">精选文章</h2>
+          <h2 class="home-section-title">
+            <svg class="home-section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            精选文章
+          </h2>
           <a class="home-section-more" href="{{ "/post" | relURL }}">更多 →</a>
         </div>
         <div class="home-cards">
           {{ range $featured }}
           <a class="home-card" href="{{ .RelPermalink }}">
-            <span class="home-card-date">{{ .Date | time.Format "01-02" }}</span>
-            <h3 class="home-card-title">{{ .Title }}</h3>
-            {{ with .Summary }}<p class="home-card-excerpt">{{ . | plainify | truncate 80 "..." }}</p>{{ end }}
+            <span class="home-card-thumb" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </span>
+            <span class="home-card-body">
+              <span class="home-card-date">{{ .Date | time.Format "01-02" }}</span>
+              <h3 class="home-card-title">{{ .Title }}</h3>
+              {{ with .Summary }}<p class="home-card-excerpt">{{ . | plainify | truncate 80 "..." }}</p>{{ end }}
+            </span>
           </a>
           {{ end }}
         </div>
@@ -53,7 +61,10 @@
       {{ if gt (len $letters) 0 }}
       <section class="home-section">
         <div class="home-section-head">
-          <h2 class="home-section-title">来信</h2>
+          <h2 class="home-section-title">
+            <svg class="home-section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            来信
+          </h2>
           <a class="home-section-more" href="{{ "/weekly" | relURL }}">更多 →</a>
         </div>
         <div class="home-letter-list">
@@ -74,7 +85,10 @@
 
       {{/* About */}}
       <div class="home-sidebar-card">
-        <p class="home-sidebar-label">关于我</p>
+        <p class="home-sidebar-label">
+          <svg class="home-sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          关于我
+        </p>
         <div class="home-about-head">
           {{ partial "site-avatar.html" (dict "alt" "Luxi Avatar" "class" "home-about-avatar") }}
           <p class="home-about-desc">{{ .Site.Params.description }}</p>
@@ -85,6 +99,7 @@
       {{/* Quote */}}
       {{ with .Site.Params.homeQuote }}
       <div class="home-sidebar-card home-quote-card">
+        <span class="home-quote-mark" aria-hidden="true">“</span>
         <blockquote class="home-quote-text">{{ . }}</blockquote>
         {{ with $.Site.Params.homeQuoteAuthor }}
         <cite class="home-quote-author">— {{ . }}</cite>
@@ -95,7 +110,10 @@
       {{/* Interests */}}
       {{ with .Site.Params.homeInterests }}
       <div class="home-sidebar-card">
-        <p class="home-sidebar-label">正在关注</p>
+        <p class="home-sidebar-label">
+          <svg class="home-sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          正在关注
+        </p>
         <div class="home-tags">
           {{ range . }}<span class="home-tag">{{ . }}</span>{{ end }}
         </div>
@@ -105,11 +123,14 @@
       {{/* Contact */}}
       {{ with .Site.Params.social }}
       <div class="home-sidebar-card">
-        <p class="home-sidebar-label">联系我</p>
+        <p class="home-sidebar-label">
+          <svg class="home-sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          联系我
+        </p>
         <p class="home-sidebar-note">如果你有想法，欢迎来信。</p>
         <div class="home-contact-icons">
           {{ range . }}
-          <a href="{{ trim .url " " | safeURL }}" target="_blank" rel="noopener noreferrer me"
+          <a class="home-contact-icon-box" href="{{ trim .url " " | safeURL }}" target="_blank" rel="noopener noreferrer me"
              title="{{ (.title | default .name) | title }}">
             {{ partial "svg.html" . }}
           </a>
