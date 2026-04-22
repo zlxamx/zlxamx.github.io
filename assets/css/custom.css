@@ -298,11 +298,23 @@ a:focus-visible {
   width: 160px;
 }
 
+.home-hero-art--scene {
+  width: 260px;
+}
+
 .home-hero-avatar {
   border-radius: 50%;
   box-shadow: 0 8px 32px light-dark(rgba(212,67,117,0.18), rgba(43,188,138,0.18));
   display: block;
   width: 100%;
+}
+
+.home-hero-scene {
+  display: block;
+  height: auto;
+  width: 100%;
+  /* 深色模式下稍微降一点亮度，避免粉色背景过艳 */
+  filter: light-dark(none, brightness(0.92) saturate(0.85));
 }
 
 /* ── Two-column body ──────────────────────────────────────── */
@@ -1696,6 +1708,10 @@ body.is-home {
 
   .home-hero-art {
     width: 100px;
+  }
+
+  .home-hero-art--scene {
+    width: 180px;
   }
 
   .home-card {
