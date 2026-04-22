@@ -1,9 +1,9 @@
 :root {
   --content-primary-light: #363533;
   --content-secondary-light: #666666;
-  --background-light: #e2e0de;
-  --code-background-light: #dcd8d6;
-  --code-border-light: #b0aba8;
+  --background-light: #ffffff;
+  --code-background-light: #f5f3f1;
+  --code-border-light: #e4e0dc;
 
   --content-primary-dark: #c9cacc;
   --content-secondary-dark: #908d8d;

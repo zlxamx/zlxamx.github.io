@@ -236,18 +236,20 @@ a:focus-visible {
   border: 1px solid light-dark(rgba(212, 67, 117, 0.08), rgba(43, 188, 138, 0.1));
   border-radius: 1rem;
   display: flex;
-  align-items: flex-end;           /* 插画贴底，和文本在同一条「地平线」 */
+  align-items: stretch;            /* 文本栏和插画栏同高 */
   justify-content: space-between;
-  gap: 0;                          /* 去掉机械的间隙，让插画和文字自然靠近 */
+  gap: 0;
   margin-bottom: 2.5rem;
-  min-height: 260px;
   overflow: hidden;
-  padding: 2.5rem 2rem 0;          /* 底部归零，让插画延伸到卡片底边 */
+  padding: 0;                      /* padding 交给子元素，避免插画被挤高 */
   position: relative;
 }
 
 .home-hero-text {
-  padding-bottom: 2.5rem;          /* 文本仍然保留底部呼吸 */
+  align-self: center;              /* 文本竖直居中，不拉伸高度 */
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 2rem 0 2rem 2rem;
 }
 
 .home-hero-name {
@@ -304,13 +306,12 @@ a:focus-visible {
 }
 
 .home-hero-art--scene {
-  align-self: flex-end;
-  margin-bottom: -0.25rem;   /* 让人物桌面那条线与卡片底边几乎融合 */
-  margin-left: -2.5rem;      /* 向文字方向延伸，打破两块的分界 */
-  margin-right: -2rem;       /* 延伸到卡片右边缘，与背景融为一体 */
-  margin-top: -1rem;
-  max-width: 55%;
-  width: 340px;
+  align-self: stretch;            /* 插画决定 Hero 的高度 */
+  display: flex;
+  flex-shrink: 0;
+  margin: 0;
+  max-width: 50%;
+  width: 320px;
 }
 
 .home-hero-avatar {
@@ -322,9 +323,11 @@ a:focus-visible {
 
 .home-hero-scene {
   display: block;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
   width: 100%;
-  /* 用 mask 在插画左边与底边做柔化过渡，让它与 Hero 背景浑然一体 */
+  /* 左边渐隐，让插画从 Hero 背景自然浮现 */
   -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 22%, #000 100%);
           mask-image: linear-gradient(to right, transparent 0%, #000 22%, #000 100%);
   filter: light-dark(none, brightness(0.92) saturate(0.85));
@@ -1724,13 +1727,20 @@ body.is-home {
   }
 
   .home-hero-art--scene {
-    margin: 0 -1.4rem -1.4rem;   /* 移动端堆叠时贴到卡片底部 + 左右边缘 */
+    align-self: stretch;
+    margin: 0;
     max-width: none;
-    width: calc(100% + 2.8rem);
+    width: 100%;
   }
 
   .home-hero-text {
-    padding-bottom: 1rem;
+    padding: 1.4rem 1.4rem 0;
+  }
+
+  .home-hero-scene {
+    height: auto;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 25%, #000 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 25%, #000 100%);
   }
 
   .home-card {
