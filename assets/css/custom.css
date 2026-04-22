@@ -229,10 +229,24 @@ a:focus-visible {
 /* ── Hero ─────────────────────────────────────────────────── */
 
 .home-hero {
-  /* 左侧白 → 右侧粉的横向过渡，模拟插画背景自然延伸 */
+  /* 左侧白 → 右侧粉的横向过渡，多段缓动避免硬线 */
   background: light-dark(
-    linear-gradient(to right, #ffffff 0%, #ffffff 35%, #fdeef3 72%, #fce0ea 100%),
-    linear-gradient(to right, #1d1f21 0%, #1d1f21 35%, #1f2a24 72%, #223129 100%)
+    linear-gradient(to right,
+      #ffffff 0%,
+      #ffffff 18%,
+      #fffafb 32%,
+      #fef3f6 48%,
+      #fdeaf0 64%,
+      #fbe1ea 82%,
+      #f9d9e4 100%),
+    linear-gradient(to right,
+      #1d1f21 0%,
+      #1d1f21 18%,
+      #1d2221 32%,
+      #1e2623 48%,
+      #1f2a25 64%,
+      #213028 82%,
+      #23362c 100%)
   );
   border: 1px solid light-dark(rgba(212, 67, 117, 0.1), rgba(43, 188, 138, 0.12));
   border-radius: 1rem;
@@ -330,6 +344,9 @@ a:focus-visible {
   object-fit: contain;            /* 完整显示插画，不裁切 */
   object-position: right center;
   width: 100%;
+  /* 插画左侧大范围柔化，消除它自带粉底与 Hero 渐变之间的接缝 */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 18%, #000 40%, #000 100%);
+          mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 18%, #000 40%, #000 100%);
   filter: light-dark(none, brightness(0.92) saturate(0.85));
 }
 
