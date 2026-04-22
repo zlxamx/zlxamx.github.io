@@ -359,7 +359,14 @@ a:focus-visible {
 }
 
 .home-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   min-width: 0;
+}
+
+.home-main > .home-section:last-child {
+  flex: 1 0 auto;        /* 左列末项撑到底，和右列等高 */
 }
 
 /* ── Sections ─────────────────────────────────────────────── */
@@ -367,7 +374,6 @@ a:focus-visible {
 .home-section {
   border: 1px solid var(--code-border);
   border-radius: 0.75rem;
-  margin-bottom: 1.25rem;
   padding: 1.25rem 1.25rem 1rem;
 }
 
@@ -525,9 +531,13 @@ a:focus-visible {
 /* ── Sidebar ──────────────────────────────────────────────── */
 
 .home-sidebar {
-  align-content: start;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
+}
+
+.home-sidebar > :last-child {
+  flex: 1 0 auto;        /* 右列末项撑到底，保证与左列同高 */
 }
 
 .home-sidebar-card {
