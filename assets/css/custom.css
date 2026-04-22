@@ -77,10 +77,9 @@ html {
 
 .header {
   align-items: center;
-  border-bottom: 1px solid var(--code-border);
   display: flex;
   gap: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   padding-bottom: 1rem;
   padding-top: 1rem;
 }
