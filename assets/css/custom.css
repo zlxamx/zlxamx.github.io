@@ -233,19 +233,19 @@ a:focus-visible {
   background: light-dark(
     linear-gradient(to right,
       #ffffff 0%,
-      #ffffff 18%,
-      #fffafb 32%,
-      #fef3f6 48%,
-      #fdeaf0 64%,
-      #fbe1ea 82%,
+      #ffffff 12%,
+      #fffafb 24%,
+      #fef3f6 38%,
+      #fdeaf0 54%,
+      #fbe1ea 74%,
       #f9d9e4 100%),
     linear-gradient(to right,
       #1d1f21 0%,
-      #1d1f21 18%,
-      #1d2221 32%,
-      #1e2623 48%,
-      #1f2a25 64%,
-      #213028 82%,
+      #1d1f21 12%,
+      #1d2221 24%,
+      #1e2623 38%,
+      #1f2a25 54%,
+      #213028 74%,
       #23362c 100%)
   );
   border: 1px solid light-dark(rgba(212, 67, 117, 0.1), rgba(43, 188, 138, 0.12));
@@ -327,8 +327,8 @@ a:focus-visible {
   display: flex;
   flex-shrink: 0;
   margin: 0;
-  max-width: 50%;
-  width: 360px;
+  max-width: 62%;
+  width: 460px;
 }
 
 .home-hero-avatar {
