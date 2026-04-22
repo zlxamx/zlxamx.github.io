@@ -12,6 +12,11 @@
       {{ end }}
       <a class="home-hero-cta" href="{{ "/post" | relURL }}">开始阅读 →</a>
     </div>
+    {{ with resources.Get "img/avatar.png" }}
+    <div class="home-hero-art">
+      <img class="home-hero-avatar" src="{{ .RelPermalink }}" alt="Luxi">
+    </div>
+    {{ end }}
   </section>
 
   {{/* ── Two-column body ── */}}

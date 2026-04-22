@@ -231,7 +231,12 @@ a:focus-visible {
 .home-hero {
   background: light-dark(#fce7ef, #1e2a25);
   border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
   margin-bottom: 2.5rem;
+  overflow: hidden;
   padding: 2.5rem 2rem;
 }
 
@@ -272,12 +277,25 @@ a:focus-visible {
   opacity: 0.82;
 }
 
+.home-hero-art {
+  flex-shrink: 0;
+  position: relative;
+  width: 160px;
+}
+
+.home-hero-avatar {
+  border-radius: 50%;
+  box-shadow: 0 8px 32px light-dark(rgba(212,67,117,0.18), rgba(43,188,138,0.18));
+  display: block;
+  width: 100%;
+}
+
 /* ── Two-column body ──────────────────────────────────────── */
 
 .home-body {
   display: grid;
-  gap: 2rem;
-  grid-template-columns: 1fr 260px;
+  gap: 1.5rem;
+  grid-template-columns: 1fr 200px;
 }
 
 .home-main {
@@ -1525,7 +1543,7 @@ a:focus-visible {
 }
 
 body.is-home {
-  max-width: 68rem;
+  max-width: 54rem;
 }
 
 :root {
@@ -1578,7 +1596,12 @@ body.is-home {
   }
 
   .home-hero {
+    flex-direction: column-reverse;
     padding: 1.8rem 1.4rem;
+  }
+
+  .home-hero-art {
+    width: 100px;
   }
 
   .single-shell.is-post-page {
