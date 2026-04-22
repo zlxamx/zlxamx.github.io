@@ -229,19 +229,20 @@ a:focus-visible {
 /* ── Hero ─────────────────────────────────────────────────── */
 
 .home-hero {
+  /* 左侧白 → 右侧粉的横向过渡，模拟插画背景自然延伸 */
   background: light-dark(
-    linear-gradient(135deg, #fce7ef 0%, #fdf1f5 55%, #fff7fa 100%),
-    linear-gradient(135deg, #1e2a25 0%, #1a241f 55%, #182119 100%)
+    linear-gradient(to right, #ffffff 0%, #ffffff 35%, #fdeef3 72%, #fce0ea 100%),
+    linear-gradient(to right, #1d1f21 0%, #1d1f21 35%, #1f2a24 72%, #223129 100%)
   );
-  border: 1px solid light-dark(rgba(212, 67, 117, 0.08), rgba(43, 188, 138, 0.1));
+  border: 1px solid light-dark(rgba(212, 67, 117, 0.1), rgba(43, 188, 138, 0.12));
   border-radius: 1rem;
   display: flex;
-  align-items: stretch;            /* 文本栏和插画栏同高 */
+  align-items: stretch;
   justify-content: space-between;
   gap: 0;
   margin-bottom: 2.5rem;
   overflow: hidden;
-  padding: 0;                      /* padding 交给子元素，避免插画被挤高 */
+  padding: 0;
   position: relative;
 }
 
@@ -329,9 +330,6 @@ a:focus-visible {
   object-fit: contain;            /* 完整显示插画，不裁切 */
   object-position: right center;
   width: 100%;
-  /* 左边柔化一点，避免硬边；幅度很小，不遮挡主体 */
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 100%);
-          mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 100%);
   filter: light-dark(none, brightness(0.92) saturate(0.85));
 }
 
