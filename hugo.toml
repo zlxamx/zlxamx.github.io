@@ -26,6 +26,9 @@ colorPalette = "cactus"
 themeColor = "#ffffff"
 mainSections = ["post"]
 footerContent = "愿你也能认真生活，慢慢理解自己。"
+homeQuote = "生活的意义不在于抵达某个终点，而在于理解沿途的风景。"
+homeQuoteAuthor = "Luxi"
+homeInterests = ["写作", "阅读", "极简主义", "历史", "数码产品", "长期主义"]
 
 [markup]
   [markup.goldmark]

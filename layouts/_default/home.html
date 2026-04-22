@@ -1,71 +1,121 @@
 {{ define "main" }}
 
-{{ .Content }}
-
 <div class="home-shell">
-{{ if or .Site.Params.homeIntroTitle .Site.Params.homeIntroContent }}
-<div class="intro">
-  {{ with .Site.Params.homeIntroTitle }}
-  <h1>{{ . }}</h1>
-  {{ end }}
 
-  {{ with .Site.Params.homeIntroContent }}
-  <p>{{ . | markdownify }}</p>
-  {{ end }}
-</div>
-{{ end }}
+  {{/* ── Hero ── */}}
+  <section class="home-hero">
+    <div class="home-hero-text">
+      <span class="home-hero-badge">你好呀 👋</span>
+      <h1 class="home-hero-title">{{ .Site.Params.homeIntroTitle }}</h1>
+      {{ with .Site.Params.homeIntroContent }}
+      <p class="home-hero-desc">{{ . | markdownify }}</p>
+      {{ end }}
+      <a class="home-hero-cta" href="{{ "/post" | relURL }}">开始阅读 →</a>
+    </div>
+  </section>
 
-{{ with site.Params.social }}
-<div class="social-icons">
-  {{ range . }}
-  <a href="{{ trim .url " " | safeURL }}" target="_blank"
-    rel="noopener noreferrer me"
-    title="{{ (.title | default .name) | title }}">
-    {{ partial "svg.html" . }}
-  </a>
-  {{ end }}
-</div>
-{{ end }}
+  {{/* ── Two-column body ── */}}
+  <div class="home-body">
 
-{{ $featured := where .Site.RegularPages "Params.featured" true }}
-{{ $featured = $featured.ByDate.Reverse }}
+    {{/* Left: main content */}}
+    <div class="home-main">
 
-{{ if gt (len $featured) 0 }}
-<section class="home-list-section">
-  <div class="home-list-head">
-    <h2 class="home-list-title">Featured</h2>
+      {{/* Featured articles */}}
+      {{ $featured := where .Site.RegularPages "Params.featured" true }}
+      {{ $featured = $featured.ByDate.Reverse }}
+      {{ if gt (len $featured) 0 }}
+      <section class="home-section">
+        <div class="home-section-head">
+          <h2 class="home-section-title">精选文章</h2>
+          <a class="home-section-more" href="{{ "/post" | relURL }}">更多 →</a>
+        </div>
+        <div class="home-cards">
+          {{ range $featured }}
+          <a class="home-card" href="{{ .RelPermalink }}">
+            <span class="home-card-date">{{ .Date | time.Format "01-02" }}</span>
+            <h3 class="home-card-title">{{ .Title }}</h3>
+            {{ with .Summary }}<p class="home-card-excerpt">{{ . | plainify | truncate 80 "..." }}</p>{{ end }}
+          </a>
+          {{ end }}
+        </div>
+      </section>
+      {{ end }}
+
+      {{/* Letters */}}
+      {{ $letters := where .Site.RegularPages "Section" "post" }}
+      {{ $letters = where $letters "Params.tags" "intersect" (slice "周刊") }}
+      {{ $letters = $letters.ByDate.Reverse }}
+      {{ if gt (len $letters) 0 }}
+      <section class="home-section">
+        <div class="home-section-head">
+          <h2 class="home-section-title">来信</h2>
+          <a class="home-section-more" href="{{ "/weekly" | relURL }}">更多 →</a>
+        </div>
+        <div class="home-letter-list">
+          {{ range first 6 $letters }}
+          <a class="home-letter-entry" href="{{ .RelPermalink }}">
+            <span class="home-letter-date">{{ .Date | time.Format "01-02" }}</span>
+            <span class="home-letter-title">{{ .Title }}</span>
+          </a>
+          {{ end }}
+        </div>
+      </section>
+      {{ end }}
+
+    </div>
+
+    {{/* Right: sidebar */}}
+    <aside class="home-sidebar">
+
+      {{/* About */}}
+      <div class="home-sidebar-card">
+        <p class="home-sidebar-label">关于我</p>
+        <div class="home-about-head">
+          {{ partial "site-avatar.html" (dict "alt" "Luxi Avatar" "class" "home-about-avatar") }}
+          <p class="home-about-desc">{{ .Site.Params.description }}</p>
+        </div>
+        <a class="home-sidebar-link" href="{{ "/about" | relURL }}">了解更多 →</a>
+      </div>
+
+      {{/* Quote */}}
+      {{ with .Site.Params.homeQuote }}
+      <div class="home-sidebar-card home-quote-card">
+        <blockquote class="home-quote-text">{{ . }}</blockquote>
+        {{ with $.Site.Params.homeQuoteAuthor }}
+        <cite class="home-quote-author">— {{ . }}</cite>
+        {{ end }}
+      </div>
+      {{ end }}
+
+      {{/* Interests */}}
+      {{ with .Site.Params.homeInterests }}
+      <div class="home-sidebar-card">
+        <p class="home-sidebar-label">正在关注</p>
+        <div class="home-tags">
+          {{ range . }}<span class="home-tag">{{ . }}</span>{{ end }}
+        </div>
+      </div>
+      {{ end }}
+
+      {{/* Contact */}}
+      {{ with .Site.Params.social }}
+      <div class="home-sidebar-card">
+        <p class="home-sidebar-label">联系我</p>
+        <p class="home-sidebar-note">如果你有想法，欢迎来信。</p>
+        <div class="home-contact-icons">
+          {{ range . }}
+          <a href="{{ trim .url " " | safeURL }}" target="_blank" rel="noopener noreferrer me"
+             title="{{ (.title | default .name) | title }}">
+            {{ partial "svg.html" . }}
+          </a>
+          {{ end }}
+        </div>
+      </div>
+      {{ end }}
+
+    </aside>
   </div>
-  <div class="home-list-entries">
-    {{ range $featured }}
-    <a class="home-list-entry" href="{{ .RelPermalink }}">
-      <span class="home-list-date">{{ .Date | time.Format "01-02" }}</span>
-      <span class="home-list-name">{{ .Title }}</span>
-    </a>
-    {{ end }}
-  </div>
-</section>
-{{ end }}
 
-{{ $letters := where .Site.RegularPages "Section" "post" }}
-{{ $letters = where $letters "Params.tags" "intersect" (slice "周刊") }}
-{{ $letters = $letters.ByDate.Reverse }}
-
-{{ if gt (len $letters) 0 }}
-<section class="home-list-section">
-  <div class="home-list-head">
-    <h2 class="home-list-title">Letters</h2>
-    <a class="home-list-more" href="{{ "/weekly" | relURL }}">更多 →</a>
-  </div>
-  <div class="home-list-entries">
-    {{ range first 7 $letters }}
-    <a class="home-list-entry" href="{{ .RelPermalink }}">
-      <span class="home-list-date">{{ .Date | time.Format "01-02" }}</span>
-      <span class="home-list-name">{{ .Title }}</span>
-    </a>
-    {{ end }}
-  </div>
-</section>
-{{ end }}
 </div>
 
 {{ end }}
