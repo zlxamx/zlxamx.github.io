@@ -365,14 +365,17 @@ a:focus-visible {
 /* ── Sections ─────────────────────────────────────────────── */
 
 .home-section {
-  margin-bottom: 2.5rem;
+  border: 1px solid var(--code-border);
+  border-radius: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.25rem 1rem;
 }
 
 .home-section-head {
   align-items: baseline;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1.1rem;
+  margin-bottom: 1rem;
 }
 
 .home-section-title {
@@ -406,44 +409,59 @@ a:focus-visible {
 
 .home-cards {
   display: grid;
-  gap: 0.85rem;
+  gap: 0;
 }
 
 .home-card {
   align-items: stretch;
-  border: 1px solid var(--code-border);
-  border-left: 3px solid var(--accent);
-  border-radius: 0.5rem;
+  border-top: 1px solid var(--code-border);
   color: var(--content-primary);
   display: grid;
   gap: 0.95rem;
-  grid-template-columns: 64px 1fr;
-  padding: 0.9rem 1.1rem;
+  grid-template-columns: 96px 1fr;
+  padding: 1rem 0;
   text-decoration: none;
-  transition: background 0.15s, transform 0.15s;
+  transition: opacity 0.15s;
+}
+
+.home-card:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.home-card:last-child {
+  padding-bottom: 0;
 }
 
 .home-card:hover {
-  background: light-dark(rgba(212, 67, 117, 0.04), rgba(43, 188, 138, 0.05));
-  opacity: 1;
-  transform: translateY(-1px);
+  opacity: 0.82;
+}
+
+.home-card:hover .home-card-title {
+  color: var(--accent);
 }
 
 .home-card-thumb {
   align-items: center;
+  aspect-ratio: 4 / 3;
   background: light-dark(rgba(212, 67, 117, 0.08), rgba(43, 188, 138, 0.1));
-  border-radius: 0.45rem;
+  border-radius: 0.5rem;
   color: var(--accent);
   display: flex;
   flex-shrink: 0;
-  height: 64px;
+  height: auto;
   justify-content: center;
-  width: 64px;
+  width: 96px;
 }
 
 .home-card-thumb svg {
-  height: 26px;
-  width: 26px;
+  height: 28px;
+  width: 28px;
+}
+
+.home-card-title {
+  margin-top: 0.2rem;
+  transition: color 0.15s;
 }
 
 .home-card-body {
@@ -1761,13 +1779,12 @@ body.is-home {
   }
 
   .home-card {
-    grid-template-columns: 52px 1fr;
+    grid-template-columns: 72px 1fr;
     gap: 0.75rem;
   }
 
   .home-card-thumb {
-    height: 52px;
-    width: 52px;
+    width: 72px;
   }
 
   .single-shell.is-post-page {
