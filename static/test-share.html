@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>图片分享功能测试</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8f4ee;
+      padding: 40px;
+      color: #36302b;
+    }
+    h1 { margin-bottom: 20px; }
+    .test-area {
+      background: #fff;
+      border: 1px solid #e8e6dc;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    button {
+      background: #be2c2c;
+      color: #fff4f0;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 8px;
+    }
+    button:hover { background: #a02424; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary {
+      background: transparent;
+      color: #36302b;
+      border: 1px solid #e8e6dc;
+    }
+    #status {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f0e9dc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .preview {
+      margin-top: 24px;
+      border: 1px solid #e8e6dc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .preview img {
+      max-width: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>图片分享功能测试</h1>
+
+  <div class="test-area">
+    <p>这个页面用于测试图片分享功能，不需要 API 连接。</p>
+    <p>点击下方按钮生成测试图片：</p>
+    <button id="generateBtn">生成测试图片</button>
+    <button id="clearBtn" class="secondary">清除预览</button>
+    <div id="status"></div>
+  </div>
+
+  <div class="preview" id="preview" style="display: none;">
+    <img id="previewImg" alt="预览">
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    const testMessages = [
+      { role: "user", content: "什么是唯物辩证法？它在实际生活中有什么应用？" },
+      { role: "assistant", content: "唯物辩证法是一种哲学方法，强调事物的矛盾运动和发展变化。它认为世界是物质的，物质是运动的，运动是有规律的。", kind: "answer" },
+      { role: "user", content: "能举个具体的例子吗？" },
+      { role: "assistant", content: "比如在工作中遇到困难时，唯物辩证法告诉我们：困难和顺利是矛盾的两个方面，它们相互依存、相互转化。通过分析矛盾的特殊性，找到解决问题的具体方法，就能把困难转化为顺利。", kind: "answer" }
+    ];
+
+    function getMessageLabel(message) {
+      if (message.role === "user") return "你";
+      const kind = message.kind || "answer";
+      if (kind === "follow_up") return "追问";
+      if (kind === "reject") return "边界";
+      return "分析";
+    }
+
+    function createShareCardElement(selectedMessages, pageTitle) {
+      const card = document.createElement("div");
+      card.style.cssText = `
+        background: #f8f4ee;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        padding: 0;
+        width: 1080px;
+        height: 1920px;
+        display: flex;
+        flex-direction: column;
+      `;
+
+      const topbar = document.createElement("div");
+      topbar.style.cssText = "background: #be2c2c; height: 6px; flex-shrink: 0;";
+
+      // Header
+      const header = document.createElement("div");
+      header.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 56px 64px 40px;
+        flex-shrink: 0;
+      `;
+
+      const headerLeft = document.createElement("div");
+
+      const mainTitle = document.createElement("p");
+      mainTitle.style.cssText = `
+        margin: 0 0 14px;
+        font-size: 56px;
+        font-weight: 800;
+        color: #36302b;
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+      `;
+      mainTitle.textContent = "唯物辩证法咨询问答";
+
+      const subtitleRow = document.createElement("div");
+      subtitleRow.style.cssText = "display: flex; align-items: center; gap: 14px;";
+
+      const subtitleAccent = document.createElement("div");
+      subtitleAccent.style.cssText = "width: 36px; height: 3px; background: #be2c2c; flex-shrink: 0;";
+
+      const subtitleText = document.createElement("p");
+      subtitleText.style.cssText = "margin: 0; font-size: 22px; color: #87867f; letter-spacing: 0.06em;";
+      subtitleText.textContent = "深度思考 · 理性分析 · 建设性建议";
+
+      subtitleRow.append(subtitleAccent, subtitleText);
+      headerLeft.append(mainTitle, subtitleRow);
+
+      const headerRight = document.createElement("div");
+      headerRight.style.cssText = "display: flex; align-items: center; gap: 20px; flex-shrink: 0; padding-top: 4px;";
+
+      const brandInfo = document.createElement("div");
+
+      const brandInfoName = document.createElement("p");
+      brandInfoName.style.cssText = "margin: 0 0 6px; font-size: 22px; font-weight: 700; color: #36302b;";
+      brandInfoName.textContent = "唯物辩证法咨询问";
+
+      const brandInfoTagline = document.createElement("p");
+      brandInfoTagline.style.cssText = "margin: 0; font-size: 18px; color: #87867f;";
+      brandInfoTagline.textContent = "专注问题分析与解决方案";
+
+      brandInfo.append(brandInfoName, brandInfoTagline);
+      headerRight.append(brandInfo);
+      header.append(headerLeft, headerRight);
+
+      const divider1 = document.createElement("div");
+      divider1.style.cssText = "height: 1px; background: #e8e6dc; margin: 0 64px; flex-shrink: 0;";
+
+      // Messages
+      const messages = document.createElement("div");
+      messages.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+        padding: 48px 64px;
+        flex: 1;
+        justify-content: center;
+      `;
+
+      selectedMessages.forEach(function(msg) {
+        var isUser = msg.role === "user";
+        var accentColor = isUser ? "#be2c2c" : "#4a5f7a";
+        var bgColor = isUser ? "#fff8f7" : "#f7f9fc";
+
+        const msgEl = document.createElement("div");
+        msgEl.style.cssText = `
+          background: ${bgColor};
+          border: 1.5px solid #e8e6dc;
+          border-left: 6px solid ${accentColor};
+          border-radius: 12px;
+          padding: 36px 40px;
+        `;
+
+        const labelRow = document.createElement("div");
+        labelRow.style.cssText = "display: flex; align-items: center; gap: 16px; margin-bottom: 20px;";
+
+        const badge = document.createElement("div");
+        badge.style.cssText = `
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: ${accentColor};
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+          font-weight: 700;
+          color: #fff;
+          flex-shrink: 0;
+        `;
+        badge.textContent = isUser ? "问" : "答";
+
+        const labelText = document.createElement("p");
+        labelText.style.cssText = `
+          margin: 0;
+          font-size: 28px;
+          font-weight: 700;
+          color: ${accentColor};
+        `;
+        labelText.textContent = getMessageLabel(msg);
+
+        labelRow.append(badge, labelText);
+
+        const body = document.createElement("p");
+        body.style.cssText = `
+          margin: 0;
+          font-size: 24px;
+          line-height: 1.85;
+          white-space: pre-wrap;
+          color: #36302b;
+        `;
+        body.textContent = msg.content;
+
+        msgEl.append(labelRow, body);
+        messages.append(msgEl);
+      });
+
+      const divider2 = document.createElement("div");
+      divider2.style.cssText = "height: 1px; background: #e8e6dc; margin: 0 64px; flex-shrink: 0;";
+
+      // Footer
+      const footer = document.createElement("div");
+      footer.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 36px 64px 56px;
+        flex-shrink: 0;
+      `;
+
+      const footerBrand = document.createElement("div");
+
+      const footerLabel = document.createElement("p");
+      footerLabel.style.cssText = "margin: 0 0 6px; font-size: 18px; color: #87867f;";
+      footerLabel.textContent = "公众号";
+
+      const footerName = document.createElement("p");
+      footerName.style.cssText = "margin: 0 0 4px; font-size: 32px; font-weight: 700; color: #36302b;";
+      footerName.textContent = "希路路克";
+
+      const footerUrl = document.createElement("p");
+      footerUrl.style.cssText = "margin: 0; font-size: 20px; color: #87867f;";
+      footerUrl.textContent = "luxi.blog";
+
+      footerBrand.append(footerLabel, footerName, footerUrl);
+
+      const qrWrap = document.createElement("div");
+      qrWrap.style.cssText = "display: flex; flex-direction: column; align-items: center; gap: 10px;";
+
+      const qrContainer = document.createElement("div");
+      qrContainer.style.cssText = `
+        width: 140px;
+        height: 140px;
+        border: 1px solid #e8e6dc;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: #87867f;
+        text-align: center;
+      `;
+      qrContainer.textContent = "二维码";
+
+      const qrLabel = document.createElement("p");
+      qrLabel.style.cssText = "margin: 0; font-size: 18px; color: #87867f; text-align: center;";
+      qrLabel.textContent = "扫码关注";
+
+      qrWrap.append(qrContainer, qrLabel);
+      footer.append(footerBrand, qrWrap);
+
+      card.append(topbar, header, divider1, messages, divider2, footer);
+      return card;
+    }
+
+    async function generateImage() {
+      const statusEl = document.getElementById("status");
+      const previewEl = document.getElementById("preview");
+      const previewImg = document.getElementById("previewImg");
+      const generateBtn = document.getElementById("generateBtn");
+
+      generateBtn.disabled = true;
+      generateBtn.textContent = "生成中...";
+      statusEl.textContent = "正在生成图片...";
+
+      try {
+        const card = createShareCardElement(testMessages, "测试对话");
+
+        const container = document.createElement("div");
+        container.style.cssText = `
+          position: fixed;
+          left: 0;
+          top: 0;
+          width: 1080px;
+          z-index: 10000;
+          opacity: 0;
+          pointer-events: none;
+        `;
+        container.append(card);
+        document.body.append(container);
+
+        await new Promise(r => setTimeout(r, 200));
+
+        const canvas = await html2canvas(card, {
+          scale: 2,
+          backgroundColor: "#f8f4ee",
+          useCORS: true,
+          logging: true,
+          width: 1080,
+          height: 1920,
+          windowWidth: 1080,
+        });
+
+        const dataUrl = canvas.toDataURL("image/png");
+        previewImg.src = dataUrl;
+        previewEl.style.display = "block";
+        statusEl.textContent = "图片生成成功！可以右键保存图片。";
+
+        container.remove();
+      } catch (error) {
+        statusEl.textContent = "生成失败: " + error.message;
+        console.error(error);
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = "生成测试图片";
+      }
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generateImage);
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      document.getElementById("preview").style.display = "none";
+      document.getElementById("status").textContent = "";
+    });
+  </script>
+</body>
+</html>
