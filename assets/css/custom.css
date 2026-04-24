@@ -725,7 +725,7 @@ a:focus-visible {
 }
 
 .single-shell.is-post-page {
-  --single-main-width: var(--main-width);
+  --single-main-width: var(--reading-width);   /* 单篇文章保持 42rem 阅读宽 */
 }
 
 .single-toc {
@@ -969,10 +969,6 @@ a:focus-visible {
 /* ─────────────────────────────────────────────
    Writing list page (/post/) — 全新设计
    ───────────────────────────────────────────── */
-
-body.is-writing {
-  max-width: 64rem;
-}
 
 .writing-shell {
   border: 1px solid var(--code-border);
@@ -1348,10 +1344,6 @@ body.is-writing {
 
 /* ── Mobile ──────────────────────── */
 @media (max-width: 768px) {
-  body.is-writing {
-    max-width: 100%;
-  }
-
   .writing-hero {
     grid-template-columns: 1fr;
     padding: 1.5rem 1.4rem;
@@ -2030,15 +2022,14 @@ body.is-writing {
   width: 0.32rem;
 }
 
-body.is-home {
-  max-width: 54rem;
-}
+/* body.is-home 宽度已并入全局 --main-width (64rem)，无需单独声明 */
 
 :root {
   --font-body: "Menlo", "Meslo LG", ui-monospace, "Cascadia Code",
     "PingFang SC", "Microsoft YaHei", monospace;
   --p-line-height: 1.725em;
-  --main-width: 42rem;
+  --main-width: 64rem;              /* 全站统一画布宽度 */
+  --reading-width: 42rem;           /* 长文阅读宽度（单篇文章内部约束） */
   --single-main-width: 42rem;
   --accent: light-dark(#d44375, #2bbc8a);
   --waline-theme-color: var(--content-primary);
