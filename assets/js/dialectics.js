@@ -701,41 +701,46 @@ function createShareCardElement(selectedMessages, pageTitle) {
   subtitleRow.append(subtitleAccent, subtitleText);
   headerLeft.append(mainTitle, subtitleRow);
 
-  // Right: avatar + brand name + tagline
+  // Right: 引流区 = QR code + brand CTA
   const headerRight = document.createElement("div");
-  headerRight.style.cssText = "display: flex; align-items: center; gap: 20px; flex-shrink: 0; padding-top: 4px;";
+  headerRight.style.cssText = "display: flex; align-items: center; gap: 20px; flex-shrink: 0;";
 
-  const avatarSrc = document.querySelector(".dialectics-brand-avatar")?.src || "";
-  if (avatarSrc) {
-    const avatarWrap = document.createElement("div");
-    avatarWrap.style.cssText = `
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      border: 3px solid #be2c2c;
-      overflow: hidden;
-      flex-shrink: 0;
-    `;
-    const avatar = document.createElement("img");
-    avatar.style.cssText = "width: 100%; height: 100%; object-fit: cover; display: block;";
-    avatar.src = avatarSrc;
-    avatar.alt = "";
-    avatarWrap.append(avatar);
-    headerRight.append(avatarWrap);
-  }
+  const qrBlock = document.createElement("div");
+  qrBlock.style.cssText = `
+    width: 110px;
+    height: 110px;
+    border: 1px solid #e8e6dc;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #87867f;
+  `;
 
-  const brandInfo = document.createElement("div");
+  const qrImg = document.createElement("img");
+  qrImg.style.cssText = "width: 100%; height: 100%; object-fit: contain; display: block;";
+  qrImg.src = "/images/wechat-qr-code.png";
+  qrImg.alt = "微信公众号二维码";
+  qrImg.crossOrigin = "anonymous";
+  qrImg.onerror = () => { qrBlock.textContent = "二维码"; };
+  qrImg.onload  = () => { qrBlock.innerHTML = ""; qrBlock.append(qrImg); };
+  qrBlock.append(qrImg);
 
-  const brandInfoName = document.createElement("p");
-  brandInfoName.style.cssText = "margin: 0 0 6px; font-size: 22px; font-weight: 700; color: #36302b;";
-  brandInfoName.textContent = "唯物辩证法咨询问";
+  const ctaText = document.createElement("div");
 
-  const brandInfoTagline = document.createElement("p");
-  brandInfoTagline.style.cssText = "margin: 0; font-size: 18px; color: #87867f;";
-  brandInfoTagline.textContent = "专注问题分析与解决方案";
+  const ctaName = document.createElement("p");
+  ctaName.style.cssText = "margin: 0 0 8px; font-size: 24px; font-weight: 700; color: #36302b;";
+  ctaName.textContent = "希路路克";
 
-  brandInfo.append(brandInfoName, brandInfoTagline);
-  headerRight.append(brandInfo);
+  const ctaHint = document.createElement("p");
+  ctaHint.style.cssText = "margin: 0; font-size: 18px; color: #87867f; line-height: 1.5;";
+  ctaHint.textContent = "扫码关注公众号";
+
+  ctaText.append(ctaName, ctaHint);
+  headerRight.append(qrBlock, ctaText);
   header.append(headerLeft, headerRight);
 
   // Header divider
@@ -748,7 +753,7 @@ function createShareCardElement(selectedMessages, pageTitle) {
     display: flex;
     flex-direction: column;
     gap: 36px;
-    padding: 48px 64px;
+    padding: 48px 64px 96px;
     flex: 1;
     justify-content: center;
   `;
@@ -813,75 +818,7 @@ function createShareCardElement(selectedMessages, pageTitle) {
     messages.append(msgEl);
   });
 
-  // Footer divider
-  const divider2 = document.createElement("div");
-  divider2.style.cssText = "height: 1px; background: #e8e6dc; margin: 0 64px; flex-shrink: 0;";
-
-  // ── Footer ────────────────────────────────────────────────────────────
-  const footer = document.createElement("div");
-  footer.style.cssText = `
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 36px 64px 56px;
-    flex-shrink: 0;
-  `;
-
-  // Left: 公众号 / 希路路克 / luxi.blog
-  const footerBrand = document.createElement("div");
-
-  const footerLabel = document.createElement("p");
-  footerLabel.style.cssText = "margin: 0 0 6px; font-size: 18px; color: #87867f;";
-  footerLabel.textContent = "公众号";
-
-  const footerName = document.createElement("p");
-  footerName.style.cssText = "margin: 0 0 4px; font-size: 32px; font-weight: 700; color: #36302b;";
-  footerName.textContent = "希路路克";
-
-  const footerUrl = document.createElement("p");
-  footerUrl.style.cssText = "margin: 0; font-size: 20px; color: #87867f;";
-  footerUrl.textContent = "luxi.blog";
-
-  footerBrand.append(footerLabel, footerName, footerUrl);
-
-  // Right: QR code + 扫码关注
-  const qrWrap = document.createElement("div");
-  qrWrap.style.cssText = "display: flex; flex-direction: column; align-items: center; gap: 10px;";
-
-  const qrContainer = document.createElement("div");
-  qrContainer.style.cssText = `
-    width: 140px;
-    height: 140px;
-    border: 1px solid #e8e6dc;
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: #87867f;
-    text-align: center;
-  `;
-
-  const qrImg = document.createElement("img");
-  qrImg.style.cssText = "width: 100%; height: 100%; object-fit: contain; display: block;";
-  qrImg.src = "/images/wechat-qr-code.png";
-  qrImg.alt = "微信公众号二维码";
-  qrImg.crossOrigin = "anonymous";
-
-  qrImg.onerror = () => { qrContainer.textContent = "二维码"; };
-  qrImg.onload  = () => { qrContainer.innerHTML = ""; qrContainer.append(qrImg); };
-
-  qrContainer.append(qrImg);
-
-  const qrLabel = document.createElement("p");
-  qrLabel.style.cssText = "margin: 0; font-size: 18px; color: #87867f; text-align: center;";
-  qrLabel.textContent = "扫码关注";
-
-  qrWrap.append(qrContainer, qrLabel);
-  footer.append(footerBrand, qrWrap);
-
-  card.append(topbar, header, divider1, messages, divider2, footer);
+  card.append(topbar, header, divider1, messages);
   return card;
 }
 
