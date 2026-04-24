@@ -655,7 +655,6 @@ function createShareCardElement(selectedMessages, pageTitle) {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     padding: 0;
     width: 1080px;
-    height: 1920px;
     display: flex;
     flex-direction: column;
   `;
@@ -753,9 +752,8 @@ function createShareCardElement(selectedMessages, pageTitle) {
     display: flex;
     flex-direction: column;
     gap: 36px;
-    padding: 48px 64px 96px;
-    flex: 1;
-    justify-content: center;
+    padding: 48px 64px;
+    flex-shrink: 0;
   `;
 
   selectedMessages.forEach((msg) => {
@@ -818,7 +816,21 @@ function createShareCardElement(selectedMessages, pageTitle) {
     messages.append(msgEl);
   });
 
-  card.append(topbar, header, divider1, messages);
+  // Watermark footer
+  const watermark = document.createElement("div");
+  watermark.style.cssText = `
+    padding: 28px 64px 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  `;
+  const wmText = document.createElement("p");
+  wmText.style.cssText = "margin: 0; font-size: 20px; color: #b8b2aa; letter-spacing: 0.12em;";
+  wmText.textContent = "希路路克 · luxi.blog";
+  watermark.append(wmText);
+
+  card.append(topbar, header, divider1, messages, watermark);
   return card;
 }
 
@@ -847,13 +859,14 @@ async function generateShareImage(selectedMessages, pageTitle) {
     // Wait for images and rendering
     await new Promise((r) => setTimeout(r, 200));
 
+    const cardHeight = card.scrollHeight;
     const canvas = await window.html2canvas(card, {
       scale: 2,
       backgroundColor: "#f8f4ee",
       useCORS: true,
       logging: false,
       width: 1080,
-      height: 1920,
+      height: cardHeight,
       windowWidth: 1080,
     });
 
