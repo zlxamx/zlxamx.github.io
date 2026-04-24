@@ -908,80 +908,77 @@
  * =================================================================== */
 
 .dialectics-share-card {
-  background: #f8f4ee;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  padding: 0;
+  background: #f5f5f5;
+  font-family: "Noto Sans SC", "PingFang SC", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  padding: 32px;
   position: fixed;
   left: -9999px;
   top: 0;
   width: 1080px;
   z-index: -1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
 }
 
 .dialectics-share-topbar {
-  background: #be2c2c;
-  height: 4px;
+  display: none;
 }
 
 .dialectics-share-header {
-  align-items: center;
   display: flex;
-  gap: 16px;
-  padding: 40px 48px 24px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
 }
 
-.dialectics-share-avatar {
+.dialectics-share-header-icon {
+  width: 48px; height: 48px;
   border-radius: 50%;
-  height: 48px;
-  object-fit: cover;
-  width: 48px;
+  background: #5b90d9;
+  display: flex; align-items: center; justify-content: center;
 }
 
 .dialectics-share-title {
-  color: #36302b;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  color: #222;
+  font-size: 44px;
+  font-weight: 700;
   margin: 0;
 }
 
-.dialectics-share-subtitle {
-  color: #87867f;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  margin: 4px 0 0;
-  text-transform: uppercase;
-}
-
-.dialectics-share-divider {
-  border: 0;
-  border-top: 1px solid #e8e6dc;
-  margin: 0 48px;
-}
+.dialectics-share-divider { display: none; }
 
 .dialectics-share-messages {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
-  padding: 28px 48px;
 }
 
 .dialectics-share-msg {
-  display: grid;
-  gap: 6px;
+  border-radius: 18px;
+  padding: 28px 32px;
+}
+
+.dialectics-share-msg.is-user {
+  background: #fef8ec;
+}
+
+.dialectics-share-msg.is-answer {
+  background: #ffffff;
 }
 
 .dialectics-share-msg-label {
-  color: #87867f;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  margin: 0;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .dialectics-share-msg-body {
-  color: #36302b;
-  font-size: 15px;
-  line-height: 1.72;
+  color: #222;
+  font-size: 24px;
+  line-height: 1.8;
   margin: 0;
   max-height: 400px;
   overflow: hidden;
@@ -990,7 +987,7 @@
 }
 
 .dialectics-share-msg-body.is-truncated::after {
-  background: linear-gradient(transparent, #f8f4ee);
+  background: linear-gradient(transparent, #f5f5f5);
   bottom: 0;
   content: "";
   display: block;
@@ -999,81 +996,51 @@
   width: 100%;
 }
 
-.dialectics-share-msg.is-user {
-  background: #be2c2c;
-  border-radius: 4px 4px 0 4px;
-  color: #fff4f0;
-  justify-self: end;
-  max-width: 80%;
-  padding: 14px 18px;
-}
-
-.dialectics-share-msg.is-user .dialectics-share-msg-label {
-  color: inherit;
-  opacity: 0.68;
-}
-
-.dialectics-share-msg.is-user .dialectics-share-msg-body {
-  color: inherit;
-}
-
-.dialectics-share-msg.is-answer {
-  border-left: 3px solid #be2c2c;
-  padding: 4px 0 4px 16px;
-}
-
 .dialectics-share-footer {
   align-items: center;
-  border-top: 1px solid #e8e6dc;
+  background: #eeeeee;
+  border-radius: 18px;
   display: flex;
-  gap: 24px;
   justify-content: space-between;
-  padding: 28px 48px 40px;
+  padding: 20px 28px;
 }
 
 .dialectics-share-brand {
-  display: grid;
-  gap: 6px;
-}
-
-.dialectics-share-brand-label {
-  color: #87867f;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  margin: 0;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .dialectics-share-brand-name {
-  color: #36302b;
-  font-size: 16px;
+  color: #333;
+  font-size: 19px;
   font-weight: 600;
   margin: 0;
 }
 
 .dialectics-share-brand-url {
-  color: #87867f;
-  font-size: 13px;
-  margin: 4px 0 0;
+  color: #999;
+  font-size: 16px;
+  margin: 0;
 }
 
 .dialectics-share-qr {
-  border: 1px solid #e8e6dc;
-  border-radius: 4px;
-  height: 120px;
+  border-radius: 6px;
+  height: 56px;
   object-fit: contain;
-  width: 120px;
+  width: 56px;
+  background: #fff;
 }
 
 .dialectics-share-qr-fallback {
   align-items: center;
-  color: #87867f;
+  color: #999;
   display: flex;
-  font-size: 11px;
-  height: 120px;
+  font-size: 10px;
+  height: 56px;
   justify-content: center;
   text-align: center;
-  width: 120px;
+  width: 56px;
 }
 
 @media (max-width: 600px) {
