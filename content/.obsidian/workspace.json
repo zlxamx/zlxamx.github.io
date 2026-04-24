@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "30f2b21f18485d8c",
+        "id": "bd7d10cb1201f841",
         "type": "tabs",
         "children": [
           {
-            "id": "0deda47e31a57379",
+            "id": "9c418cabe00ef9df",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "post/AI 就是一场暴力革命.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "AI 就是一场暴力革命"
+              "title": "新标签页"
             }
           }
         ]
@@ -195,14 +191,26 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0deda47e31a57379",
+  "active": "9c418cabe00ef9df",
   "lastOpenFiles": [
-    "post/闲鱼卖货指南：如何让闲置更快出手.md",
-    "post/AI 就是一场暴力革命.md",
+    "post/我的AI订阅复盘.md",
+    "Screenshot_20260424_193014_com_ruguoapp_jike_PersonalGalleryPictureActivity_edit_33259732834944.jpg",
+    "设计1.png",
+    "之前.png",
+    "Pasted.md",
+    "post/windows.md",
+    "post/vo2max.md",
+    "post/tabe.md",
+    "post/binlpl.md",
+    "post/JOJO系列漫画为什么好看？.md",
     "post/八年闲鱼卖家指南：手把手教你玩闲鱼.md",
+    "post/0006.md",
+    "77b0da356e92216dc430d5e0cd356e92.png",
+    "Pasted image 20260424193441.png",
+    "post/AI 就是一场暴力革命.md",
+    "post/闲鱼卖货指南：如何让闲置更快出手.md",
     "post/《实践论》好读到哭（二）.md",
     "post/我把《毛选》做成了一个 SKILL.md",
-    "77b0da356e92216dc430d5e0cd356e92.png",
     "593c593f6c2b191f56721e8a3a2a27ab.png",
     "e8ea1e0145d63d16caaf2ad80fda08a7.png",
     "post/希路路克的每周来信Vol.06.md",
@@ -218,21 +226,8 @@
     "post/做饭与收拾：找回生活的掌控感.md",
     "未命名.md",
     "tags/_index.md",
-    "posts/hello.md",
-    "posts/_index.md",
     "希路路克的周末来信_vol02_竖版封面.png",
     "希路路克的周末来信_vol02_竖版封面 1.png",
-    "希路路克的周末来信_vol03_竖版封面.png",
-    "希路路克的周末来信_vol04_竖版封面.png",
-    "about.md",
-    "ChatGPTImage2026年4月4日14_46_14.png",
-    "PixPin_2026-03-20_20-59-23.png",
-    "weekly.md",
-    "now.md",
-    "post/张雪峰老师走了，聊聊我的健康生活系统.md",
-    "post/做饭与收拾：找回生活的掌控感_副本 1.md",
-    "post/读了十几篇Dan Koe之后，我倒吸一口凉气：他是不是读过《实践论》？.md",
-    "post/订阅AI就是给自己买一把锄头.md",
     "post/未命名",
     "tags"
   ]
