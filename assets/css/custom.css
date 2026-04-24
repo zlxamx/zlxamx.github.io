@@ -2554,16 +2554,16 @@ a:focus-visible {
 }
 
 .about-section-list li {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;       /* 每条单行，不折行 */
+  padding-left: 1.1em;       /* 悬挂缩进：换行时文本继续缩进 */
+  text-indent: -1.1em;       /* 首行 bullet 回到 x=0，与标题"我"字对齐 */
 }
 
 .about-section-list li::before {
   color: var(--accent);
-  content: "• ";
+  content: "•";
+  display: inline-block;
   font-weight: 700;
-  margin-right: 0.25rem;
+  width: 1.1em;              /* bullet 占位宽度 = padding-left，文本正好接上 */
 }
 
 .about-section-paragraphs {
