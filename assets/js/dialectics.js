@@ -561,6 +561,11 @@ function syncComposer(
   pending,
   statusMessage = "",
 ) {
+  // Skip button state updates if in share mode
+  if (shareMode) {
+    return;
+  }
+
   const length = input.value.trim().length;
   count.textContent = String(length);
   state.storageFailed = !saveState(state.storageKey, state);
@@ -640,6 +645,271 @@ async function sendPromptWithFailover(apiTargets, activeApiUrl, payload) {
   throw lastError || new Error("No API target configured.");
 }
 
+// ── Share mode state ────────────────────────────────────────────────
+let shareMode = false;
+const selectedIndices = new Set();
+
+function createShareCardElement(selectedMessages, pageTitle) {
+  const card = document.createElement("div");
+  // 9:16 ratio for mobile (1080x1920)
+  card.style.cssText = `
+    background: #f8f4ee;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding: 0;
+    width: 1080px;
+    height: 1920px;
+    display: flex;
+    flex-direction: column;
+  `;
+
+  // Top bar
+  const topbar = document.createElement("div");
+  topbar.style.cssText = "background: #be2c2c; height: 6px; flex-shrink: 0;";
+
+  // Header with avatar and title
+  const header = document.createElement("div");
+  header.style.cssText = "display: flex; align-items: center; gap: 16px; padding: 48px 48px 24px; flex-shrink: 0;";
+
+  const avatarSrc = document.querySelector(".dialectics-brand-avatar")?.src || "";
+  if (avatarSrc) {
+    const avatar = document.createElement("img");
+    avatar.style.cssText = "width: 48px; height: 48px; border-radius: 50%; object-fit: cover;";
+    avatar.src = avatarSrc;
+    avatar.alt = "";
+    header.append(avatar);
+  }
+
+  const titleWrap = document.createElement("div");
+  const title = document.createElement("p");
+  title.style.cssText = "margin: 0; font-size: 20px; font-weight: 600; color: #36302b; letter-spacing: 0.02em;";
+  title.textContent = pageTitle;
+  const subtitle = document.createElement("p");
+  subtitle.style.cssText = "margin: 4px 0 0; font-size: 13px; color: #87867f; letter-spacing: 0.12em; text-transform: uppercase;";
+  subtitle.textContent = "唯物辩证法答问";
+  titleWrap.append(title, subtitle);
+  header.append(titleWrap);
+
+  // Divider
+  const divider1 = document.createElement("hr");
+  divider1.style.cssText = "border: 0; border-top: 1px solid #e8e6dc; margin: 0 48px; flex-shrink: 0;";
+
+  // Messages
+  const messages = document.createElement("div");
+  messages.style.cssText = "display: grid; gap: 24px; padding: 32px 48px; flex: 1; align-content: center;";
+
+  selectedMessages.forEach((msg) => {
+    const msgEl = document.createElement("div");
+    msgEl.style.cssText = "display: grid; gap: 8px;";
+
+    if (msg.role === "user") {
+      msgEl.style.cssText += `
+        background: #be2c2c;
+        border-radius: 6px 6px 0 6px;
+        color: #fff4f0;
+        justify-self: end;
+        max-width: 80%;
+        padding: 16px 20px;
+      `;
+    } else {
+      msgEl.style.cssText += `
+        border-left: 3px solid #be2c2c;
+        padding: 8px 0 8px 20px;
+      `;
+    }
+
+    const label = document.createElement("p");
+    label.style.cssText = `
+      margin: 0;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: ${msg.role === "user" ? "inherit" : "#87867f"};
+      ${msg.role === "user" ? "opacity: 0.68;" : ""}
+    `;
+    label.textContent = getMessageLabel(msg);
+
+    const body = document.createElement("p");
+    body.style.cssText = `
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      color: ${msg.role === "user" ? "inherit" : "#36302b"};
+    `;
+    body.textContent = msg.content;
+
+    msgEl.append(label, body);
+    messages.append(msgEl);
+  });
+
+  // Divider
+  const divider2 = document.createElement("hr");
+  divider2.style.cssText = "border: 0; border-top: 1px solid #e8e6dc; margin: 0 48px; flex-shrink: 0;";
+
+  // Footer with brand and QR code
+  const footer = document.createElement("div");
+  footer.style.cssText = "display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 32px 48px 48px; flex-shrink: 0;";
+
+  const brand = document.createElement("div");
+  brand.style.cssText = "display: grid; gap: 8px;";
+
+  const brandLabel = document.createElement("p");
+  brandLabel.style.cssText = "margin: 0; font-size: 12px; color: #87867f; letter-spacing: 0.16em; text-transform: uppercase;";
+  brandLabel.textContent = "公众号";
+
+  const brandName = document.createElement("p");
+  brandName.style.cssText = "margin: 0; font-size: 18px; font-weight: 600; color: #36302b;";
+  brandName.textContent = "希路路克";
+
+  const brandUrl = document.createElement("p");
+  brandUrl.style.cssText = "margin: 4px 0 0; font-size: 14px; color: #87867f;";
+  brandUrl.textContent = "luxi.blog";
+
+  brand.append(brandLabel, brandName, brandUrl);
+
+  // QR code placeholder (will be replaced with actual image or fallback)
+  const qrContainer = document.createElement("div");
+  qrContainer.style.cssText = `
+    width: 140px;
+    height: 140px;
+    border: 1px solid #e8e6dc;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #87867f;
+    text-align: center;
+  `;
+
+  const qrImg = document.createElement("img");
+  qrImg.style.cssText = "width: 100%; height: 100%; object-fit: contain;";
+  qrImg.src = "/images/wechat-qr-code.png";
+  qrImg.alt = "微信公众号二维码";
+  qrImg.crossOrigin = "anonymous";
+
+  qrImg.onerror = () => {
+    qrContainer.textContent = "二维码";
+  };
+
+  qrImg.onload = () => {
+    qrContainer.innerHTML = "";
+    qrContainer.append(qrImg);
+  };
+
+  footer.append(brand, qrContainer);
+
+  card.append(topbar, header, divider1, messages, divider2, footer);
+  return card;
+}
+
+function enterShareMode(root, thread, state, normalActions, shareActions, status) {
+  shareMode = true;
+  selectedIndices.clear();
+
+  // Add share-mode class to thread
+  thread.classList.add("is-share-mode");
+
+  // Add checkboxes to each message
+  const articles = thread.querySelectorAll(".dialectics-message");
+  articles.forEach((article, index) => {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "dialectics-share-checkbox";
+    checkbox.checked = true;
+    checkbox.dataset.index = index;
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        selectedIndices.add(index);
+      } else {
+        selectedIndices.delete(index);
+      }
+    });
+    article.prepend(checkbox);
+    selectedIndices.add(index);
+  });
+
+  // Toggle button groups
+  normalActions.hidden = true;
+  shareActions.hidden = false;
+
+  // Disable other buttons
+  root.querySelector("[data-dialectics-reset]").disabled = true;
+  root.querySelector("[data-dialectics-export]").disabled = true;
+  root.querySelector("[data-dialectics-submit]").disabled = true;
+
+  status.textContent = "选择要包含在图片中的对话片段";
+}
+
+function exitShareMode(root, thread, normalActions, shareActions, status, state, hasApiTarget) {
+  shareMode = false;
+  selectedIndices.clear();
+
+  // Remove share-mode class
+  thread.classList.remove("is-share-mode");
+
+  // Remove all checkboxes
+  thread.querySelectorAll(".dialectics-share-checkbox").forEach((cb) => cb.remove());
+
+  // Toggle button groups
+  normalActions.hidden = false;
+  shareActions.hidden = true;
+
+  // Re-enable other buttons based on current state
+  root.querySelector("[data-dialectics-reset]").disabled = false;
+  root.querySelector("[data-dialectics-export]").disabled = !hasExportableContent(state);
+  root.querySelector("[data-dialectics-submit]").disabled = !hasApiTarget;
+
+  status.textContent = "这个网站不会保存你的对话数据。";
+}
+
+async function generateShareImage(selectedMessages, pageTitle) {
+  if (typeof window.html2canvas !== "function") {
+    throw new Error("html2canvas not loaded");
+  }
+
+  const card = createShareCardElement(selectedMessages, pageTitle);
+
+  // Create a visible container for rendering (html2canvas works better with visible elements)
+  const container = document.createElement("div");
+  container.style.cssText = `
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+  `;
+  container.append(card);
+  document.body.append(container);
+
+  try {
+    // Wait for images and rendering
+    await new Promise((r) => setTimeout(r, 200));
+
+    const canvas = await window.html2canvas(card, {
+      scale: 2,
+      backgroundColor: "#f8f4ee",
+      useCORS: true,
+      logging: false,
+      width: 1080,
+      height: 1920,
+      windowWidth: 1080,
+    });
+
+    const timestamp = formatExportTimestamp(new Date()).file;
+    const link = document.createElement("a");
+    link.download = `dialectics-share-${timestamp}.png`;
+    link.href = canvas.toDataURL("image/png");
+    document.body.append(link);
+    link.click();
+    link.remove();
+  } finally {
+    container.remove();
+  }
+}
+
 function initDialecticsPage() {
   const root = document.querySelector("[data-dialectics-root]");
   if (!root) {
@@ -675,6 +945,15 @@ function initDialecticsPage() {
   const infoPanel = root.querySelector("[data-dialectics-info-panel]");
   const infoTriggers = Array.from(root.querySelectorAll("[data-dialectics-info-trigger]"));
   const infoContents = Array.from(root.querySelectorAll("[data-dialectics-info-content]"));
+
+  // Share mode elements
+  const shareButton = root.querySelector("[data-dialectics-share]");
+  const normalActions = root.querySelector("[data-actions-normal]");
+  const shareActions = root.querySelector("[data-actions-share]");
+  const shareAllBtn = root.querySelector("[data-dialectics-share-all]");
+  const shareNoneBtn = root.querySelector("[data-dialectics-share-none]");
+  const shareGenerateBtn = root.querySelector("[data-dialectics-share-generate]");
+  const shareCancelBtn = root.querySelector("[data-dialectics-share-cancel]");
 
   const state = loadState(storageKey);
   state.storageKey = storageKey;
@@ -804,6 +1083,62 @@ function initDialecticsPage() {
       pending = false;
       syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending, settledStatus);
     }
+  });
+
+  // ── Share mode event listeners ──────────────────────────────────────
+  shareButton.addEventListener("click", () => {
+    if (!state.messages.length) {
+      status.textContent = "现在还没有可以分享的对话。";
+      return;
+    }
+    enterShareMode(root, thread, state, normalActions, shareActions, status);
+  });
+
+  shareAllBtn.addEventListener("click", () => {
+    thread.querySelectorAll(".dialectics-share-checkbox").forEach((cb) => {
+      cb.checked = true;
+      selectedIndices.add(Number(cb.dataset.index));
+    });
+  });
+
+  shareNoneBtn.addEventListener("click", () => {
+    thread.querySelectorAll(".dialectics-share-checkbox").forEach((cb) => {
+      cb.checked = false;
+      selectedIndices.delete(Number(cb.dataset.index));
+    });
+  });
+
+  shareGenerateBtn.addEventListener("click", async () => {
+    if (selectedIndices.size === 0) {
+      status.textContent = "请至少选择一条消息。";
+      return;
+    }
+
+    shareGenerateBtn.disabled = true;
+    shareGenerateBtn.textContent = "生成中...";
+    status.textContent = "正在生成图片...";
+
+    try {
+      const allMessages = [...state.archivedMessages, ...state.messages];
+      const selectedMessages = Array.from(selectedIndices)
+        .sort((a, b) => a - b)
+        .map((i) => allMessages[i])
+        .filter(Boolean);
+
+      await generateShareImage(selectedMessages, pageTitle);
+      status.textContent = "图片已保存到下载文件里。";
+    } catch (error) {
+      status.textContent = "生成图片失败，请稍后再试。";
+      console.error("Share image generation failed:", error);
+    } finally {
+      shareGenerateBtn.disabled = false;
+      shareGenerateBtn.textContent = "生成图片";
+      exitShareMode(root, thread, normalActions, shareActions, status, state, hasApiTarget);
+    }
+  });
+
+  shareCancelBtn.addEventListener("click", () => {
+    exitShareMode(root, thread, normalActions, shareActions, status, state, hasApiTarget);
   });
 }
 

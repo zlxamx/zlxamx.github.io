@@ -159,16 +159,27 @@
           <p class="dialectics-counter"><span data-dialectics-count>0</span>&nbsp;/&nbsp;{{ $inputLimit }}</p>
         </div>
 
-        <div class="dialectics-composer-actions">
-          <button type="button" class="dialectics-button is-ghost is-reset" data-dialectics-reset>清空</button>
-          <button type="button" class="dialectics-button is-ghost" data-dialectics-export>导出</button>
-          <button
-            type="submit"
-            class="dialectics-button is-primary"
-            data-dialectics-submit
-            {{ if not $runtimeConnected }}disabled{{ end }}>
-            {{ if $runtimeConnected }}发送{{ else }}暂不可用{{ end }}
-          </button>
+        <div class="dialectics-composer-actions" data-dialectics-composer-actions>
+          <div class="dialectics-actions-normal" data-actions-normal>
+            <button type="button" class="dialectics-button is-ghost" data-dialectics-share>图片分享</button>
+            <button type="button" class="dialectics-button is-ghost" data-dialectics-export>导出</button>
+            <button type="button" class="dialectics-button is-ghost is-reset" data-dialectics-reset>清空</button>
+            <span class="dialectics-actions-spacer"></span>
+            <button
+              type="submit"
+              class="dialectics-button is-primary"
+              data-dialectics-submit
+              {{ if not $runtimeConnected }}disabled{{ end }}>
+              {{ if $runtimeConnected }}发送{{ else }}暂不可用{{ end }}
+            </button>
+          </div>
+          <div class="dialectics-actions-share" data-actions-share hidden>
+            <button type="button" class="dialectics-button is-ghost" data-dialectics-share-all>全选</button>
+            <button type="button" class="dialectics-button is-ghost" data-dialectics-share-none>取消全选</button>
+            <span class="dialectics-actions-spacer"></span>
+            <button type="button" class="dialectics-button is-ghost" data-dialectics-share-cancel>取消</button>
+            <button type="button" class="dialectics-button is-primary" data-dialectics-share-generate>生成图片</button>
+          </div>
         </div>
       </div>
     </form>
@@ -181,6 +192,7 @@
   </footer>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer crossorigin="anonymous"></script>
 {{ with resources.Get "js/dialectics.js" }}
   {{ $opts := dict "minify" true }}
   {{ with . | js.Build $opts | fingerprint }}

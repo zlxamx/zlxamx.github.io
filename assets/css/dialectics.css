@@ -764,13 +764,22 @@
   gap: 0.32rem;
 }
 
-/* Reset button sits left of the action cluster and carries a muted-danger hover */
-.dialectics-button.is-reset {
-  margin-right: auto;
+.dialectics-actions-normal,
+.dialectics-actions-share {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.32rem;
+  width: 100%;
 }
 
-.dialectics-button.is-ghost.is-reset:hover,
-.dialectics-button.is-ghost.is-reset:focus-visible {
+.dialectics-actions-spacer {
+  flex: 1;
+}
+
+/* Reset button carries a muted-danger hover */
+.dialectics-button.is-reset:hover,
+.dialectics-button.is-reset:focus-visible {
   border-color: color-mix(in oklab, var(--d-accent) 55%, transparent);
   color: var(--d-accent);
 }
@@ -890,5 +899,243 @@
   .dialectics-workspace {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* ======================================================================
+ * Share mode — message selection
+ * =================================================================== */
+
+.dialectics-thread.is-share-mode .dialectics-message {
+  padding-left: 2.2rem;
+  position: relative;
+}
+
+.dialectics-share-checkbox {
+  appearance: none;
+  background: transparent;
+  border: 1.5px solid var(--d-hairline-strong);
+  border-radius: var(--d-radius-sm);
+  cursor: pointer;
+  height: 1.1rem;
+  left: 0;
+  margin: 0;
+  position: absolute;
+  top: 0.15rem;
+  transition: background-color 0.14s ease, border-color 0.14s ease;
+  width: 1.1rem;
+}
+
+.dialectics-share-checkbox:hover {
+  border-color: var(--d-accent);
+}
+
+.dialectics-share-checkbox:checked {
+  background: var(--d-accent);
+  border-color: var(--d-accent);
+}
+
+.dialectics-share-checkbox:checked::after {
+  color: #fff;
+  content: "✓";
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.dialectics-actions-share {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.32rem;
+  width: 100%;
+}
+
+/* ======================================================================
+ * Share card template — for html2canvas screenshot
+ * Hard-coded light values, no CSS variables (ensures consistent rendering)
+ * =================================================================== */
+
+.dialectics-share-card {
+  background: #f8f4ee;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  padding: 0;
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 1080px;
+  z-index: -1;
+}
+
+.dialectics-share-topbar {
+  background: #be2c2c;
+  height: 4px;
+}
+
+.dialectics-share-header {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  padding: 40px 48px 24px;
+}
+
+.dialectics-share-avatar {
+  border-radius: 50%;
+  height: 48px;
+  object-fit: cover;
+  width: 48px;
+}
+
+.dialectics-share-title {
+  color: #36302b;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.dialectics-share-subtitle {
+  color: #87867f;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  margin: 4px 0 0;
+  text-transform: uppercase;
+}
+
+.dialectics-share-divider {
+  border: 0;
+  border-top: 1px solid #e8e6dc;
+  margin: 0 48px;
+}
+
+.dialectics-share-messages {
+  display: grid;
+  gap: 20px;
+  padding: 28px 48px;
+}
+
+.dialectics-share-msg {
+  display: grid;
+  gap: 6px;
+}
+
+.dialectics-share-msg-label {
+  color: #87867f;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.dialectics-share-msg-body {
+  color: #36302b;
+  font-size: 15px;
+  line-height: 1.72;
+  margin: 0;
+  max-height: 400px;
+  overflow: hidden;
+  position: relative;
+  white-space: pre-wrap;
+}
+
+.dialectics-share-msg-body.is-truncated::after {
+  background: linear-gradient(transparent, #f8f4ee);
+  bottom: 0;
+  content: "";
+  display: block;
+  height: 60px;
+  position: absolute;
+  width: 100%;
+}
+
+.dialectics-share-msg.is-user {
+  background: #be2c2c;
+  border-radius: 4px 4px 0 4px;
+  color: #fff4f0;
+  justify-self: end;
+  max-width: 80%;
+  padding: 14px 18px;
+}
+
+.dialectics-share-msg.is-user .dialectics-share-msg-label {
+  color: inherit;
+  opacity: 0.68;
+}
+
+.dialectics-share-msg.is-user .dialectics-share-msg-body {
+  color: inherit;
+}
+
+.dialectics-share-msg.is-answer {
+  border-left: 3px solid #be2c2c;
+  padding: 4px 0 4px 16px;
+}
+
+.dialectics-share-footer {
+  align-items: center;
+  border-top: 1px solid #e8e6dc;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  padding: 28px 48px 40px;
+}
+
+.dialectics-share-brand {
+  display: grid;
+  gap: 6px;
+}
+
+.dialectics-share-brand-label {
+  color: #87867f;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.dialectics-share-brand-name {
+  color: #36302b;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dialectics-share-brand-url {
+  color: #87867f;
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.dialectics-share-qr {
+  border: 1px solid #e8e6dc;
+  border-radius: 4px;
+  height: 120px;
+  object-fit: contain;
+  width: 120px;
+}
+
+.dialectics-share-qr-fallback {
+  align-items: center;
+  color: #87867f;
+  display: flex;
+  font-size: 11px;
+  height: 120px;
+  justify-content: center;
+  text-align: center;
+  width: 120px;
+}
+
+@media (max-width: 600px) {
+  .dialectics-share-checkbox {
+    height: 1.3rem;
+    left: 0;
+    top: 0.1rem;
+    width: 1.3rem;
+  }
+
+  .dialectics-thread.is-share-mode .dialectics-message {
+    padding-left: 2.4rem;
   }
 }
