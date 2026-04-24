@@ -22,7 +22,7 @@ Hugo 静态博客，主题基于 `typo` + 大量定制。
 ### 宽度收束
 
 所有页面统一画布宽度：
-- `:root { --main-width: 58rem; }` — 全站 body 最大宽度
+- `:root { --main-width: 50rem; }` — 全站 body 最大宽度
 - `--reading-width: 42rem` — 仅用于单篇文章内部 (`.single-shell.is-post-page`) 保证阅读体验
 - **禁止**通过 `body.is-home`、`body.is-writing` 等类覆盖 body `max-width`
 - 新页面如需更窄的内容区，在**内部**用 `max-width` 约束，不要改 body

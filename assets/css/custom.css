@@ -2028,7 +2028,7 @@ a:focus-visible {
   --font-body: "Menlo", "Meslo LG", ui-monospace, "Cascadia Code",
     "PingFang SC", "Microsoft YaHei", monospace;
   --p-line-height: 1.725em;
-  --main-width: 58rem;              /* 全站统一画布宽度 */
+  --main-width: 50rem;              /* 全站统一画布宽度 */
   --reading-width: 42rem;           /* 长文阅读宽度（单篇文章内部约束） */
   --single-main-width: 42rem;
   --accent: light-dark(#d44375, #2bbc8a);
