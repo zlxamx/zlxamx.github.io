@@ -903,57 +903,6 @@
 }
 
 /* ======================================================================
- * Share mode — message selection
- * =================================================================== */
-
-.dialectics-thread.is-share-mode .dialectics-message {
-  padding-left: 2.2rem;
-  position: relative;
-}
-
-.dialectics-share-checkbox {
-  appearance: none;
-  background: transparent;
-  border: 1.5px solid var(--d-hairline-strong);
-  border-radius: var(--d-radius-sm);
-  cursor: pointer;
-  height: 1.1rem;
-  left: 0;
-  margin: 0;
-  position: absolute;
-  top: 0.15rem;
-  transition: background-color 0.14s ease, border-color 0.14s ease;
-  width: 1.1rem;
-}
-
-.dialectics-share-checkbox:hover {
-  border-color: var(--d-accent);
-}
-
-.dialectics-share-checkbox:checked {
-  background: var(--d-accent);
-  border-color: var(--d-accent);
-}
-
-.dialectics-share-checkbox:checked::after {
-  color: #fff;
-  content: "✓";
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  line-height: 1;
-  text-align: center;
-}
-
-.dialectics-actions-share {
-  align-items: center;
-  display: flex;
-  flex-shrink: 0;
-  gap: 0.32rem;
-  width: 100%;
-}
-
-/* ======================================================================
  * Share card template — for html2canvas screenshot
  * Hard-coded light values, no CSS variables (ensures consistent rendering)
  * =================================================================== */
@@ -1128,14 +1077,5 @@
 }
 
 @media (max-width: 600px) {
-  .dialectics-share-checkbox {
-    height: 1.3rem;
-    left: 0;
-    top: 0.1rem;
-    width: 1.3rem;
-  }
-
-  .dialectics-thread.is-share-mode .dialectics-message {
-    padding-left: 2.4rem;
-  }
+  /* Responsive styles for share card if needed */
 }

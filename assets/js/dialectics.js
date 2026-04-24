@@ -647,7 +647,6 @@ async function sendPromptWithFailover(apiTargets, activeApiUrl, payload) {
 
 // ── Share mode state ────────────────────────────────────────────────
 let shareMode = false;
-const selectedIndices = new Set();
 
 function createShareCardElement(selectedMessages, pageTitle) {
   const card = document.createElement("div");
@@ -803,66 +802,6 @@ function createShareCardElement(selectedMessages, pageTitle) {
   return card;
 }
 
-function enterShareMode(root, thread, state, normalActions, shareActions, status) {
-  shareMode = true;
-  selectedIndices.clear();
-
-  // Add share-mode class to thread
-  thread.classList.add("is-share-mode");
-
-  // Add checkboxes to each message
-  const articles = thread.querySelectorAll(".dialectics-message");
-  articles.forEach((article, index) => {
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.className = "dialectics-share-checkbox";
-    checkbox.checked = true;
-    checkbox.dataset.index = index;
-    checkbox.addEventListener("change", () => {
-      if (checkbox.checked) {
-        selectedIndices.add(index);
-      } else {
-        selectedIndices.delete(index);
-      }
-    });
-    article.prepend(checkbox);
-    selectedIndices.add(index);
-  });
-
-  // Toggle button groups
-  normalActions.hidden = true;
-  shareActions.hidden = false;
-
-  // Disable other buttons
-  root.querySelector("[data-dialectics-reset]").disabled = true;
-  root.querySelector("[data-dialectics-export]").disabled = true;
-  root.querySelector("[data-dialectics-submit]").disabled = true;
-
-  status.textContent = "选择要包含在图片中的对话片段";
-}
-
-function exitShareMode(root, thread, normalActions, shareActions, status, state, hasApiTarget) {
-  shareMode = false;
-  selectedIndices.clear();
-
-  // Remove share-mode class
-  thread.classList.remove("is-share-mode");
-
-  // Remove all checkboxes
-  thread.querySelectorAll(".dialectics-share-checkbox").forEach((cb) => cb.remove());
-
-  // Toggle button groups
-  normalActions.hidden = false;
-  shareActions.hidden = true;
-
-  // Re-enable other buttons based on current state
-  root.querySelector("[data-dialectics-reset]").disabled = false;
-  root.querySelector("[data-dialectics-export]").disabled = !hasExportableContent(state);
-  root.querySelector("[data-dialectics-submit]").disabled = !hasApiTarget;
-
-  status.textContent = "这个网站不会保存你的对话数据。";
-}
-
 async function generateShareImage(selectedMessages, pageTitle) {
   if (typeof window.html2canvas !== "function") {
     throw new Error("html2canvas not loaded");
@@ -946,14 +885,8 @@ function initDialecticsPage() {
   const infoTriggers = Array.from(root.querySelectorAll("[data-dialectics-info-trigger]"));
   const infoContents = Array.from(root.querySelectorAll("[data-dialectics-info-content]"));
 
-  // Share mode elements
+  // Share button
   const shareButton = root.querySelector("[data-dialectics-share]");
-  const normalActions = root.querySelector("[data-actions-normal]");
-  const shareActions = root.querySelector("[data-actions-share]");
-  const shareAllBtn = root.querySelector("[data-dialectics-share-all]");
-  const shareNoneBtn = root.querySelector("[data-dialectics-share-none]");
-  const shareGenerateBtn = root.querySelector("[data-dialectics-share-generate]");
-  const shareCancelBtn = root.querySelector("[data-dialectics-share-cancel]");
 
   const state = loadState(storageKey);
   state.storageKey = storageKey;
@@ -1085,60 +1018,28 @@ function initDialecticsPage() {
     }
   });
 
-  // ── Share mode event listeners ──────────────────────────────────────
-  shareButton.addEventListener("click", () => {
+  // ── Share button event listener ──────────────────────────────────────
+  shareButton.addEventListener("click", async () => {
     if (!state.messages.length) {
       status.textContent = "现在还没有可以分享的对话。";
       return;
     }
-    enterShareMode(root, thread, state, normalActions, shareActions, status);
-  });
 
-  shareAllBtn.addEventListener("click", () => {
-    thread.querySelectorAll(".dialectics-share-checkbox").forEach((cb) => {
-      cb.checked = true;
-      selectedIndices.add(Number(cb.dataset.index));
-    });
-  });
-
-  shareNoneBtn.addEventListener("click", () => {
-    thread.querySelectorAll(".dialectics-share-checkbox").forEach((cb) => {
-      cb.checked = false;
-      selectedIndices.delete(Number(cb.dataset.index));
-    });
-  });
-
-  shareGenerateBtn.addEventListener("click", async () => {
-    if (selectedIndices.size === 0) {
-      status.textContent = "请至少选择一条消息。";
-      return;
-    }
-
-    shareGenerateBtn.disabled = true;
-    shareGenerateBtn.textContent = "生成中...";
+    shareButton.disabled = true;
+    shareButton.textContent = "生成中...";
     status.textContent = "正在生成图片...";
 
     try {
       const allMessages = [...state.archivedMessages, ...state.messages];
-      const selectedMessages = Array.from(selectedIndices)
-        .sort((a, b) => a - b)
-        .map((i) => allMessages[i])
-        .filter(Boolean);
-
-      await generateShareImage(selectedMessages, pageTitle);
+      await generateShareImage(allMessages, pageTitle);
       status.textContent = "图片已保存到下载文件里。";
     } catch (error) {
       status.textContent = "生成图片失败，请稍后再试。";
       console.error("Share image generation failed:", error);
     } finally {
-      shareGenerateBtn.disabled = false;
-      shareGenerateBtn.textContent = "生成图片";
-      exitShareMode(root, thread, normalActions, shareActions, status, state, hasApiTarget);
+      shareButton.disabled = false;
+      shareButton.textContent = "图片分享";
     }
-  });
-
-  shareCancelBtn.addEventListener("click", () => {
-    exitShareMode(root, thread, normalActions, shareActions, status, state, hasApiTarget);
   });
 }
 
