@@ -2545,16 +2545,25 @@ a:focus-visible {
   color: var(--content-primary);
   display: flex;
   flex-direction: column;
-  font-size: 0.92rem;
-  gap: 0.5rem;
-  line-height: 1.7;
-  list-style: disc;
+  font-size: 0.88rem;
+  gap: 0.3rem;
+  line-height: 1.5;
+  list-style: none;
   margin: 0;
-  padding: 0 0 0 1.15rem;
+  padding: 0;                /* 和标题左边缘对齐 */
 }
 
-.about-section-list li::marker {
+.about-section-list li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;       /* 每条单行，不折行 */
+}
+
+.about-section-list li::before {
   color: var(--accent);
+  content: "• ";
+  font-weight: 700;
+  margin-right: 0.25rem;
 }
 
 .about-section-paragraphs {
