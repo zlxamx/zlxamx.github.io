@@ -1,80 +1,246 @@
 {{ define "main" }}
 
-<div class="list-container">
-  {{ partial "breadcrumbs.html" . }}
+{{ $isTagsPage := and (eq .Kind "taxonomy") (eq .Data.Plural "tags") }}
+{{ $isWritingPage := or (eq .RelPermalink "/post/") (eq .RelPermalink "/posts/") }}
 
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
+{{ if $isWritingPage }}
+  {{ $writingPages := (where .RegularPages "Title" "!=" "").ByDate.Reverse }}
+  {{ $yearGroups := sort ($writingPages.GroupByDate "2006") "Key" "desc" }}
+  {{ $monthNames := slice "" "一月" "二月" "三月" "四月" "五月" "六月" "七月" "八月" "九月" "十月" "十一月" "十二月" }}
+  {{ $listDateFormat := .Site.Params.listDateFormat | default "2006-01-02" }}
+  {{ $totalCount := len $writingPages }}
+  {{ $defaultYear := "" }}
+  {{ range first 1 $yearGroups }}{{ $defaultYear = .Key }}{{ end }}
 
-  {{ $isTagsPage := and (eq .Kind "taxonomy") (eq .Data.Plural "tags") }}
-  {{ $isWritingPage := or (eq .RelPermalink "/post/") (eq .RelPermalink "/posts/") }}
+  <div class="writing-shell" data-default-year="{{ $defaultYear }}" data-page-size="15">
 
-  {{ if $isWritingPage }}
-    {{ $writingPages := where .RegularPages "Title" "!=" "" }}
-    {{ $yearGroups := sort ($writingPages.ByDate.Reverse.GroupByDate "2006") "Key" "desc" }}
-    {{ $monthNames := slice "" "一月" "二月" "三月" "四月" "五月" "六月" "七月" "八月" "九月" "十月" "十一月" "十二月" }}
-    {{ $listDateFormat := .Site.Params.listDateFormat | default "2006-01-02" }}
-    {{ $currentYear := time.Format "2006" now }}
-    {{ $scratch := newScratch }}
-    {{ $scratch.Set "expandedYear" "" }}
-
-    {{ range $yearGroups }}
-      {{ if eq .Key $currentYear }}
-        {{ $scratch.Set "expandedYear" .Key }}
+    {{/* ── Hero ── */}}
+    <section class="writing-hero">
+      <div class="writing-hero-text">
+        <a class="writing-back-pill" href="{{ "/" | relURL }}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          返回首页
+        </a>
+        <h1 class="writing-hero-title">
+          <span class="writing-hero-label">Writing</span>
+          <span class="writing-hero-year" data-role="hero-year">{{ $defaultYear }}</span>
+        </h1>
+        <p class="writing-hero-desc">记录思考，整理灵感，分享成长。</p>
+        <p class="writing-hero-count" data-role="hero-count" data-total="{{ $totalCount }}">
+          共计 <b data-role="hero-count-num">{{ $totalCount }}</b> 篇文章
+        </p>
+      </div>
+      {{ with resources.Get "img/writing-hero.png" }}
+      <div class="writing-hero-art">
+        <img src="{{ .RelPermalink }}" alt="Writing">
+      </div>
       {{ end }}
-    {{ end }}
+    </section>
 
-    {{ if eq ($scratch.Get "expandedYear") "" }}
-      {{ range first 1 $yearGroups }}
-        {{ $scratch.Set "expandedYear" .Key }}
-      {{ end }}
-    {{ end }}
+    {{/* ── Body: sidebar + list ── */}}
+    <div class="writing-body">
 
-    {{ if gt (len $writingPages) 0 }}
-      <div class="writing-archive">
+      {{/* Sidebar */}}
+      <aside class="writing-sidebar">
         {{ range $yearGroups }}
-          {{ $isExpandedYear := eq .Key ($scratch.Get "expandedYear") }}
-          {{ $monthGroups := sort (.Pages.ByDate.Reverse.GroupByDate "01") "Key" "desc" }}
-
-          <section class="writing-year-group {{ if $isExpandedYear }}is-current-year{{ else }}is-archived-year{{ end }}">
-            <div class="writing-year-head">
-              <h2 class="writing-year-title">{{ .Key }}</h2>
-              <p class="writing-year-count">共计 {{ len .Pages }} 篇文章</p>
-            </div>
-
+          {{ $yearKey := .Key }}
+          {{ $yearCount := len .Pages }}
+          {{ $monthGroups := sort (.Pages.GroupByDate "01") "Key" "desc" }}
+          <div class="writing-year-block" data-year="{{ $yearKey }}">
+            <button type="button" class="writing-year-head" data-action="toggle-year" data-year="{{ $yearKey }}" aria-expanded="false">
+              <svg class="writing-sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span class="writing-year-title">{{ $yearKey }}</span>
+              <span class="writing-year-count">{{ $yearCount }} 篇文章</span>
+              <svg class="writing-year-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
             <div class="writing-month-list">
               {{ range $monthGroups }}
                 {{ $monthNumber := int .Key }}
                 {{ $monthLabel := index $monthNames $monthNumber }}
-
-                <details class="writing-month-block" {{ if $isExpandedYear }}open{{ end }}>
-                  <summary class="writing-month-summary">
-                    <span class="writing-month-title">{{ $monthLabel }}</span>
-                    <span class="writing-month-count">{{ len .Pages }} 篇文章</span>
-                  </summary>
-
-                  <div class="writing-month-posts">
-                    {{ range .Pages.ByDate.Reverse }}
-                      <article class="writing-entry">
-                        <p class="writing-entry-title">
-                          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-                        </p>
-                        <p class="writing-entry-date">
-                          <time datetime="{{ .Date | time.Format "2006-01-02" }}">{{ .Date | time.Format $listDateFormat }}</time>
-                        </p>
-                      </article>
-                    {{ end }}
-                  </div>
-                </details>
+                <button type="button" class="writing-month-item" data-action="select-month" data-year="{{ $yearKey }}" data-month="{{ .Key }}">
+                  <svg class="writing-sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span class="writing-month-label">{{ $monthLabel }}</span>
+                  <span class="writing-month-count">{{ len .Pages }} 篇文章</span>
+                </button>
               {{ end }}
             </div>
-          </section>
+          </div>
         {{ end }}
+      </aside>
+
+      {{/* List */}}
+      <div class="writing-list-wrap">
+        <div class="writing-list" data-role="list">
+          {{ range $writingPages }}
+          <article class="writing-item"
+                   data-year="{{ .Date | time.Format "2006" }}"
+                   data-month="{{ .Date | time.Format "01" }}">
+            <svg class="writing-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <a class="writing-item-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+            <time class="writing-item-date" datetime="{{ .Date | time.Format "2006-01-02" }}">{{ .Date | time.Format $listDateFormat }}</time>
+          </article>
+          {{ end }}
+        </div>
+
+        <nav class="writing-pagination" data-role="pagination" aria-label="分页">
+          <button type="button" class="writing-page-btn" data-action="page-prev" aria-label="上一页">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span class="writing-page-numbers" data-role="page-numbers"></span>
+          <button type="button" class="writing-page-btn" data-action="page-next" aria-label="下一页">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </nav>
       </div>
-    {{ else }}
-      <p>这里还没有文章。</p>
-    {{ end }}
-  {{ else }}
+
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    var shell = document.querySelector('.writing-shell');
+    if (!shell) return;
+
+    var defaultYear = shell.dataset.defaultYear;
+    var pageSize = parseInt(shell.dataset.pageSize, 10) || 15;
+    var listEl = shell.querySelector('[data-role="list"]');
+    var items = Array.prototype.slice.call(listEl.querySelectorAll('.writing-item'));
+    var heroYearEl = shell.querySelector('[data-role="hero-year"]');
+    var heroCountNumEl = shell.querySelector('[data-role="hero-count-num"]');
+    var pageNumbersEl = shell.querySelector('[data-role="page-numbers"]');
+    var paginationEl = shell.querySelector('[data-role="pagination"]');
+    var btnPrev = shell.querySelector('[data-action="page-prev"]');
+    var btnNext = shell.querySelector('[data-action="page-next"]');
+
+    var state = {
+      year: defaultYear,
+      month: null,   // null = 整年；"04" 等 = 某月
+      page: 1
+    };
+
+    function filteredItems() {
+      return items.filter(function (it) {
+        if (state.year && it.dataset.year !== state.year) return false;
+        if (state.month && it.dataset.month !== state.month) return false;
+        return true;
+      });
+    }
+
+    function render() {
+      var list = filteredItems();
+      var totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+      if (state.page > totalPages) state.page = totalPages;
+      var start = (state.page - 1) * pageSize;
+      var end = start + pageSize;
+
+      items.forEach(function (it) { it.classList.add('is-hidden'); });
+      list.slice(start, end).forEach(function (it) { it.classList.remove('is-hidden'); });
+
+      if (heroYearEl) heroYearEl.textContent = state.year || '';
+      if (heroCountNumEl) heroCountNumEl.textContent = list.length;
+
+      // 侧边栏高亮
+      shell.querySelectorAll('.writing-year-block').forEach(function (b) {
+        b.classList.toggle('is-active', b.dataset.year === state.year);
+        b.classList.toggle('is-expanded', b.dataset.year === state.year);
+      });
+      shell.querySelectorAll('.writing-year-head').forEach(function (h) {
+        h.setAttribute('aria-expanded', h.dataset.year === state.year ? 'true' : 'false');
+      });
+      shell.querySelectorAll('.writing-month-item').forEach(function (m) {
+        m.classList.toggle('is-active', m.dataset.year === state.year && m.dataset.month === state.month);
+      });
+
+      // 分页器
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      pageNumbersEl.innerHTML = '';
+      if (totalPages <= 1) {
+        paginationEl.classList.add('is-hidden');
+        return;
+      }
+      paginationEl.classList.remove('is-hidden');
+
+      var maxButtons = 7;
+      var pages = [];
+      if (totalPages <= maxButtons) {
+        for (var i = 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        var left = Math.max(2, state.page - 1);
+        var right = Math.min(totalPages - 1, state.page + 1);
+        if (left > 2) pages.push('…');
+        for (var j = left; j <= right; j++) pages.push(j);
+        if (right < totalPages - 1) pages.push('…');
+        pages.push(totalPages);
+      }
+
+      pages.forEach(function (p) {
+        if (p === '…') {
+          var span = document.createElement('span');
+          span.className = 'writing-page-ellipsis';
+          span.textContent = '…';
+          pageNumbersEl.appendChild(span);
+          return;
+        }
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'writing-page-num' + (p === state.page ? ' is-active' : '');
+        btn.textContent = p;
+        btn.addEventListener('click', function () {
+          state.page = p;
+          render();
+          scrollToListTop();
+        });
+        pageNumbersEl.appendChild(btn);
+      });
+
+      btnPrev.disabled = state.page === 1;
+      btnNext.disabled = state.page === totalPages;
+    }
+
+    function scrollToListTop() {
+      var rect = listEl.getBoundingClientRect();
+      if (rect.top < 0) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // 事件
+    shell.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-action]');
+      if (!t) return;
+      var action = t.dataset.action;
+      if (action === 'toggle-year') {
+        var y = t.dataset.year;
+        state.year = y;
+        state.month = null;
+        state.page = 1;
+        render();
+      } else if (action === 'select-month') {
+        state.year = t.dataset.year;
+        state.month = t.dataset.month;
+        state.page = 1;
+        render();
+      } else if (action === 'page-prev') {
+        if (state.page > 1) { state.page--; render(); scrollToListTop(); }
+      } else if (action === 'page-next') {
+        state.page++; render(); scrollToListTop();
+      }
+    });
+
+    render();
+  })();
+  </script>
+
+{{ else }}
+
+  <div class="list-container">
+    {{ partial "breadcrumbs.html" . }}
+
+    <h1>{{ .Title }}</h1>
+    {{ .Content }}
+
     {{ $paginationSize := 1 }}
     {{ if gt .Site.Params.paginationSize 0 }}
       {{ $paginationSize = .Site.Params.paginationSize }}
@@ -91,7 +257,8 @@
     {{ end }}
 
     {{ partial "pagination-controls.html" $paginator }}
-  {{ end }}
-</div>
+  </div>
+
+{{ end }}
 
 {{ end }}

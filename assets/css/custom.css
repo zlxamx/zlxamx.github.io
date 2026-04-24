@@ -966,105 +966,427 @@ a:focus-visible {
   margin: 0;
 }
 
-.writing-archive {
-  margin-top: 2rem;
+/* ─────────────────────────────────────────────
+   Writing list page (/post/) — 全新设计
+   ───────────────────────────────────────────── */
+
+body.is-writing {
+  max-width: 64rem;
 }
 
-.writing-year-group + .writing-year-group {
-  margin-top: 3rem;
+.writing-shell {
+  border: 1px solid var(--code-border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* ── Hero ────────────────────────── */
+.writing-hero {
+  background: light-dark(
+    linear-gradient(to right,
+      #ffffff 0%, #ffffff 20%, #fef3f6 50%, #fce0ea 100%),
+    linear-gradient(to right,
+      #1d1f21 0%, #1d1f21 20%, #1f2a24 50%, #233129 100%)
+  );
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  padding: 2rem 2.2rem 1.75rem;
+  position: relative;
+}
+
+.writing-hero-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.writing-back-pill {
+  align-items: center;
+  align-self: flex-start;
+  background: light-dark(rgba(212, 67, 117, 0.12), rgba(43, 188, 138, 0.14));
+  border-radius: 999px;
+  color: var(--accent);
+  display: inline-flex;
+  font-size: 0.78rem;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  padding: 0.25rem 0.8rem;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.writing-back-pill svg {
+  height: 0.9rem;
+  width: 0.9rem;
+}
+
+.writing-back-pill:hover {
+  opacity: 0.8;
+}
+
+.writing-hero-title {
+  display: flex;
+  flex-direction: column;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.writing-hero-label {
+  color: var(--content-primary);
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+}
+
+.writing-hero-year {
+  color: var(--accent);
+  font-size: clamp(2.4rem, 4.5vw, 3.4rem);
+  margin-top: 0.15rem;
+}
+
+.writing-hero-desc {
+  color: var(--content-secondary);
+  font-size: 0.88rem;
+  margin: 0.9rem 0 0;
+}
+
+.writing-hero-count {
+  bottom: 1rem;
+  color: var(--content-secondary);
+  font-size: 0.8rem;
+  margin: 0;
+  position: absolute;
+  right: 2.2rem;
+}
+
+.writing-hero-count b {
+  color: var(--content-primary);
+  font-weight: 700;
+}
+
+.writing-hero-art {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.writing-hero-art img {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+  filter: light-dark(none, brightness(0.92) saturate(0.85));
+}
+
+/* ── Body grid ────────────────────── */
+.writing-body {
+  border-top: 1px solid var(--code-border);
+  display: grid;
+  gap: 0;
+  grid-template-columns: 15rem minmax(0, 1fr);
+}
+
+/* ── Sidebar ──────────────────────── */
+.writing-sidebar {
+  border-right: 1px solid var(--code-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem;
+}
+
+.writing-year-block {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: background 0.15s;
 }
 
 .writing-year-head {
-  align-items: baseline;
-  border-bottom: 1px solid var(--code-border);
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-  margin-bottom: 1.35rem;
-  padding-bottom: 0.9rem;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-left: 3px solid transparent;
+  color: var(--content-primary);
+  cursor: pointer;
+  display: grid;
+  font-family: inherit;
+  font-size: 0.9rem;
+  gap: 0.35rem 0.5rem;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  padding: 0.65rem 0.75rem 0.65rem 0.85rem;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+  width: 100%;
+}
+
+.writing-year-block.is-active .writing-year-head {
+  background: light-dark(rgba(212, 67, 117, 0.08), rgba(43, 188, 138, 0.1));
+  border-left-color: var(--accent);
+}
+
+.writing-year-head:hover {
+  background: light-dark(rgba(212, 67, 117, 0.05), rgba(43, 188, 138, 0.07));
+}
+
+.writing-sidebar-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+  grid-row: 1 / span 2;
+  height: 1.1rem;
+  width: 1.1rem;
 }
 
 .writing-year-title {
-  font-size: clamp(2rem, 4vw, 2.5rem);
-  letter-spacing: -0.04em;
-  line-height: 1;
-  margin: 0;
+  color: var(--content-primary);
+  font-weight: 700;
+  grid-column: 2;
+  grid-row: 1;
 }
 
-.writing-year-count,
-.writing-month-count,
-.writing-entry-date {
+.writing-year-count {
   color: var(--content-secondary);
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  margin: 0;
-  white-space: nowrap;
+  font-size: 0.72rem;
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.writing-year-chevron {
+  color: var(--content-secondary);
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  height: 0.9rem;
+  transition: transform 0.2s;
+  width: 0.9rem;
+}
+
+.writing-year-block.is-expanded .writing-year-chevron {
+  transform: rotate(90deg);
 }
 
 .writing-month-list {
-  display: grid;
-  gap: 1.15rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem 0 0.35rem 1.8rem;
 }
 
-.writing-month-block {
-  margin: 0;
-}
-
-.writing-month-summary {
-  align-items: baseline;
-  border-bottom: 1px dashed var(--code-border);
-  cursor: pointer;
+.writing-year-block.is-expanded .writing-month-list {
   display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-  list-style: none;
-  padding-bottom: 0.85rem;
 }
 
-.writing-month-summary::-webkit-details-marker {
+.writing-month-item {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 0.4rem;
+  color: var(--content-primary);
+  cursor: pointer;
+  display: grid;
+  font-family: inherit;
+  font-size: 0.82rem;
+  gap: 0.5rem;
+  grid-template-columns: auto 1fr auto;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  transition: background 0.15s;
+  width: 100%;
+}
+
+.writing-month-item .writing-sidebar-icon {
+  color: var(--content-secondary);
+  grid-row: auto;
+  height: 0.9rem;
+  width: 0.9rem;
+}
+
+.writing-month-item:hover {
+  background: light-dark(rgba(212, 67, 117, 0.06), rgba(43, 188, 138, 0.08));
+}
+
+.writing-month-item.is-active {
+  background: light-dark(rgba(212, 67, 117, 0.1), rgba(43, 188, 138, 0.12));
+  color: var(--accent);
+}
+
+.writing-month-item.is-active .writing-sidebar-icon {
+  color: var(--accent);
+}
+
+.writing-month-count {
+  color: var(--content-secondary);
+  font-size: 0.72rem;
+}
+
+/* ── List ────────────────────────── */
+.writing-list-wrap {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.5rem 1.25rem;
+}
+
+.writing-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
+.writing-item {
+  align-items: center;
+  border-top: 1px solid var(--code-border);
+  column-gap: 0.85rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 0.75rem 0.25rem;
+}
+
+.writing-item:first-child {
+  border-top: 0;
+}
+
+.writing-item.is-hidden {
   display: none;
 }
 
-.writing-month-summary::marker {
-  content: "";
+.writing-item-icon {
+  color: var(--content-secondary);
+  flex-shrink: 0;
+  height: 1rem;
+  width: 1rem;
 }
 
-.writing-month-title {
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+.writing-item-title {
+  color: var(--content-primary);
+  font-size: 0.92rem;
+  min-width: 0;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+  white-space: nowrap;
 }
 
-.writing-month-posts {
-  display: grid;
-  gap: 0.85rem;
+.writing-item-title:hover {
+  color: var(--accent);
+}
+
+.writing-item-date {
+  color: var(--content-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* ── Pagination ──────────────────── */
+.writing-pagination {
+  align-items: center;
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-top: 1.25rem;
   padding-top: 1rem;
 }
 
-.writing-entry {
-  align-items: baseline;
-  column-gap: 1.5rem;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+.writing-pagination.is-hidden {
+  display: none;
 }
 
-.writing-entry-title {
-  margin: 0;
+.writing-page-btn,
+.writing-page-num {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--code-border);
+  border-radius: 0.4rem;
+  color: var(--content-primary);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: inherit;
+  font-size: 0.82rem;
+  height: 2rem;
+  justify-content: center;
+  min-width: 2rem;
+  padding: 0 0.55rem;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
-.writing-entry-title a {
-  text-decoration: none;
+.writing-page-btn svg {
+  height: 0.85rem;
+  width: 0.85rem;
 }
 
-.writing-entry-title a:hover,
-.writing-entry-title a:focus-visible {
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 0.16em;
+.writing-page-btn:hover:not(:disabled),
+.writing-page-num:hover:not(.is-active) {
+  background: light-dark(rgba(212, 67, 117, 0.06), rgba(43, 188, 138, 0.08));
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
-.writing-entry-date {
-  text-align: right;
+.writing-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.writing-page-num.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.writing-page-numbers {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.writing-page-ellipsis {
+  color: var(--content-secondary);
+  padding: 0 0.2rem;
+}
+
+/* ── Mobile ──────────────────────── */
+@media (max-width: 768px) {
+  body.is-writing {
+    max-width: 100%;
+  }
+
+  .writing-hero {
+    grid-template-columns: 1fr;
+    padding: 1.5rem 1.4rem;
+  }
+
+  .writing-hero-count {
+    position: static;
+    margin-top: 1rem;
+  }
+
+  .writing-hero-art {
+    display: none;
+  }
+
+  .writing-body {
+    grid-template-columns: 1fr;
+  }
+
+  .writing-sidebar {
+    border-bottom: 1px solid var(--code-border);
+    border-right: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow-x: auto;
+    padding: 0.75rem;
+  }
+
+  .writing-year-block {
+    flex: 1 1 auto;
+    min-width: 9rem;
+  }
+
+  .writing-list-wrap {
+    padding: 1rem;
+  }
 }
 
 .library-shell {

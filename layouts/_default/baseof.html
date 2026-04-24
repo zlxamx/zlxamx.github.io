@@ -7,8 +7,9 @@
 </head>
 
 {{ $theme := .Param "theme" | default "auto" }}
+{{ $isWritingList := and (eq .Kind "section") (or (eq .RelPermalink "/post/") (eq .RelPermalink "/posts/")) }}
 
-<body class="{{ if not (eq (.Param "theme") "auto") }}{{ $theme }} {{ end }}{{ if .IsHome }}is-home{{ end }}">
+<body class="{{ if not (eq (.Param "theme") "auto") }}{{ $theme }} {{ end }}{{ if .IsHome }}is-home{{ end }}{{ if $isWritingList }}is-writing{{ end }}">
 
   <div class="content">
     <header>
