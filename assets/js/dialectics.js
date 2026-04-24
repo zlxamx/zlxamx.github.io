@@ -691,7 +691,7 @@ function createShareCardElement(selectedMessages, pageTitle) {
   subtitleRow.style.cssText = "display: flex; align-items: center; gap: 14px;";
 
   const subtitleAccent = document.createElement("div");
-  subtitleAccent.style.cssText = "width: 36px; height: 3px; background: #be2c2c; flex-shrink: 0;";
+  subtitleAccent.style.cssText = "width: 36px; height: 3px; background: #be2c2c; flex-shrink: 0; align-self: center;";
 
   const subtitleText = document.createElement("p");
   subtitleText.style.cssText = "margin: 0; font-size: 22px; color: #87867f; letter-spacing: 0.06em;";
@@ -786,6 +786,7 @@ function createShareCardElement(selectedMessages, pageTitle) {
       justify-content: center;
       font-size: 22px;
       font-weight: 700;
+      line-height: 1;
       color: #fff;
       flex-shrink: 0;
     `;
@@ -796,6 +797,7 @@ function createShareCardElement(selectedMessages, pageTitle) {
       margin: 0;
       font-size: 28px;
       font-weight: 700;
+      line-height: 1;
       color: ${accentColor};
     `;
     labelText.textContent = getMessageLabel(msg);
