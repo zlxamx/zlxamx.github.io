@@ -190,9 +190,20 @@ a:focus-visible {
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
+/* 月亮 = 深色模式的 accent 绿；太阳 = 浅色模式的 accent 粉 */
+.theme-toggle[data-next-theme="dark"] {
+  border-color: rgba(43, 188, 138, 0.35);
+  color: #2bbc8a;
+}
+
+.theme-toggle[data-next-theme="light"] {
+  border-color: rgba(212, 67, 117, 0.35);
+  color: #d44375;
+}
+
 .theme-toggle:hover,
 .theme-toggle:focus-visible {
-  color: var(--content-secondary);
+  opacity: 0.82;
   outline: none;
 }
 
