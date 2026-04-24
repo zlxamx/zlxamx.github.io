@@ -1,0 +1,111 @@
+{{ define "main" }}
+
+{{ $about := .Site.Data.about }}
+
+<div class="about-shell">
+
+  {{/* ── Hero ── */}}
+  <section class="about-hero">
+    <div class="about-hero-left">
+
+      {{/* 头像 + 主标题 */}}
+      <div class="about-hero-header">
+        <div class="about-avatar-box">
+          {{ with resources.Get "img/avatar.png" }}
+          <img class="about-avatar" src="{{ .RelPermalink }}" alt="Luxi">
+          {{ end }}
+        </div>
+        <h1 class="about-hero-title">
+          <span class="about-hero-label">{{ $about.hero.label }}</span>
+          <span class="about-hero-name">{{ $about.hero.name }}</span>
+        </h1>
+      </div>
+
+      {{/* 正文段落 */}}
+      <div class="about-hero-body">
+        {{ range $about.hero.paragraphs }}
+        <p class="about-hero-p">{{ . }}</p>
+        {{ end }}
+
+        {{/* 事实条 */}}
+        {{ with $about.hero.facts }}
+        <div class="about-facts">
+          {{ range . }}
+          <div class="about-fact">
+            <span class="about-fact-icon" aria-hidden="true">
+              {{ if eq .icon "location" }}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {{ else if eq .icon "calendar" }}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              {{ end }}
+            </span>
+            <span class="about-fact-text">{{ .text }}</span>
+          </div>
+          {{ end }}
+        </div>
+        {{ end }}
+
+        {{ with $about.hero.summary }}
+        <p class="about-hero-summary">{{ . }}</p>
+        {{ end }}
+      </div>
+    </div>
+
+    {{/* Hero 插画 */}}
+    {{ with resources.Get "img/about/hero.png" }}
+    <div class="about-hero-art">
+      <img src="{{ .RelPermalink }}" alt="About Luxi">
+    </div>
+    {{ end }}
+  </section>
+
+  {{/* ── 主题卡 ── */}}
+  {{ range $about.sections }}
+  <section class="about-section" data-key="{{ .key }}">
+
+    <div class="about-section-icon-wrap" aria-hidden="true">
+      <div class="about-section-icon">
+        {{ if eq .icon "book" }}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        {{ else if eq .icon "target" }}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        {{ else if eq .icon "pencil" }}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+        {{ end }}
+      </div>
+    </div>
+
+    <div class="about-section-text">
+      <h2 class="about-section-title">{{ .title }}</h2>
+      {{ if eq .type "bullets" }}
+      <ul class="about-section-list">
+        {{ range .items }}<li>{{ . }}</li>{{ end }}
+      </ul>
+      {{ else }}
+      <div class="about-section-paragraphs">
+        {{ range .items }}<p>{{ . }}</p>{{ end }}
+      </div>
+      {{ end }}
+    </div>
+
+    {{ with resources.Get (printf "img/about/%s" .image) }}
+    <div class="about-section-art">
+      <img src="{{ .RelPermalink }}" alt="{{ $.Title }}">
+    </div>
+    {{ end }}
+
+  </section>
+  {{ end }}
+
+  {{/* ── Quote ── */}}
+  {{ with $about.quote }}
+  <section class="about-quote">
+    <span class="about-quote-mark" aria-hidden="true">“</span>
+    <blockquote class="about-quote-text">{{ .text }}</blockquote>
+    {{ with .author }}<cite class="about-quote-author">— {{ . }}</cite>{{ end }}
+  </section>
+  {{ end }}
+
+</div>
+
+{{ end }}
