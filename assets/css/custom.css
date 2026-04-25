@@ -2492,7 +2492,12 @@ a:focus-visible {
   height: auto;
   max-width: 100%;
   width: 100%;
-  filter: light-dark(none, brightness(0.92) saturate(0.85));
+}
+
+/* 深色模式：把深色线稿反成浅色，hue-rotate 把粉色点缀转回粉色 */
+html.dark .about-hero-art img,
+html.dark .about-section-art img {
+  filter: invert(0.88) hue-rotate(180deg);
 }
 
 /* ── Section card ── */
@@ -2591,7 +2596,6 @@ a:focus-visible {
   height: auto;
   max-width: 100%;
   width: 100%;
-  filter: light-dark(none, brightness(0.92) saturate(0.85));
 }
 
 /* ── Quote ── */
