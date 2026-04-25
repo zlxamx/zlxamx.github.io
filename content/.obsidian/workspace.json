@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "library.md",
+                "file": "library/乔布斯传.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "library"
+              "title": "乔布斯传"
             }
           }
         ]
@@ -195,8 +195,15 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "9c418cabe00ef9df",
+  "active": "f66fc2d7a4f4a3c3",
   "lastOpenFiles": [
+    "library/冰雪王国.md",
+    "library/邓小平时代.md",
+    "library/毛泽东选集.md",
+    "library/乔布斯传.md",
+    "library/三国演义.md",
+    "library/莎士比亚全集.md",
+    "library/中国历代政治得失.md",
     "post/我的AI订阅复盘.md",
     "post/一个普通人的健康系统.md",
     "Screenshot_20260424_193014_com_ruguoapp_jike_PersonalGalleryPictureActivity_edit_33259732834944.jpg",
@@ -223,14 +230,7 @@
     "post/把鞋架反过来，就知道你在穿什么鞋.md",
     "post/我真的太喜欢这种打破定论的故事了.md",
     "dialectics.md",
-    "library.md",
-    "post/希路路克的每周来信Vol.05.md",
     "希路路克的周末来信_vol05_竖版封面.png",
-    "post/你最有效的工作，发生在你不工作的时候.md",
-    "post/吃炒河粉还掉秤：精致碳水到底冤不冤？.md",
-    "post/做饭与收拾：找回生活的掌控感.md",
-    "未命名.md",
-    "tags/_index.md",
     "希路路克的周末来信_vol02_竖版封面.png",
     "希路路克的周末来信_vol02_竖版封面 1.png",
     "post/未命名",

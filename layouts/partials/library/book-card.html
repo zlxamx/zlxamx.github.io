@@ -1,8 +1,13 @@
 {{/* 入参：一个 Page 对象（content/library/<slug>.md） */}}
 {{ $page := . }}
 {{ $cover := "" }}
-{{ if $page.Params.cover }}
-  {{ with resources.Get (printf "img/library/%s" $page.Params.cover) }}
+{{ with $page.Params.cover }}
+  {{ $name := . }}
+  {{/* 没填扩展名时默认补 .jpg */}}
+  {{ if eq (path.Ext $name) "" }}
+    {{ $name = printf "%s.jpg" $name }}
+  {{ end }}
+  {{ with resources.Get (printf "img/library/%s" $name) }}
     {{ $cover = .RelPermalink }}
   {{ end }}
 {{ end }}
