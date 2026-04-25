@@ -2323,7 +2323,7 @@ a:focus-visible {
 /* 主题给 footer 加了 max-height 把上下空间压死，先解除 */
 footer {
   max-height: none;
-  padding-block: 10rem;   /* 上下各 10rem 留白 */
+  padding-block: 2.5rem 5rem;   /* 上 2.5rem / 下 5rem */
 }
 
 .footer-inner {
