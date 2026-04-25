@@ -1,0 +1,164 @@
+{{ define "main" }}
+
+{{/* 取所有带"周刊"分类的文章，按日期降序 */}}
+{{ $letters := where .Site.RegularPages "Section" "post" }}
+{{ $letters  = where $letters "Params.categories" "intersect" (slice "周刊") }}
+{{ $letters  = $letters.ByDate.Reverse }}
+
+{{ $heroLight := resources.Get "img/letters-hero.png" }}
+{{ $heroDark  := resources.Get "img/letters-hero-dark.png" }}
+
+<div class="weekly-shell" data-page-size="10">
+
+  {{/* ── Hero ── */}}
+  <section class="weekly-hero">
+
+    <div class="weekly-hero-text">
+      {{ with .Params.heroBadge }}
+      <span class="weekly-hero-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        {{ . }}
+      </span>
+      {{ end }}
+
+      <h1 class="weekly-hero-title">
+        <span>{{ .Params.heroTitlePrefix }}</span><span class="weekly-hero-accent">{{ .Params.heroTitleAccent }}</span>
+      </h1>
+
+      <div class="weekly-hero-body">
+        {{ .Content }}
+      </div>
+    </div>
+
+    {{ if or $heroLight $heroDark }}
+    <div class="weekly-hero-art">
+      {{ with $heroLight }}<img class="art-light" src="{{ .RelPermalink }}" alt="来信">{{ end }}
+      {{ with $heroDark  }}<img class="art-dark"  src="{{ .RelPermalink }}" alt="来信">{{ end }}
+    </div>
+    {{ end }}
+  </section>
+
+  {{/* ── 列表 ── */}}
+  <section class="weekly-list-card">
+    <div class="weekly-list" data-role="weekly-list">
+      {{ range $i, $p := $letters }}
+      <a class="weekly-item{{ if eq $i 0 }} is-new{{ end }}"
+         href="{{ $p.RelPermalink }}"
+         data-index="{{ $i }}">
+        <span class="weekly-item-date">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <em>{{ $p.Date | time.Format "01-02" }}</em>
+        </span>
+        <span class="weekly-item-title">{{ $p.Title }}</span>
+        <span class="weekly-item-tail">
+          {{ if eq $i 0 }}<em class="weekly-new-badge">NEW</em>{{ end }}
+          <svg class="weekly-item-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>
+      {{ end }}
+    </div>
+
+    <nav class="weekly-pagination is-hidden" data-role="pagination" aria-label="分页">
+      <button type="button" class="weekly-page-btn" data-action="page-prev" aria-label="上一页">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="weekly-page-numbers" data-role="page-numbers"></span>
+      <button type="button" class="weekly-page-btn" data-action="page-next" aria-label="下一页">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </nav>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var shell = document.querySelector('.weekly-shell');
+  if (!shell) return;
+
+  var pageSize = parseInt(shell.dataset.pageSize, 10) || 10;
+  var listEl = shell.querySelector('[data-role="weekly-list"]');
+  var items = Array.prototype.slice.call(listEl.querySelectorAll('.weekly-item'));
+  var paginationEl = shell.querySelector('[data-role="pagination"]');
+  var pageNumbersEl = shell.querySelector('[data-role="page-numbers"]');
+  var btnPrev = shell.querySelector('[data-action="page-prev"]');
+  var btnNext = shell.querySelector('[data-action="page-next"]');
+
+  var state = { page: 1 };
+
+  function render() {
+    var totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+    if (state.page > totalPages) state.page = totalPages;
+    var start = (state.page - 1) * pageSize;
+    var end = start + pageSize;
+
+    items.forEach(function (it, idx) {
+      it.classList.toggle('is-hidden', idx < start || idx >= end);
+    });
+
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
+    pageNumbersEl.innerHTML = '';
+    if (totalPages <= 1) {
+      paginationEl.classList.add('is-hidden');
+      return;
+    }
+    paginationEl.classList.remove('is-hidden');
+
+    var maxButtons = 7;
+    var pages = [];
+    if (totalPages <= maxButtons) {
+      for (var i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      var left  = Math.max(2, state.page - 1);
+      var right = Math.min(totalPages - 1, state.page + 1);
+      if (left > 2) pages.push('…');
+      for (var j = left; j <= right; j++) pages.push(j);
+      if (right < totalPages - 1) pages.push('…');
+      pages.push(totalPages);
+    }
+
+    pages.forEach(function (p) {
+      if (p === '…') {
+        var span = document.createElement('span');
+        span.className = 'weekly-page-ellipsis';
+        span.textContent = '…';
+        pageNumbersEl.appendChild(span);
+        return;
+      }
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'weekly-page-num' + (p === state.page ? ' is-active' : '');
+      btn.textContent = p;
+      btn.addEventListener('click', function () {
+        state.page = p;
+        render();
+        scrollToTop();
+      });
+      pageNumbersEl.appendChild(btn);
+    });
+
+    btnPrev.disabled = state.page <= 1;
+    btnNext.disabled = state.page >= totalPages;
+  }
+
+  function scrollToTop() {
+    listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  btnPrev.addEventListener('click', function () {
+    if (state.page > 1) { state.page--; render(); scrollToTop(); }
+  });
+  btnNext.addEventListener('click', function () {
+    var totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+    if (state.page < totalPages) { state.page++; render(); scrollToTop(); }
+  });
+
+  render();
+})();
+</script>
+
+{{ end }}
