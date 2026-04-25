@@ -79,8 +79,8 @@ html {
   align-items: center;
   display: flex;
   gap: 2rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
   padding-top: 5rem;
 }
 
@@ -264,7 +264,7 @@ a:focus-visible {
   align-items: stretch;
   justify-content: space-between;
   gap: 0;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   overflow: hidden;
   padding: 0;
   position: relative;
