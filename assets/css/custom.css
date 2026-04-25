@@ -2494,11 +2494,15 @@ a:focus-visible {
   width: 100%;
 }
 
-/* 深色模式：把深色线稿反成浅色，hue-rotate 把粉色点缀转回粉色 */
-html.dark .about-hero-art img,
-html.dark .about-section-art img {
-  filter: invert(0.88) hue-rotate(180deg);
-}
+/* 浅/深色图片切换：默认显示浅色图，深色模式显示深色图 */
+.about-hero-art .art-dark,
+.about-section-art .art-dark  { display: none; }
+
+html.dark .about-hero-art .art-light,
+html.dark .about-section-art .art-light { display: none; }
+
+html.dark .about-hero-art .art-dark,
+html.dark .about-section-art .art-dark  { display: block; }
 
 /* ── Section card ── */
 .about-section {

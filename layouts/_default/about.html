@@ -51,12 +51,15 @@
       </div>
     </div>
 
-    {{/* Hero 插画 */}}
-    {{ with resources.Get "img/about/hero.png" }}
+    {{/* Hero 插画：浅色 / 深色各一张，CSS 按主题切换 */}}
     <div class="about-hero-art">
-      <img src="{{ .RelPermalink }}" alt="About Luxi">
+      {{ with resources.Get "img/about/hero.png" }}
+      <img class="art-light" src="{{ .RelPermalink }}" alt="About Luxi">
+      {{ end }}
+      {{ with resources.Get "img/about/hero-dark.png" }}
+      <img class="art-dark" src="{{ .RelPermalink }}" alt="About Luxi">
+      {{ end }}
     </div>
-    {{ end }}
   </section>
 
   {{/* ── 主题卡 ── */}}
@@ -88,9 +91,13 @@
       {{ end }}
     </div>
 
-    {{ with resources.Get (printf "img/about/%s" .image) }}
+    {{ $imgLight := resources.Get (printf "img/about/%s" .image) }}
+    {{ $darkName := replace .image ".png" "-dark.png" }}
+    {{ $imgDark  := resources.Get (printf "img/about/%s" $darkName) }}
+    {{ if or $imgLight $imgDark }}
     <div class="about-section-art">
-      <img src="{{ .RelPermalink }}" alt="{{ $.Title }}">
+      {{ with $imgLight }}<img class="art-light" src="{{ .RelPermalink }}" alt="{{ $.Title }}">{{ end }}
+      {{ with $imgDark  }}<img class="art-dark"  src="{{ .RelPermalink }}" alt="{{ $.Title }}">{{ end }}
     </div>
     {{ end }}
 
