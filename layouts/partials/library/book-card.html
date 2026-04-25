@@ -1,0 +1,21 @@
+{{ $book := .book }}
+{{ $cover := "" }}
+{{ if $book.cover }}
+  {{ with resources.Get (printf "img/library/%s" $book.cover) }}
+    {{ $cover = .RelPermalink }}
+  {{ end }}
+{{ end }}
+
+<div class="library-book" title="{{ $book.title }}{{ with $book.author }} · {{ . }}{{ end }}">
+  <div class="library-book-cover">
+    {{ if $cover }}
+      <img src="{{ $cover }}" alt="{{ $book.title }}">
+    {{ else }}
+      {{/* 无封面时的占位：显示书名 + 作者 */}}
+      <div class="library-book-placeholder">
+        <span class="library-book-placeholder-title">{{ $book.title }}</span>
+        {{ with $book.author }}<span class="library-book-placeholder-author">{{ . }}</span>{{ end }}
+      </div>
+    {{ end }}
+  </div>
+</div>

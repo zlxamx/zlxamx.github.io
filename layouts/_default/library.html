@@ -1,0 +1,72 @@
+{{ define "main" }}
+
+{{ $recent := .Params.recentBooks | default (slice) }}
+{{ $recent = sort $recent "readAt" "desc" }}
+
+{{ $recommended := .Params.recommendedBooks | default (slice) }}
+
+{{ $heroLight := resources.Get "img/library-hero.png" }}
+{{ $heroDark  := resources.Get "img/library-hero-dark.png" }}
+
+<div class="library-shell">
+
+  {{/* ── Hero ── */}}
+  <section class="library-hero">
+    <div class="library-hero-text">
+      <h1 class="library-hero-title">
+        <svg class="library-hero-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/></svg>
+        <span>图书馆</span>
+      </h1>
+
+      <div class="library-hero-body">
+        {{ .Content }}
+      </div>
+    </div>
+
+    {{ if or $heroLight $heroDark }}
+    <div class="library-hero-art">
+      {{ with $heroLight }}<img class="art-light" src="{{ .RelPermalink }}" alt="图书馆">{{ end }}
+      {{ with $heroDark  }}<img class="art-dark"  src="{{ .RelPermalink }}" alt="图书馆">{{ end }}
+    </div>
+    {{ end }}
+  </section>
+
+  {{/* ── 最近读的书 ── */}}
+  {{ if gt (len $recent) 0 }}
+  <section class="library-section">
+    <header class="library-section-head">
+      <h2 class="library-section-title">
+        <svg class="library-section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        最近读的书
+      </h2>
+    </header>
+
+    <div class="library-grid">
+      {{ range $recent }}
+      {{ partial "library/book-card.html" (dict "book" . "ctx" $) }}
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{/* ── 推荐好书 ── */}}
+  {{ if gt (len $recommended) 0 }}
+  <section class="library-section">
+    <header class="library-section-head">
+      <h2 class="library-section-title">
+        <svg class="library-section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        推荐好书
+      </h2>
+    </header>
+
+    <div class="library-grid">
+      {{ range $recommended }}
+      {{ partial "library/book-card.html" (dict "book" . "ctx" $) }}
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+</div>
+
+{{ end }}
