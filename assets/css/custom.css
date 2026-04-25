@@ -476,7 +476,9 @@ a:focus-visible {
 }
 
 .home-card-title {
-  margin-top: 0.2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
   transition: color 0.15s;
 }
 
@@ -490,12 +492,6 @@ a:focus-visible {
   display: block;
   font-size: 0.8rem;
   margin-bottom: 0.3rem;
-}
-
-.home-card-title {
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0 0 0.4rem;
 }
 
 .home-card-excerpt {
@@ -2039,8 +2035,6 @@ a:focus-visible {
   width: 0.32rem;
 }
 
-/* body.is-home 宽度已并入全局 --main-width (64rem)，无需单独声明 */
-
 :root {
   --font-body: "Menlo", "Meslo LG", ui-monospace, "Cascadia Code",
     "PingFang SC", "Microsoft YaHei", monospace;
@@ -2075,8 +2069,6 @@ a:focus-visible {
 #waline .wl-login-info {
   font-family: var(--font-mono);
 }
-
-/* (home-list-* styles removed, replaced by home-section/home-card above) */
 
 .about-avatar-wrap {
   margin-bottom: 1.25rem;
