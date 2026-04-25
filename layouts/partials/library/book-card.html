@@ -1,21 +1,22 @@
-{{ $book := .book }}
+{{/* 入参：一个 Page 对象（content/library/<slug>.md） */}}
+{{ $page := . }}
 {{ $cover := "" }}
-{{ if $book.cover }}
-  {{ with resources.Get (printf "img/library/%s" $book.cover) }}
+{{ if $page.Params.cover }}
+  {{ with resources.Get (printf "img/library/%s" $page.Params.cover) }}
     {{ $cover = .RelPermalink }}
   {{ end }}
 {{ end }}
 
-<div class="library-book" title="{{ $book.title }}{{ with $book.author }} · {{ . }}{{ end }}">
+<a class="library-book" href="{{ $page.RelPermalink }}" title="{{ $page.Title }}{{ with $page.Params.author }} · {{ . }}{{ end }}">
   <div class="library-book-cover">
     {{ if $cover }}
-      <img src="{{ $cover }}" alt="{{ $book.title }}">
+      <img src="{{ $cover }}" alt="{{ $page.Title }}">
     {{ else }}
-      {{/* 无封面时的占位：显示书名 + 作者 */}}
+      {{/* 无封面时的占位卡：书名 + 作者 */}}
       <div class="library-book-placeholder">
-        <span class="library-book-placeholder-title">{{ $book.title }}</span>
-        {{ with $book.author }}<span class="library-book-placeholder-author">{{ . }}</span>{{ end }}
+        <span class="library-book-placeholder-title">{{ $page.Title }}</span>
+        {{ with $page.Params.author }}<span class="library-book-placeholder-author">{{ . }}</span>{{ end }}
       </div>
     {{ end }}
   </div>
-</div>
+</a>

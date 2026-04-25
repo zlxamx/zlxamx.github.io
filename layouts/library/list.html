@@ -1,9 +1,14 @@
 {{ define "main" }}
 
-{{ $recent := .Params.recentBooks | default (slice) }}
-{{ $recent = sort $recent "readAt" "desc" }}
+{{/* 所有 library section 下的书页 */}}
+{{ $books := .Pages }}
 
-{{ $recommended := .Params.recommendedBooks | default (slice) }}
+{{/* 最近读的书：recommended != true 的书，按 readAt 倒序；空 readAt 排到末尾 */}}
+{{ $recent := where $books "Params.recommended" "ne" true }}
+{{ $recent  = sort $recent "Params.readAt" "desc" }}
+
+{{/* 推荐好书：手动在 frontmatter 里 recommended: true */}}
+{{ $recommended := where $books "Params.recommended" true }}
 
 {{ $heroLight := resources.Get "img/library-hero.png" }}
 {{ $heroDark  := resources.Get "img/library-hero-dark.png" }}
@@ -43,7 +48,7 @@
 
     <div class="library-grid">
       {{ range $recent }}
-      {{ partial "library/book-card.html" (dict "book" . "ctx" $) }}
+      {{ partial "library/book-card.html" . }}
       {{ end }}
     </div>
   </section>
@@ -61,7 +66,7 @@
 
     <div class="library-grid">
       {{ range $recommended }}
-      {{ partial "library/book-card.html" (dict "book" . "ctx" $) }}
+      {{ partial "library/book-card.html" . }}
       {{ end }}
     </div>
   </section>
