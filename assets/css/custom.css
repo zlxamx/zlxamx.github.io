@@ -2324,8 +2324,8 @@ a:focus-visible {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2.5rem;
-  margin-top: 3rem;
+  margin-bottom: 10rem;
+  margin-top: 10rem;
   width: 100%;
 }
 
