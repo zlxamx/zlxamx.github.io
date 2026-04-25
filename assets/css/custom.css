@@ -2494,11 +2494,11 @@ a:focus-visible {
   width: 100%;
 }
 
-/* 浅/深色图片切换：全站统一，默认显示浅色图，深色模式显示深色图 */
-.art-dark { display: none; }
+/* 浅/深色图片切换：全站统一，!important 确保优先级高于容器的 img 规则 */
+.art-dark  { display: none !important; }
 
-html.dark .art-light { display: none; }
-html.dark .art-dark  { display: block; }
+html.dark .art-light { display: none !important; }
+html.dark .art-dark  { display: block !important; }
 
 /* ── Section card ── */
 .about-section {
