@@ -30,9 +30,12 @@
           共计 <b data-role="hero-count-num">{{ $totalCount }}</b> 篇文章
         </p>
       </div>
-      {{ with resources.Get "img/writing-hero.png" }}
+      {{ $wLight := resources.Get "img/writing-hero.png" }}
+      {{ $wDark  := resources.Get "img/writing-hero-dark.png" }}
+      {{ if or $wLight $wDark }}
       <div class="writing-hero-art">
-        <img src="{{ .RelPermalink }}" alt="Writing">
+        {{ with $wLight }}<img class="art-light" src="{{ .RelPermalink }}" alt="Writing">{{ end }}
+        {{ with $wDark  }}<img class="art-dark"  src="{{ .RelPermalink }}" alt="Writing">{{ end }}
       </div>
       {{ end }}
     </section>

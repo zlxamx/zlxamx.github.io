@@ -12,10 +12,12 @@
       {{ end }}
       <a class="home-hero-cta" href="{{ "/post" | relURL }}">开始阅读 →</a>
     </div>
-    {{ $scene := resources.Get "img/hero-scene.png" }}
-    {{ if $scene }}
+    {{ $scene     := resources.Get "img/hero-scene.png" }}
+    {{ $sceneDark := resources.Get "img/hero-scene-dark.png" }}
+    {{ if or $scene $sceneDark }}
     <div class="home-hero-art home-hero-art--scene">
-      <img class="home-hero-scene" src="{{ $scene.RelPermalink }}" alt="Luxi 在工作">
+      {{ with $scene     }}<img class="home-hero-scene art-light" src="{{ .RelPermalink }}" alt="Luxi 在工作">{{ end }}
+      {{ with $sceneDark }}<img class="home-hero-scene art-dark"  src="{{ .RelPermalink }}" alt="Luxi 在工作">{{ end }}
     </div>
     {{ else }}
       {{ with resources.Get "img/avatar.png" }}
