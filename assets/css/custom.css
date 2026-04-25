@@ -2320,12 +2320,16 @@ a:focus-visible {
 
 /* ── Footer ──────────────────────────────────────────────── */
 
+/* 主题给 footer 加了 max-height 把上下空间压死，先解除 */
+footer {
+  max-height: none;
+  padding-block: 10rem;   /* 上下各 10rem 留白 */
+}
+
 .footer-inner {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10rem;
-  margin-top: 10rem;
   width: 100%;
 }
 
