@@ -654,62 +654,84 @@ function createShareCardElement(selectedMessages, pageTitle) {
   card.style.cssText = `
     background: #f5f5f5;
     font-family: "Noto Sans SC", "PingFang SC", -apple-system, "Helvetica Neue", Arial, sans-serif;
-    padding: 32px;
+    padding: 72px 64px 64px;
     width: 1080px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    align-items: center;
+    gap: 44px;
     box-sizing: border-box;
   `;
 
-  // ── Header: avatar + brand | tagline ───────────────────────────────────
-  const header = document.createElement("div");
-  header.style.cssText = `
+  // ── Brand row (subtle, top-left) ───────────────────────────────────────
+  const brandRow = document.createElement("div");
+  brandRow.style.cssText = `
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px 4px;
+    gap: 16px;
+    align-self: flex-start;
   `;
-
-  // Left: avatar + name + subtitle
-  const headerLeft = document.createElement("div");
-  headerLeft.style.cssText = "display: flex; align-items: center; gap: 18px;";
 
   const avatar = document.createElement("img");
   avatar.style.cssText = `
-    width: 60px; height: 60px;
+    width: 44px; height: 44px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
   `;
   avatar.src = "/img/avatar.png";
-  avatar.alt = "头像";
+  avatar.alt = "";
   avatar.crossOrigin = "anonymous";
   avatar.onerror = function() { this.style.background = "#ddd"; };
 
-  const brandInfo = document.createElement("div");
-  brandInfo.style.cssText = "display: flex; flex-direction: column; gap: 6px;";
-
   const brandName = document.createElement("span");
-  brandName.style.cssText = "font-size: 26px; font-weight: 700; color: #222;";
+  brandName.style.cssText = "font-size: 24px; font-weight: 600; color: #888;";
   brandName.textContent = "希路路克";
 
-  const brandDesc = document.createElement("span");
-  brandDesc.style.cssText = "font-size: 15px; color: #999;";
-  brandDesc.textContent = "记录我关心的事物，也理解它们。";
+  brandRow.append(avatar, brandName);
 
-  brandInfo.append(brandName, brandDesc);
-  headerLeft.append(avatar, brandInfo);
+  // ── Hero title (visual center) ─────────────────────────────────────────
+  const title = document.createElement("h1");
+  title.style.cssText = `
+    margin: 0;
+    font-size: 64px;
+    font-weight: 800;
+    color: #222;
+    text-align: center;
+    line-height: 1.25;
+    letter-spacing: 0.05em;
+    max-width: 100%;
+  `;
+  title.textContent = pageTitle;
 
-  // Right: tagline text
-  const tagline = document.createElement("span");
-  tagline.style.cssText = "font-size: 15px; color: #999; letter-spacing: 0.06em; flex-shrink: 0;";
+  // ── Tagline (subtle) ───────────────────────────────────────────────────
+  const tagline = document.createElement("p");
+  tagline.style.cssText = `
+    margin: 0;
+    font-size: 22px;
+    color: #bbb;
+    text-align: center;
+    letter-spacing: 0.08em;
+  `;
   tagline.textContent = "深度思考 · 理性分析 · 建设性建议";
 
-  header.append(headerLeft, tagline);
+  // ── Divider ────────────────────────────────────────────────────────────
+  const divider = document.createElement("div");
+  divider.style.cssText = `
+    width: 72px;
+    height: 2px;
+    background: #ddd;
+    border-radius: 1px;
+  `;
 
-  // ── Message sections ──────────────────────────────────────────────────
-  const fragment = document.createDocumentFragment();
+  // ── Message cards ─────────────────────────────────────────────────────
+  const messagesWrap = document.createElement("div");
+  messagesWrap.style.cssText = `
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  `;
 
   selectedMessages.forEach((msg) => {
     const isUser = msg.role === "user";
@@ -717,120 +739,79 @@ function createShareCardElement(selectedMessages, pageTitle) {
     const section = document.createElement("div");
     section.style.cssText = `
       background: ${isUser ? "#fef8ec" : "#ffffff"};
-      border-radius: 18px;
-      padding: 28px 32px;
+      border-radius: 22px;
+      padding: 40px 48px;
+      width: 100%;
+      box-sizing: border-box;
     `;
 
-    // Badge row: circle badge + label
-    const badgeRow = document.createElement("div");
-    badgeRow.style.cssText = "display: flex; align-items: center; gap: 14px; margin-bottom: 18px;";
-
-    const badge = document.createElement("div");
-    badge.style.cssText = `
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      background: ${isUser ? "#c89045" : "#5b90d9"};
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 700; color: #fff;
-      flex-shrink: 0; line-height: 1;
-    `;
-    badge.textContent = isUser ? "问" : "答";
-
-    const labelText = document.createElement("span");
-    labelText.style.cssText = `
-      font-size: 20px;
-      font-weight: 600;
+    const label = document.createElement("p");
+    label.style.cssText = `
+      margin: 0 0 22px 0;
+      font-size: 26px;
+      font-weight: 700;
       color: ${isUser ? "#c89045" : "#5b90d9"};
+      letter-spacing: 0.05em;
     `;
-    labelText.textContent = isUser ? "提问" : "回答";
-
-    badgeRow.append(badge, labelText);
+    label.textContent = isUser ? "提问" : "回答";
 
     const body = document.createElement("p");
     body.style.cssText = `
       margin: 0;
-      font-size: 24px;
-      line-height: 1.8;
+      font-size: 34px;
+      line-height: 2.0;
       white-space: pre-wrap;
       color: #222;
     `;
     body.textContent = msg.content;
 
-    section.append(badgeRow, body);
-    fragment.append(section);
+    section.append(label, body);
+    messagesWrap.append(section);
   });
 
-  // ── Footer: avatar + brand + desc | cta + QR code ──────────────────────
-  const footer = document.createElement("div");
-  footer.style.cssText = `
-    background: #eeeeee;
-    border-radius: 18px;
-    padding: 20px 28px;
+  // ── Bottom: QR + CTA + site link ───────────────────────────────────────
+  const bottomArea = document.createElement("div");
+  bottomArea.style.cssText = `
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
+    gap: 18px;
   `;
-
-  const footerLeft = document.createElement("div");
-  footerLeft.style.cssText = "display: flex; align-items: center; gap: 10px;";
-
-  const footerAvatar = document.createElement("img");
-  footerAvatar.style.cssText = `
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-  `;
-  footerAvatar.src = "/img/avatar.png";
-  footerAvatar.alt = "头像";
-  footerAvatar.crossOrigin = "anonymous";
-  footerAvatar.onerror = function() { this.style.background = "#ddd"; };
-
-  const footerBrandInfo = document.createElement("div");
-  footerBrandInfo.style.cssText = "display: flex; flex-direction: column; gap: 4px;";
-
-  const footerBrandName = document.createElement("span");
-  footerBrandName.style.cssText = "font-size: 19px; font-weight: 600; color: #333;";
-  footerBrandName.textContent = "希路路克";
-
-  const footerBrandSub = document.createElement("span");
-  footerBrandSub.style.cssText = "font-size: 13px; color: #999;";
-  footerBrandSub.textContent = "记录我关心的事物，也理解它们。";
-
-  footerBrandInfo.append(footerBrandName, footerBrandSub);
-  footerLeft.append(footerAvatar, footerBrandInfo);
-
-  const footerRight = document.createElement("div");
-  footerRight.style.cssText = "display: flex; align-items: center; gap: 14px;";
-
-  const ctaText = document.createElement("span");
-  ctaText.style.cssText = "font-size: 16px; color: #999;";
-  ctaText.textContent = "长按识别二维码 → 向我提问";
 
   const qrBlock = document.createElement("div");
   qrBlock.style.cssText = `
-    width: 56px; height: 56px;
-    border-radius: 6px;
+    width: 88px; height: 88px;
+    border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   `;
 
   const qrImg = document.createElement("img");
   qrImg.style.cssText = "width: 100%; height: 100%; object-fit: contain; display: block;";
   qrImg.src = "/images/wechat-qr-code.png";
-  qrImg.alt = "二维码";
+  qrImg.alt = "";
   qrImg.crossOrigin = "anonymous";
-  qrImg.onerror = () => { qrBlock.textContent = "二维码"; };
-  qrImg.onload  = () => { qrBlock.innerHTML = ""; qrBlock.append(qrImg); };
+  qrImg.onerror = function() { qrBlock.textContent = ""; };
+  qrImg.onload  = function() { qrBlock.innerHTML = ""; qrBlock.append(qrImg); };
   qrBlock.append(qrImg);
 
-  footerRight.append(ctaText, qrBlock);
-  footer.append(footerLeft, footerRight);
+  const ctaText = document.createElement("span");
+  ctaText.style.cssText = "font-size: 22px; color: #aaa;";
+  ctaText.textContent = "长按向我提问";
 
-  // ── Assemble card ─────────────────────────────────────────────────────
-  card.append(header, fragment, footer);
+  const footerLine = document.createElement("span");
+  footerLine.style.cssText = "font-size: 20px; color: #ccc;";
+  footerLine.textContent = "希路路克 · luxi.blog";
+
+  bottomArea.append(qrBlock, ctaText, footerLine);
+
+  // ── Assemble ───────────────────────────────────────────────────────────
+  card.append(brandRow, title, tagline, divider, messagesWrap, bottomArea);
   return card;
 }
 
