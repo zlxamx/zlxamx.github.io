@@ -1,7 +1,0 @@
-{{ with resources.Get "img/avatar.png" }}
-<img
-  src="{{ .RelPermalink }}"
-  alt="{{ $.alt | default "Luxi Avatar" }}"
-  class="site-avatar {{ $.class }}"
->
-{{ end }}
