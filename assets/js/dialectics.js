@@ -602,7 +602,7 @@ function syncComposer(
   } else if (state.archivedMessages.length && maxHistoryMessages > 0) {
     status.textContent = `这次分析只会参考最近 ${maxHistoryMessages} 条对话，更早的不会带进来。`;
   } else {
-    status.textContent = "可以发送了。如果信息不够，会先追问你一句。";
+    status.textContent = "";
   }
 }
 

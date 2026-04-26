@@ -1,6 +1,6 @@
 ---
-title: "唯物辩证法答问"
-displayTitle: "唯物辩证法答问"
+title: "唯物辩证法问答"
+displayTitle: "唯物辩证法问答"
 summary: "一个公开的分析页，用来拆矛盾、看处境、判断方向。"
 description: "适合提问怎么看、为什么、该不该、怎么选、怎么办这类需要分析的问题。"
 type: "dialectics"
