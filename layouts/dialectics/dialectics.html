@@ -1,0 +1,317 @@
+{{ define "main" }}
+{{ $apiPath := .Site.Params.materialistDialectics.apiPath | default "" }}
+{{ $apiURL := .Site.Params.materialistDialectics.apiURL | default "" }}
+{{ $storageKey := .Site.Params.materialistDialectics.storageKey | default "materialist-dialectics-chat" }}
+{{ $inputLimit := .Site.Params.materialistDialectics.inputLimit | default 1600 }}
+{{ $maxHistoryMessages := .Site.Params.materialistDialectics.maxHistoryMessages | default 8 }}
+{{ $runtimeConnected := or (ne $apiPath "") (ne $apiURL "") }}
+{{ $displayTitle := .Params.displayTitle | default .Title }}
+{{ $emptyMessage := "请提出一个需要分析的问题。关键信息不足时，会先追问一轮。" }}
+{{ $qrImage := resources.Get "images/wechat-qr-code.png" }}
+{{ $qrDataURL := "" }}
+{{ with $qrImage }}
+  {{ $qrDataURL = printf "data:image/png;base64,%s" (.Content | base64Encode) }}
+{{ end }}
+<div
+  class="dialectics-shell"
+  data-dialectics-root
+  data-api-path="{{ $apiPath }}"
+  data-api-url="{{ $apiURL }}"
+  data-page-title="{{ $displayTitle }}"
+  data-storage-key="{{ $storageKey }}"
+  data-input-limit="{{ $inputLimit }}"
+  data-max-history-messages="{{ $maxHistoryMessages }}"
+  data-empty-message="{{ $emptyMessage }}"
+  data-qr-code="{{ $qrDataURL }}">
+
+  {{/* Hidden placeholder so JS can read examplePrompts on init */}}
+  <div hidden data-dialectics-placeholder>
+    {{ range .Params.examplePrompts }}
+    <button data-dialectics-prompt="{{ . }}">{{ . }}</button>
+    {{ end }}
+  </div>
+
+  <div class="dialectics-layout">
+    {{/* ========== LEFT SIDEBAR ========== */}}
+    <aside class="dialectics-sidebar" aria-label="侧边栏">
+      <div class="dialectics-sidebar-inner">
+
+        {{/* Brand */}}
+        <div class="dialectics-sidebar-brand">
+          <a href="{{ site.Home.RelPermalink }}" class="dialectics-sidebar-home" aria-label="回到博客首页">
+            {{ partial "site-avatar.html" (dict "alt" "Luxi Avatar" "class" "dialectics-sidebar-avatar") }}
+          </a>
+          <h2 class="dialectics-sidebar-title">{{ $displayTitle }}</h2>
+          <p class="dialectics-sidebar-slogan">理性思辨 · 智慧对话</p>
+        </div>
+
+        {{/* New question button */}}
+        <button
+          type="button"
+          class="dialectics-sidebar-new"
+          data-dialectics-reset>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>新建问答</span>
+        </button>
+
+        {{/* Menu */}}
+        <nav class="dialectics-sidebar-menu" aria-label="页面说明">
+          <button
+            type="button"
+            class="dialectics-menu-item"
+            data-dialectics-info-trigger="intro"
+            aria-controls="dialectics-info-intro"
+            aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>方法论介绍</span>
+          </button>
+          <button
+            type="button"
+            class="dialectics-menu-item"
+            data-dialectics-info-trigger="capability"
+            aria-controls="dialectics-info-capability"
+            aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 22 8.5 12 15 2 8.5 12 2"/><line x1="12" y1="15" x2="12" y2="22"/></svg>
+            <span>能力图谱</span>
+          </button>
+          <button
+            type="button"
+            class="dialectics-menu-item"
+            data-dialectics-info-trigger="boundary"
+            aria-controls="dialectics-info-boundary"
+            aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>关于我们</span>
+          </button>
+        </nav>
+
+        {{/* Bottom: theme toggle + export */}}
+        <div class="dialectics-sidebar-foot">
+          <button
+            type="button"
+            class="dialectics-theme-btn"
+            data-theme-toggle
+            data-next-theme="dark"
+            aria-label="Switch to dark mode"
+            title="切换深色/浅色模式">
+            <span class="dialectics-theme-icon dialectics-theme-icon-dark" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 14.8A8.7 8.7 0 1 1 9.2 3.8a6.9 6.9 0 0 0 11 11z"/></svg>
+            </span>
+            <span class="dialectics-theme-icon dialectics-theme-icon-light" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.3M12 19.2v2.3M21.5 12h-2.3M4.8 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3"/></svg>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="dialectics-theme-btn"
+            data-dialectics-export
+            aria-label="导出对话"
+            title="导出对话">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+        </div>
+
+        {{/* Tip card — at the very bottom */}}
+        <div class="dialectics-sidebar-tip">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.4-1 .8-2 1-3a7 7 0 0 0-14 0c.2 1 .6 2 1 3"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+          <p>清晰、具体地提出问题，能获得更有价值的分析与建议</p>
+        </div>
+
+      </div>
+    </aside>
+
+    {{/* ========== RIGHT MAIN ========== */}}
+    <main class="dialectics-main">
+
+      {{/* Top bar */}}
+      <header class="dialectics-topbar">
+        <span
+          class="dialectics-status {{ if $runtimeConnected }}is-online{{ else }}is-offline{{ end }}"
+          data-dialectics-runtime-status
+          role="status"
+          aria-live="polite">
+          <span class="dialectics-status-dot" aria-hidden="true"></span>
+          <span data-dialectics-runtime-label>{{ if $runtimeConnected }}在线{{ else }}暂不可用{{ end }}</span>
+        </span>
+        <span class="dialectics-runtime-note" data-dialectics-runtime-note hidden></span>
+
+        <button
+          type="button"
+          class="dialectics-topbar-share"
+          data-dialectics-share
+          aria-label="图片分享">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span>分享</span>
+        </button>
+      </header>
+
+      {{/* Info panel */}}
+      <div class="dialectics-info" data-dialectics-info-panel hidden>
+        <section
+          class="dialectics-info-content"
+          id="dialectics-info-intro"
+          data-dialectics-info-content="intro"
+          hidden>
+          <div class="dialectics-intro">
+            {{ .Content }}
+          </div>
+        </section>
+
+        <section
+          class="dialectics-info-content"
+          id="dialectics-info-capability"
+          data-dialectics-info-content="capability"
+          hidden>
+          <ol class="dialectics-signal-list">
+            {{ range .Params.signals }}
+            <li class="dialectics-signal-item">
+              <p class="dialectics-signal-label">{{ .label }}</p>
+              <p class="dialectics-signal-value">{{ .value }}</p>
+              <p class="dialectics-signal-note">{{ .note }}</p>
+            </li>
+            {{ end }}
+          </ol>
+        </section>
+
+        <section
+          class="dialectics-info-content"
+          id="dialectics-info-boundary"
+          data-dialectics-info-content="boundary"
+          hidden>
+          <ul class="dialectics-guardrail-list">
+            {{ range .Params.guardrails }}
+            <li>{{ . }}</li>
+            {{ end }}
+          </ul>
+        </section>
+      </div>
+
+      {{/* Workspace */}}
+      <section class="dialectics-workspace" aria-label="对话工作台">
+
+        {{/* Welcome screen — outside thread, toggled by CSS when thread has messages */}}
+        <div class="dialectics-welcome">
+          <h1 class="dialectics-welcome-title">
+            <span class="dialectics-welcome-sparkle" aria-hidden="true">✦</span>
+            你好，有什么需要<span class="dialectics-welcome-accent">分析</span>的问题？
+            <span class="dialectics-welcome-sparkle" aria-hidden="true">✦</span>
+          </h1>
+          <p class="dialectics-welcome-sub">
+            基于唯物辩证法的视角，帮你理清矛盾、把握本质、找到解决之道。
+          </p>
+
+          {{ with .Params.examplePrompts }}
+          <div class="dialectics-examples">
+            <h3 class="dialectics-examples-head">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>示例问题</span>
+            </h3>
+            <div class="dialectics-examples-grid">
+              {{ $prompts := . }}
+              {{ range $i, $p := first 4 . }}
+              <button
+                type="button"
+                class="dialectics-example-card"
+                aria-label="填入问题"
+                data-dialectics-prompt="{{ . }}">
+                <span class="dialectics-example-num">{{ printf "%02d" (add $i 1) }}</span>
+                <span class="dialectics-example-text">{{ . }}</span>
+                <span class="dialectics-example-arrow" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </span>
+              </button>
+              {{ end }}
+            </div>
+            <button
+              type="button"
+              class="dialectics-examples-shuffle"
+              data-dialectics-shuffle-prompts
+              title="换一批示例问题">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              <span>换一批</span>
+            </button>
+          </div>
+          {{ end }}
+        </div>
+
+        {{/* Thread */}}
+        <div class="dialectics-thread" data-dialectics-thread aria-live="polite"></div>
+
+        {{/* Composer */}}
+        <form class="dialectics-composer" data-dialectics-form novalidate>
+          <textarea
+            id="dialectics-input"
+            class="dialectics-input"
+            name="question"
+            rows="3"
+            maxlength="{{ $inputLimit }}"
+            placeholder="请输入你的问题，越具体越有助于分析（可输入 10 - 1600 字）"
+            data-dialectics-input></textarea>
+
+          <div class="dialectics-composer-foot">
+            <div class="dialectics-composer-left">
+              <button
+                type="button"
+                class="dialectics-button is-ghost"
+                disabled
+                title="即将推出">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>聚焦分析</span>
+              </button>
+            </div>
+
+            <div class="dialectics-composer-right">
+              <span class="dialectics-counter"><span data-dialectics-count>0</span>&nbsp;/&nbsp;{{ $inputLimit }}</span>
+              <button
+                type="submit"
+                class="dialectics-button is-primary"
+                data-dialectics-submit
+                {{ if not $runtimeConnected }}disabled{{ end }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span>{{ if $runtimeConnected }}发送{{ else }}暂不可用{{ end }}</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="dialectics-inline-note" data-dialectics-status>
+            这个网站不会保存你的对话数据。
+          </p>
+          <p class="dialectics-inline-disclaimer">本问答基于唯物辩证法原理，结合客观事实进行分析，仅供参考，不构成决策建议。</p>
+        </form>
+      </section>
+
+      {{/* Disclaimer */}}
+      <footer class="dialectics-disclaimer">
+        <p>本问答基于唯物辩证法原理，结合客观事实进行分析，仅供参考，不构成决策建议。</p>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+{{/* Inline handler for welcome card clicks (outside thread, so JS delegation won't reach) */}}
+<script>
+(function() {
+  const welcome = document.querySelector('.dialectics-welcome');
+  if (!welcome) return;
+  welcome.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-dialectics-prompt]');
+    if (!btn) return;
+    const input = document.querySelector('[data-dialectics-input]');
+    if (input) {
+      input.value = btn.dataset.dialecticsPrompt || '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+    }
+  });
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer crossorigin="anonymous"></script>
+{{ with resources.Get "js/dialectics.js" }}
+  {{ $opts := dict "minify" true }}
+  {{ with . | js.Build $opts | fingerprint }}
+  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
+  {{ end }}
+{{ end }}
+{{ end }}

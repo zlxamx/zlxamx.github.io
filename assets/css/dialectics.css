@@ -1,164 +1,381 @@
 /*
- * Dialectics — Materialist redesign
+ * Dialectics — Sidebar + Main layout
  *
- * Aesthetic: "Analytical Archive" — editorial, authoritative, hard-edged.
- * Blood-red accent replaces terracotta; squared geometry replaces pill/round;
- * Monaspace used aggressively for all UI chrome; dot-grid intro texture.
+ * Tokens derive from the blog-wide --accent (custom.css):
+ *   --accent: light-dark(#d44375, #2bbc8a);
  *
- * Structure (unchanged):
- *   .dialectics-shell
- *     .dialectics-intro-block  (hero + info tabs + info panel)
- *     .dialectics-workspace    (unified card: thread + suggestions + composer)
- *     .dialectics-footnote     (meta strip)
- *
- * JS hooks preserved (consumed by assets/js/dialectics.js):
+ * JS hooks (assets/js/dialectics.js):
  *   data-* on root, form, input, thread, runtime-status, info-*,
- *   prompt buttons, export/reset/submit.
+ *   prompt buttons, export/reset/submit/share.
  *   State classes: is-user, is-system, is-archived, is-answer,
  *   is-follow_up, is-reject, is-online, is-offline, is-error, is-active.
  */
 
+/* ======================================================================
+ * App shell — full viewport, no blog chrome
+ * =================================================================== */
+
+body.is-dialectics-app {
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  overflow: hidden;
+}
+
+body.is-dialectics-app .content {
+  max-width: none;
+  padding: 0;
+}
+
+body.is-dialectics-app .content > header {
+  display: none;
+}
+
+body.is-dialectics-app .main {
+  max-width: none;
+  padding: 0;
+}
+
+body.is-dialectics-app footer {
+  display: none;
+}
+
+/* ======================================================================
+ * Tokens
+ * =================================================================== */
+
 .dialectics-shell {
-  /* ── Accent: blood red ─────────────────────────────────────── */
-  --d-accent:       light-dark(#be2c2c, #e84848);
-  --d-accent-ink:   light-dark(#891e1e, #ff7272);
-  --d-accent-tint:  light-dark(rgba(190, 44, 44, 0.07), rgba(232, 72, 72, 0.10));
-  --d-accent-glow:  light-dark(rgba(190, 44, 44, 0.16), rgba(232, 72, 72, 0.22));
-  --d-accent-edge:  light-dark(rgba(190, 44, 44, 0.28), rgba(232, 72, 72, 0.36));
+  /* ── Accent: derived from blog --accent ──────────────────────────── */
+  --d-accent:       var(--accent);
+  --d-accent-ink:   light-dark(#9b2d54, #4ad9a5);
+  --d-accent-tint:  light-dark(rgba(212, 67, 117, 0.08), rgba(43, 188, 138, 0.10));
+  --d-accent-glow:  light-dark(rgba(212, 67, 117, 0.18), rgba(43, 188, 138, 0.24));
+  --d-accent-edge:  light-dark(rgba(212, 67, 117, 0.30), rgba(43, 188, 138, 0.38));
 
-  /* ── Chrome ────────────────────────────────────────────────── */
-  --d-hairline:        light-dark(rgba(54, 48, 43, 0.10), rgba(231, 222, 211, 0.09));
-  --d-hairline-strong: light-dark(rgba(54, 48, 43, 0.22), rgba(231, 222, 211, 0.20));
+  /* ── Surfaces ────────────────────────────────────────────────────── */
+  --d-surface:      light-dark(#fffaf9, rgba(255, 255, 255, 0.025));
+  --d-surface-warm: light-dark(#fdf5f3, rgba(255, 255, 255, 0.035));
+  --d-surface-card: light-dark(#ffffff, rgba(255, 255, 255, 0.04));
 
-  /* ── Surfaces ──────────────────────────────────────────────── */
-  --d-surface:      light-dark(#f8f4ee, rgba(255, 255, 255, 0.028));
-  --d-surface-warm: light-dark(#f0e9dc, rgba(255, 255, 255, 0.040));
-  --d-surface-tint: light-dark(rgba(228, 216, 196, 0.42), rgba(255, 255, 255, 0.022));
+  /* ── Hairlines ───────────────────────────────────────────────────── */
+  --d-hairline:       light-dark(rgba(54, 48, 43, 0.08), rgba(231, 222, 211, 0.08));
+  --d-hairline-strong:light-dark(rgba(54, 48, 43, 0.18), rgba(231, 222, 211, 0.16));
 
-  /* ── Ink ───────────────────────────────────────────────────── */
+  /* ── Ink ─────────────────────────────────────────────────────────── */
   --d-ink:      var(--content-primary);
   --d-ink-soft: var(--content-secondary);
 
-  /* ── Semantic ──────────────────────────────────────────────── */
+  /* ── Semantic ────────────────────────────────────────────────────── */
   --d-success:      light-dark(#1a6e3a, #5eca80);
   --d-success-tint: light-dark(rgba(26, 110, 58, 0.10), rgba(94, 202, 128, 0.12));
   --d-danger:       light-dark(#b03030, #ef8080);
   --d-danger-tint:  light-dark(rgba(176, 48, 48, 0.09), rgba(239, 128, 128, 0.11));
 
-  /* ── Geometry: hard-edged ──────────────────────────────────── */
-  --d-radius-sm:   2px;
-  --d-radius:      4px;
-  --d-radius-lg:   6px;
+  /* ── Geometry ────────────────────────────────────────────────────── */
+  --d-radius-sm:   6px;
+  --d-radius:      10px;
+  --d-radius-lg:   14px;
+  --d-radius-card: 14px;
   --d-radius-pill: 999px;
 
+  /* ── Layout ──────────────────────────────────────────────────────── */
+  --d-sidebar-width: 260px;
+
   color: var(--d-ink);
-  display: grid;
-  gap: clamp(1.8rem, 1.2rem + 1.8vw, 2.6rem);
-  margin: 0.25rem auto 2.5rem;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
 }
 
 /* ======================================================================
- * Intro block
+ * Layout: sidebar + main
  * =================================================================== */
 
-.dialectics-intro-block {
+.dialectics-layout {
   display: grid;
+  flex: 1;
   gap: 0;
-  /* Subtle dot-grid texture on the intro area */
-  background-image: radial-gradient(
-    circle,
-    var(--d-hairline) 1px,
-    transparent 1px
-  );
-  background-position: 0 0;
-  background-size: 22px 22px;
-  padding-bottom: 0.25rem;
+  grid-template-columns: var(--d-sidebar-width) minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
 }
 
-.dialectics-intro-lead {
-  align-items: center;
+/* ======================================================================
+ * Sidebar
+ * =================================================================== */
+
+.dialectics-sidebar {
+  background: var(--d-surface-warm);
+  border: 1px solid var(--d-hairline);
+  border-radius: 0;
+  border-right: none;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem 1rem;
-  justify-content: space-between;
-  margin-bottom: 1.1rem;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
-.dialectics-brand {
-  align-items: center;
-  display: inline-flex;
-  gap: 0.65rem;
-  min-width: 0;
+.dialectics-sidebar-inner {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.6rem 1.25rem 1.25rem;
 }
 
-.dialectics-brand-avatar {
-  aspect-ratio: 1;
-  border-radius: 50%;
-  filter: grayscale(0.35) contrast(1.08);
-  flex-shrink: 0;
-  height: 2.1rem;
-  object-fit: cover;
-  object-position: 50% 28%;
-  outline: 2px solid var(--d-accent-edge);
-  outline-offset: 2px;
-  width: 2.1rem;
+/* Brand */
+.dialectics-sidebar-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
 }
 
-.dialectics-kicker {
-  color: var(--d-ink-soft);
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-/* Title — oversized, with a full-width red rule beneath */
-.dialectics-title {
-  font-size: clamp(2.4rem, 1.5rem + 3.6vw, 3.8rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.0;
-  margin: 0;
-  padding-bottom: 0.75rem;
-  position: relative;
-}
-
-.dialectics-title::after {
-  background: var(--d-accent);
-  bottom: 0;
-  content: "";
+.dialectics-sidebar-home {
   display: block;
-  height: 3px;
-  left: 0;
-  position: absolute;
+  line-height: 0;
+}
+
+.dialectics-sidebar-home:hover {
+  opacity: 0.8;
+}
+
+.dialectics-sidebar-avatar {
+  border: 2px solid var(--d-accent-edge);
+  border-radius: 0.75rem;
+  height: 2.8rem;
+  width: 2.8rem;
+  object-fit: cover;
+}
+
+.dialectics-sidebar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0.3rem 0 0;
+}
+
+.dialectics-sidebar-slogan {
+  color: var(--d-ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* New question button */
+.dialectics-sidebar-new {
+  align-items: center;
+  background: var(--d-accent);
+  border: none;
+  border-radius: var(--d-radius);
+  color: light-dark(#fff, #0e1a14);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  padding: 0.62rem 1rem;
+  transition: opacity 0.15s ease, transform 0.12s ease;
   width: 100%;
 }
 
-.dialectics-subtitle {
-  color: var(--d-ink-soft);
-  font-size: 1rem;
-  line-height: 1.72;
-  margin: 0.85rem 0 0;
-  max-width: 36rem;
+.dialectics-sidebar-new:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 
-/* ── Status badge: rectangular, no pill ──────────────────────────── */
+.dialectics-sidebar-new:active {
+  transform: translateY(0);
+}
 
-.dialectics-status {
+/* Menu */
+.dialectics-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dialectics-menu-item {
   align-items: center;
   background: transparent;
+  border: none;
+  border-radius: var(--d-radius);
+  color: var(--d-ink);
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-size: 0.88rem;
+  gap: 0.65rem;
+  letter-spacing: 0.02em;
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+  transition: background-color 0.14s ease, color 0.14s ease;
+  width: 100%;
+}
+
+.dialectics-menu-item svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.14s ease;
+}
+
+.dialectics-menu-item:hover,
+.dialectics-menu-item:focus-visible {
+  background: var(--d-accent-tint);
+  color: var(--d-accent-ink);
+  outline: none;
+}
+
+.dialectics-menu-item:hover svg,
+.dialectics-menu-item:focus-visible svg {
+  opacity: 1;
+}
+
+.dialectics-menu-item.is-active {
+  background: var(--d-accent-tint);
+  color: var(--d-accent);
+  font-weight: 600;
+}
+
+.dialectics-menu-item.is-active svg {
+  opacity: 1;
+}
+
+/* Tip card */
+.dialectics-sidebar-tip {
+  align-items: flex-start;
+  background: var(--d-surface-card);
+  border: 1px solid var(--d-hairline);
+  border-radius: var(--d-radius);
+  display: flex;
+  gap: 0.55rem;
+  padding: 0.7rem 0.75rem;
+}
+
+.dialectics-sidebar-tip svg {
+  color: var(--d-accent);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  opacity: 0.7;
+}
+
+.dialectics-sidebar-tip p {
+  color: var(--d-ink-soft);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Sidebar footer */
+.dialectics-sidebar-foot {
+  align-items: center;
+  display: flex;
+  gap: 0.35rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.dialectics-theme-btn {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--d-hairline);
+  border-radius: var(--d-radius-sm);
+  color: var(--d-ink-soft);
+  cursor: pointer;
+  display: inline-flex;
+  height: 2rem;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+  width: 2rem;
+}
+
+.dialectics-theme-btn:hover {
+  background: var(--d-accent-tint);
+  border-color: var(--d-accent-edge);
+  color: var(--d-ink);
+}
+
+/* Theme icon visibility */
+.dialectics-theme-icon { display: none; }
+.dialectics-theme-icon svg { display: block; }
+
+[data-theme-toggle][data-next-theme="dark"] .dialectics-theme-icon-dark,
+[data-theme-toggle][data-next-theme="light"] .dialectics-theme-icon-light {
+  display: block;
+}
+
+/* ======================================================================
+ * Main area
+ * =================================================================== */
+
+.dialectics-main {
+  background:
+    radial-gradient(circle, var(--d-hairline) 1px, transparent 1px),
+    var(--d-surface);
+  background-position: 0 0;
+  background-size: 24px 24px;
+  border: 1px solid var(--d-hairline-strong);
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ======================================================================
+ * Top bar
+ * =================================================================== */
+
+.dialectics-topbar {
+  align-items: center;
+  border-bottom: 1px solid var(--d-hairline);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 0.7rem 1.25rem;
+}
+
+.dialectics-topbar-share {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--d-hairline);
+  border-radius: var(--d-radius-sm);
+  color: var(--d-ink-soft);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.8rem;
+  gap: 0.4rem;
+  padding: 0.38rem 0.7rem;
+  transition: color 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+}
+
+.dialectics-topbar-share:hover {
+  background: var(--d-accent-tint);
+  border-color: var(--d-accent-edge);
+  color: var(--d-ink);
+}
+
+/* Status badge */
+.dialectics-status {
+  align-items: center;
   border: 1px solid var(--d-hairline-strong);
   border-radius: var(--d-radius-sm);
   color: var(--d-ink-soft);
   display: inline-flex;
   flex-shrink: 0;
-  font-family: var(--font-mono);
   font-size: 0.72rem;
   gap: 0.45rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   line-height: 1;
-  padding: 0.42rem 0.72rem;
+  padding: 0.35rem 0.65rem;
   white-space: nowrap;
 }
 
@@ -166,9 +383,8 @@
   background: currentColor;
   border-radius: 999px;
   display: block;
-  height: 0.38rem;
-  position: relative;
-  width: 0.38rem;
+  height: 0.35rem;
+  width: 0.35rem;
 }
 
 .dialectics-status.is-online {
@@ -176,12 +392,16 @@
   color: var(--d-success);
 }
 
+.dialectics-status.is-online .dialectics-status-dot {
+  position: relative;
+}
+
 .dialectics-status.is-online .dialectics-status-dot::after {
   animation: d-pulse 2.4s ease-out infinite;
   background: currentColor;
   border-radius: 999px;
   content: "";
-  inset: -4px;
+  inset: -3px;
   opacity: 0.4;
   position: absolute;
 }
@@ -198,60 +418,16 @@
   color: var(--d-danger);
 }
 
-/* ── Info tabs: background-fill style, monospace ─────────────────── */
-
-.dialectics-ribbon {
-  align-items: center;
-  border-top: 1px solid var(--d-hairline-strong);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 0.25rem;
-  margin-top: 1rem;
-  padding-top: 0.55rem;
-}
-
-.dialectics-tab {
-  background: transparent;
-  border: 0;
-  border-radius: var(--d-radius-sm);
-  color: var(--d-ink-soft);
-  cursor: pointer;
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  margin: 0;
-  padding: 0.4rem 0.7rem;
-  position: relative;
-  transition: color 0.14s ease, background-color 0.14s ease;
-}
-
-.dialectics-tab:hover,
-.dialectics-tab:focus-visible {
-  background: var(--d-accent-tint);
-  color: var(--d-ink);
-  outline: none;
-}
-
-.dialectics-tab.is-active {
-  background: var(--d-accent-tint);
-  color: var(--d-accent);
-  font-weight: 700;
-}
-
-/* No underline animation */
-.dialectics-tab::after { display: none; }
-
-/* ── Info panel: left-bordered ───────────────────────────────────── */
+/* ======================================================================
+ * Info panel
+ * =================================================================== */
 
 .dialectics-info {
-  animation: d-info-in 0.20s ease-out both;
+  animation: d-info-in 0.18s ease-out both;
   background: var(--d-surface-warm);
-  border: 1px solid var(--d-hairline);
+  border-bottom: 1px solid var(--d-hairline);
   border-left: 3px solid var(--d-accent);
-  border-radius: 0 var(--d-radius) var(--d-radius) 0;
-  margin-top: 0.7rem;
-  padding: 1.2rem 1.3rem;
+  padding: 1rem 1.25rem;
 }
 
 @keyframes d-info-in {
@@ -266,16 +442,16 @@
 
 .dialectics-intro {
   color: var(--d-ink);
-  font-size: 0.97rem;
-  line-height: 1.78;
+  font-size: 0.92rem;
+  line-height: 1.72;
 }
 
-.dialectics-intro p { margin: 0 0 0.7rem; }
+.dialectics-intro p { margin: 0 0 0.6rem; }
 .dialectics-intro p:last-child { margin-bottom: 0; }
 
 .dialectics-signal-list {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.8rem;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   list-style: none;
   margin: 0;
@@ -284,12 +460,11 @@
 
 .dialectics-signal-item {
   border-left: 2px solid var(--d-accent);
-  padding: 0.05rem 0 0.2rem 0.9rem;
+  padding: 0.05rem 0 0.15rem 0.85rem;
 }
 
 .dialectics-signal-label {
   color: var(--d-ink-soft);
-  font-family: var(--font-mono);
   font-size: 0.69rem;
   letter-spacing: 0.14em;
   margin: 0;
@@ -297,22 +472,22 @@
 }
 
 .dialectics-signal-value {
-  font-size: 1.06rem;
+  font-size: 1.02rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin: 0.18rem 0 0.3rem;
+  margin: 0.15rem 0 0.25rem;
 }
 
 .dialectics-signal-note {
   color: var(--d-ink-soft);
-  font-size: 0.89rem;
-  line-height: 1.62;
+  font-size: 0.85rem;
+  line-height: 1.58;
   margin: 0;
 }
 
 .dialectics-guardrail-list {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.5rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -320,53 +495,216 @@
 
 .dialectics-guardrail-list li {
   color: var(--d-ink);
-  font-size: 0.94rem;
-  line-height: 1.68;
+  font-size: 0.9rem;
+  line-height: 1.62;
   margin: 0;
-  padding: 0 0 0 1.4rem;
+  padding: 0 0 0 1.3rem;
   position: relative;
 }
 
 .dialectics-guardrail-list li::before {
   color: var(--d-danger);
-  content: "×";
-  font-family: var(--font-mono);
+  content: "\00d7";
   font-weight: 700;
   left: 0.1rem;
   position: absolute;
-  top: 0.04rem;
+  top: 0.02rem;
 }
 
 /* ======================================================================
- * Workspace — unified card: hard top border, squared geometry
+ * Workspace
  * =================================================================== */
 
 .dialectics-workspace {
-  background: var(--d-surface);
-  border: 1px solid var(--d-hairline-strong);
-  border-radius: var(--d-radius-lg);
-  border-top: 3px solid var(--d-accent);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+
+/* ======================================================================
+ * Welcome screen
+ * =================================================================== */
+
+.dialectics-welcome {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 3rem 3rem 2rem;
+  text-align: center;
+}
+
+.dialectics-welcome > * + * {
+  margin-top: 0;
+}
+
+/* Hide welcome when thread has messages */
+.dialectics-shell:has(.dialectics-thread .dialectics-message) .dialectics-welcome {
+  display: none;
+}
+
+.dialectics-welcome-title {
+  font-size: clamp(1.65rem, 2.8vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.35;
+  margin: 0 0 0.75rem;
+  max-width: 34rem;
+}
+
+.dialectics-welcome-sparkle {
+  color: var(--d-accent);
+  display: inline-block;
+  font-size: 0.7em;
+  margin: 0 0.35rem;
+  opacity: 0.55;
+  vertical-align: middle;
+}
+
+.dialectics-welcome-accent {
+  background: linear-gradient(transparent 60%, var(--d-accent-tint) 60%);
+  color: var(--d-accent-ink);
+  padding: 0 0.08em;
+}
+
+.dialectics-welcome-sub {
+  color: var(--d-ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.65;
+  margin: 0 0 2rem;
+  max-width: 30rem;
+}
+
+/* Examples */
+.dialectics-examples {
+  max-width: 48rem;
+  width: 100%;
+}
+
+.dialectics-examples-head {
+  align-items: center;
+  color: var(--d-ink-soft);
+  display: flex;
+  font-size: 0.76rem;
+  font-weight: 600;
+  gap: 0.4rem;
+  justify-content: center;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.9rem;
+  text-transform: uppercase;
+}
+
+.dialectics-examples-head svg {
+  opacity: 0.5;
+}
+
+.dialectics-examples-grid {
   display: grid;
-  overflow: hidden;
-  transition: box-shadow 0.18s ease;
+  gap: 0.75rem;
+  grid-template-columns: 1fr 1fr;
 }
 
-.dialectics-workspace:focus-within {
-  box-shadow: 0 0 0 3px var(--d-accent-tint);
+.dialectics-example-card {
+  align-items: center;
+  background: var(--d-surface-card);
+  border: 1px solid var(--d-hairline);
+  border-radius: var(--d-radius-card);
+  color: var(--d-ink);
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 0.65rem;
+  grid-template-columns: auto 1fr auto;
+  padding: 1rem 1.1rem;
+  text-align: left;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.12s ease;
 }
 
-/* ── Thread ──────────────────────────────────────────────────────── */
+.dialectics-example-card:hover {
+  border-color: var(--d-accent-edge);
+  box-shadow: 0 2px 16px var(--d-accent-tint);
+  transform: translateY(-1px);
+}
+
+.dialectics-example-num {
+  align-items: center;
+  background: var(--d-accent);
+  border-radius: 999px;
+  color: light-dark(#fff, #0e1a14);
+  display: flex;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  height: 1.75rem;
+  justify-content: center;
+  letter-spacing: 0.04em;
+  width: 1.75rem;
+}
+
+.dialectics-example-text {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.dialectics-example-arrow {
+  color: var(--d-accent);
+  display: flex;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+
+.dialectics-example-card:hover .dialectics-example-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Shuffle button */
+.dialectics-examples-shuffle {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--d-radius-sm);
+  color: var(--d-ink-soft);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.78rem;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+  padding: 0.38rem 0.7rem;
+  transition: color 0.14s ease;
+}
+
+.dialectics-examples-shuffle:hover {
+  color: var(--d-accent-ink);
+}
+
+/* ======================================================================
+ * Thread
+ * =================================================================== */
 
 .dialectics-thread {
-  display: grid;
-  gap: 1.1rem;
-  max-height: min(54vh, 28rem);
-  min-height: 15rem;
+  display: none;      /* Hidden when empty; flex when has messages */
+  flex: 1;
+  flex-direction: column;
+  gap: 1rem;
   overflow-y: auto;
-  padding: 1.4rem 1.45rem;
+  padding: 1.25rem;
   scroll-behavior: smooth;
   scrollbar-color: var(--d-accent-edge) transparent;
   scrollbar-width: thin;
+}
+
+/* Show thread only when it has real messages (not just the empty placeholder) */
+.dialectics-thread:has(.dialectics-message) {
+  display: flex;
 }
 
 .dialectics-thread::-webkit-scrollbar { width: 4px; }
@@ -376,12 +714,14 @@
   border-radius: 0;
 }
 
-/* ── Message base ────────────────────────────────────────────────── */
+/* ======================================================================
+ * Messages
+ * =================================================================== */
 
 .dialectics-message {
   animation: d-message-in 0.24s ease-out both;
   display: grid;
-  gap: 0.26rem;
+  gap: 0.22rem;
   max-width: 100%;
 }
 
@@ -392,42 +732,119 @@
 
 .dialectics-message-label {
   color: var(--d-ink-soft);
-  font-family: var(--font-mono);
   font-size: 0.68rem;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   margin: 0;
   text-transform: uppercase;
 }
 
 .dialectics-message-body {
-  font-size: 1rem;
-  line-height: 1.82;
+  font-size: 0.98rem;
+  line-height: 1.78;
   margin: 0;
   white-space: pre-wrap;
 }
 
-/* Answer: stronger left bar (3px) */
+/* Answer */
 .dialectics-message.is-answer {
   border-left: 3px solid var(--d-accent);
-  padding: 0.08rem 0 0.08rem 1rem;
+  padding: 0.05rem 0 0.05rem 0.95rem;
 }
 
-/* ── Analysis paths disclosure ───────────────────────────────────── */
+/* User */
+.dialectics-message.is-user {
+  background: var(--d-accent);
+  border-radius: var(--d-radius-sm) var(--d-radius-sm) 0 var(--d-radius-sm);
+  color: light-dark(#fff, #0e1a14);
+  justify-self: end;
+  max-width: min(88%, 34rem);
+  padding: 0.75rem 1rem;
+}
+
+.dialectics-message.is-user .dialectics-message-label {
+  color: inherit;
+  opacity: 0.65;
+}
+
+/* System */
+.dialectics-message.is-system {
+  color: var(--d-ink-soft);
+  font-size: 0.88rem;
+  justify-self: center;
+  max-width: 34rem;
+  text-align: center;
+}
+
+.dialectics-message.is-system .dialectics-message-label {
+  display: inline-block;
+  margin-right: 0.35rem;
+}
+
+.dialectics-message.is-system .dialectics-message-body {
+  color: inherit;
+  display: inline;
+  font-size: inherit;
+  line-height: 1.6;
+}
+
+/* Archived */
+.dialectics-message.is-system.is-archived {
+  background: var(--d-surface-warm);
+  border: 1px dashed var(--d-hairline-strong);
+  border-radius: var(--d-radius);
+  justify-self: stretch;
+  max-width: 100%;
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+}
+
+.dialectics-message.is-archived .dialectics-message-label,
+.dialectics-message.is-archived .dialectics-message-body {
+  display: block;
+}
+
+/* Follow-up */
+.dialectics-message.is-follow_up {
+  background: var(--d-accent-tint);
+  border: 1px solid var(--d-accent-edge);
+  border-left: 3px solid var(--d-accent);
+  border-radius: 0 var(--d-radius) var(--d-radius) 0;
+  padding: 0.8rem 0.95rem;
+}
+
+.dialectics-message.is-follow_up .dialectics-message-label {
+  color: var(--d-accent-ink);
+}
+
+/* Reject */
+.dialectics-message.is-reject {
+  background: var(--d-danger-tint);
+  border: 1px dashed var(--d-danger);
+  border-radius: var(--d-radius);
+  padding: 0.8rem 0.95rem;
+}
+
+.dialectics-message.is-reject .dialectics-message-label {
+  color: var(--d-danger);
+}
+
+/* ======================================================================
+ * Analysis paths
+ * =================================================================== */
 
 .dialectics-paths {
   border-top: 1px dashed var(--d-hairline-strong);
-  margin-top: 0.75rem;
-  padding-top: 0.55rem;
+  margin-top: 0.65rem;
+  padding-top: 0.5rem;
 }
 
 .dialectics-paths-summary {
   color: var(--d-ink-soft);
   cursor: pointer;
-  font-family: var(--font-mono);
   font-size: 0.68rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   list-style: none;
-  padding: 0.1rem 0;
+  padding: 0.08rem 0;
   text-transform: uppercase;
   user-select: none;
 }
@@ -435,7 +852,7 @@
 .dialectics-paths-summary::-webkit-details-marker { display: none; }
 
 .dialectics-paths-summary::before {
-  content: "▸";
+  content: "\25b8";
   display: inline-block;
   margin-right: 0.45rem;
   transition: transform 0.15s ease;
@@ -453,30 +870,30 @@
 
 .dialectics-paths-list {
   display: grid;
-  gap: 0.48rem;
+  gap: 0.45rem;
   list-style: none;
-  margin: 0.55rem 0 0.15rem;
+  margin: 0.5rem 0 0.1rem;
   padding: 0;
 }
 
 .dialectics-paths-item {
   display: grid;
-  gap: 0.22rem;
-  padding: 0.4rem 0.55rem;
+  gap: 0.2rem;
+  padding: 0.35rem 0.5rem;
   border-left: 2px solid var(--d-accent);
 }
 
 .dialectics-paths-label {
   color: var(--d-ink);
-  font-size: 0.87rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 
 .dialectics-paths-quote {
   display: block;
   color: var(--d-ink);
-  font-size: 0.84rem;
-  line-height: 1.55;
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .dialectics-paths-quote-text {
@@ -485,112 +902,32 @@
 
 .dialectics-paths-source {
   color: var(--d-ink-soft);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  margin-left: 0.35rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  margin-left: 0.3rem;
   white-space: nowrap;
 }
 
 .dialectics-paths-explanation {
   color: var(--d-ink-soft);
-  font-size: 0.85rem;
-  line-height: 1.6;
+  font-size: 0.82rem;
+  line-height: 1.55;
 }
 
-/* Follow-up: accent-tinted, left border */
-.dialectics-message.is-follow_up {
-  background: var(--d-accent-tint);
-  border: 1px solid var(--d-accent-edge);
-  border-left: 3px solid var(--d-accent);
-  border-radius: 0 var(--d-radius) var(--d-radius) 0;
-  padding: 0.88rem 1.05rem;
-}
+/* ======================================================================
+ * Empty state (inside thread, JS-managed)
+ * =================================================================== */
 
-.dialectics-message.is-follow_up .dialectics-message-label {
-  color: var(--d-accent-ink);
-}
-
-/* Reject: dashed danger border */
-.dialectics-message.is-reject {
-  background: var(--d-danger-tint);
-  border: 1px dashed var(--d-danger);
-  border-radius: var(--d-radius);
-  padding: 0.88rem 1.05rem;
-}
-
-.dialectics-message.is-reject .dialectics-message-label {
-  color: var(--d-danger);
-}
-
-/* User: hard rectangle, accent fill, cut bottom-right corner */
-.dialectics-message.is-user {
-  background: var(--d-accent);
-  border-radius: var(--d-radius-sm) var(--d-radius-sm) 0 var(--d-radius-sm);
-  color: light-dark(#fff4f0, #1a0808);
-  justify-self: end;
-  max-width: min(88%, 34rem);
-  padding: 0.82rem 1.1rem;
-}
-
-.dialectics-message.is-user .dialectics-message-label {
-  color: inherit;
-  opacity: 0.68;
-}
-
-/* System placeholder: centered, muted */
-.dialectics-message.is-system {
-  color: var(--d-ink-soft);
-  font-size: 0.9rem;
-  justify-self: center;
-  max-width: 34rem;
-  text-align: center;
-}
-
-.dialectics-message.is-system .dialectics-message-label {
-  display: inline-block;
-  margin-right: 0.4rem;
-}
-
-.dialectics-message.is-system .dialectics-message-body {
-  color: inherit;
-  display: inline;
-  font-size: inherit;
-  line-height: 1.65;
-}
-
-/* Archived notice */
-.dialectics-message.is-system.is-archived {
-  background: var(--d-surface-tint);
-  border: 1px dashed var(--d-hairline-strong);
-  border-radius: var(--d-radius);
-  justify-self: stretch;
-  max-width: 100%;
-  padding: 0.75rem 0.95rem;
-  text-align: left;
-}
-
-.dialectics-message.is-archived .dialectics-message-label,
-.dialectics-message.is-archived .dialectics-message-body {
-  display: block;
-}
-
-/* ── Empty state (inside thread, with inline prompts) ───────────── */
-
-/* When empty placeholder is present: show all content, no scrolling */
 .dialectics-thread:has(.dialectics-empty) {
   align-items: center;
   justify-content: center;
-  max-height: none;
-  min-height: 0;
-  overflow: visible;
 }
 
 .dialectics-empty {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
   justify-items: center;
-  max-width: 36rem;
+  max-width: 30rem;
   padding: 1rem 0.5rem;
   text-align: center;
   width: 100%;
@@ -598,26 +935,25 @@
 
 .dialectics-empty-lead {
   color: var(--d-ink-soft);
-  font-size: 0.97rem;
-  line-height: 1.65;
+  font-size: 0.92rem;
+  line-height: 1.6;
   margin: 0;
-  max-width: 28rem;
+  max-width: 26rem;
 }
 
 .dialectics-empty-kicker {
   color: var(--d-ink-soft);
-  font-family: var(--font-mono);
   font-size: 0.68rem;
-  letter-spacing: 0.18em;
-  margin: 0.15rem 0 -0.2rem;
-  opacity: 0.75;
+  letter-spacing: 0.16em;
+  margin: 0.1rem 0 -0.15rem;
+  opacity: 0.7;
   text-transform: uppercase;
 }
 
 .dialectics-empty-chips {
   counter-reset: chip;
   display: grid;
-  gap: 0.45rem;
+  gap: 0.4rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -630,15 +966,15 @@
 .dialectics-prompt-chip {
   background: transparent;
   border: 1px solid var(--d-hairline-strong);
-  border-radius: var(--d-radius-sm);
+  border-radius: var(--d-radius);
   color: var(--d-ink);
   counter-increment: chip;
   cursor: pointer;
   display: block;
   font: inherit;
-  font-size: 0.9rem;
-  line-height: 1.58;
-  padding: 0.72rem 2.2rem 0.72rem 2.6rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  padding: 0.65rem 2rem 0.65rem 2.4rem;
   position: relative;
   text-align: left;
   transition: background-color 0.14s ease, border-color 0.14s ease;
@@ -648,12 +984,11 @@
 .dialectics-prompt-chip::before {
   color: var(--d-ink-soft);
   content: counter(chip, decimal-leading-zero);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  left: 0.9rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  left: 0.8rem;
   position: absolute;
-  top: 0.82rem;
+  top: 0.72rem;
 }
 
 .dialectics-prompt-chip:hover,
@@ -674,11 +1009,10 @@
 
 .dialectics-prompt-chip::after {
   color: var(--d-accent);
-  content: "→";
-  font-family: var(--font-mono);
+  content: "\2192";
   opacity: 0;
   position: absolute;
-  right: 0.85rem;
+  right: 0.8rem;
   top: 50%;
   transform: translateY(-50%) translateX(-4px);
   transition: opacity 0.14s ease, transform 0.14s ease;
@@ -690,114 +1024,104 @@
   transform: translateY(-50%) translateX(0);
 }
 
-/* ── Composer ────────────────────────────────────────────────────── */
+/* ======================================================================
+ * Composer
+ * =================================================================== */
 
 .dialectics-composer {
   border-top: 1px solid var(--d-hairline);
-  display: grid;
-  gap: 0.4rem;
-  padding: 0.95rem 1.25rem 0.9rem;
-  position: relative;
-}
-
-.dialectics-composer-label {
-  color: var(--d-ink-soft);
-  font-family: var(--font-mono);
-  font-size: 0.69rem;
-  letter-spacing: 0.16em;
-  margin: 0;
-  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.5rem 0.9rem;
 }
 
 .dialectics-input {
-  background: transparent;
-  border: 0;
-  color: inherit;
+  background: var(--d-surface-warm);
+  border: 1px solid var(--d-hairline);
+  border-radius: var(--d-radius-lg);
+  color: var(--d-ink);
   display: block;
   font: inherit;
-  line-height: 1.78;
-  min-height: 2.8rem;
-  max-height: 17.5rem;
-  padding: 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  min-height: 4rem;
+  max-height: 14rem;
+  padding: 0.85rem 1rem;
   resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   width: 100%;
+}
+
+.dialectics-input:focus-visible {
+  border-color: var(--d-accent-edge);
+  box-shadow: 0 0 0 3px var(--d-accent-tint);
+  outline: none;
 }
 
 .dialectics-input::placeholder {
   color: var(--d-ink-soft);
-  opacity: 0.58;
+  opacity: 0.45;
 }
-
-.dialectics-input:focus-visible { outline: none; }
 
 .dialectics-composer-foot {
-  align-items: end;
+  align-items: center;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem 1rem;
+  gap: 0.75rem;
   justify-content: space-between;
-  padding-top: 0.18rem;
 }
 
-.dialectics-composer-meta {
-  display: grid;
-  flex: 1 1 14rem;
-  gap: 0.18rem;
-  min-width: 0;
+.dialectics-composer-left {
+  display: flex;
+  gap: 0.35rem;
 }
 
-.dialectics-inline-note,
+.dialectics-composer-right {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+}
+
 .dialectics-counter {
   color: var(--d-ink-soft);
-  font-size: 0.80rem;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.dialectics-inline-note {
+  color: var(--d-ink-soft);
+  font-size: 0.74rem;
   margin: 0;
+  text-align: center;
 }
 
-.dialectics-counter {
-  font-family: var(--font-mono);
+.dialectics-inline-disclaimer {
+  color: var(--d-ink-soft);
+  font-size: 0.7rem;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.6;
+  text-align: center;
 }
 
-.dialectics-composer-actions {
-  align-items: center;
-  display: flex;
-  flex-shrink: 0;
-  gap: 0.32rem;
-}
-
-.dialectics-actions-normal,
-.dialectics-actions-share {
-  align-items: center;
-  display: flex;
-  flex-shrink: 0;
-  gap: 0.32rem;
-  width: 100%;
-}
-
-.dialectics-actions-spacer {
-  flex: 1;
-}
-
-/* Reset button carries a muted-danger hover */
-.dialectics-button.is-reset:hover,
-.dialectics-button.is-reset:focus-visible {
-  border-color: color-mix(in oklab, var(--d-accent) 55%, transparent);
-  color: var(--d-accent);
-}
-
-/* ── Buttons: rectangular, monospace ─────────────────────────────── */
+/* ======================================================================
+ * Buttons
+ * =================================================================== */
 
 .dialectics-button {
+  align-items: center;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--d-radius-sm);
   color: var(--d-ink);
   cursor: pointer;
+  display: inline-flex;
   font: inherit;
-  font-family: var(--font-mono);
-  font-size: 0.80rem;
-  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+  gap: 0.35rem;
+  letter-spacing: 0.03em;
   line-height: 1;
-  padding: 0.58rem 0.92rem;
+  padding: 0.5rem 0.85rem;
   transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 }
 
@@ -807,7 +1131,7 @@
 
 .dialectics-button.is-ghost:not(:disabled):hover,
 .dialectics-button.is-ghost:not(:disabled):focus-visible {
-  background: var(--d-surface-tint);
+  background: var(--d-accent-tint);
   border-color: var(--d-hairline-strong);
   color: var(--d-ink);
   outline: none;
@@ -816,15 +1140,16 @@
 .dialectics-button.is-primary {
   background: var(--d-accent);
   border-color: var(--d-accent);
-  color: light-dark(#fff4f0, #1a0808);
-  font-weight: 700;
-  padding: 0.60rem 1.15rem;
+  border-radius: var(--d-radius);
+  color: light-dark(#fff, #0e1a14);
+  font-weight: 600;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
 }
 
 .dialectics-button.is-primary:not(:disabled):hover,
 .dialectics-button.is-primary:not(:disabled):focus-visible {
-  background: var(--d-accent-ink);
-  border-color: var(--d-accent-ink);
+  opacity: 0.88;
   outline: none;
 }
 
@@ -834,77 +1159,25 @@
 }
 
 /* ======================================================================
- * Footnote
+ * Disclaimer
  * =================================================================== */
 
-.dialectics-footnote {
-  align-items: center;
-  color: var(--d-ink-soft);
-  display: flex;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  gap: 0.4rem 0.72rem;
-  justify-content: center;
-  letter-spacing: 0.07em;
-  margin: 0;
+.dialectics-disclaimer {
+  border-top: 1px solid var(--d-hairline);
+  padding: 0.7rem 1.25rem;
   text-align: center;
 }
 
-.dialectics-footnote span[aria-hidden] {
-  color: var(--d-hairline-strong);
+.dialectics-disclaimer p {
+  color: var(--d-ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.65;
 }
 
 /* ======================================================================
- * Responsive
- * =================================================================== */
-
-@media (max-width: 600px) {
-  .dialectics-title {
-    font-size: 2.15rem;
-  }
-
-  .dialectics-ribbon {
-    gap: 0 0.1rem;
-  }
-
-  .dialectics-thread {
-    min-height: 13rem;
-    padding: 1.15rem 1.1rem;
-  }
-
-  .dialectics-empty,
-  .dialectics-composer {
-    padding-left: 1.1rem;
-    padding-right: 1.1rem;
-  }
-
-  .dialectics-composer-foot {
-    align-items: stretch;
-  }
-
-  .dialectics-composer-actions {
-    justify-content: flex-end;
-    width: 100%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dialectics-message,
-  .dialectics-info,
-  .dialectics-status.is-online .dialectics-status-dot::after,
-  .dialectics-button,
-  .dialectics-prompt-chip,
-  .dialectics-tab,
-  .dialectics-workspace {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* ======================================================================
- * Share card template — for html2canvas screenshot
- * Hard-coded light values, no CSS variables (ensures consistent rendering)
+ * Share card
  * =================================================================== */
 
 .dialectics-share-card {
@@ -1043,6 +1316,89 @@
   width: 56px;
 }
 
-@media (max-width: 600px) {
-  /* Responsive styles for share card if needed */
+/* ======================================================================
+ * Responsive
+ * =================================================================== */
+
+@media (max-width: 768px) {
+  .dialectics-shell {
+    padding: 0 0.5rem 1.5rem;
+  }
+
+  .dialectics-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dialectics-sidebar {
+    border-radius: 0;
+    border-right: 1px solid var(--d-hairline);
+  }
+
+  .dialectics-sidebar-inner {
+    gap: 1rem;
+    padding: 1.25rem 1rem;
+  }
+
+  .dialectics-sidebar-brand {
+    align-items: center;
+    text-align: center;
+  }
+
+  .dialectics-sidebar-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
+
+  .dialectics-menu-item {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .dialectics-sidebar-tip {
+    display: none;
+  }
+
+  .dialectics-sidebar-foot {
+    justify-content: center;
+  }
+
+  .dialectics-main {
+    border-radius: 0;
+  }
+
+  .dialectics-topbar {
+    padding: 0.6rem 1rem;
+  }
+
+  .dialectics-welcome {
+    padding: 2rem 1rem;
+  }
+
+  .dialectics-examples-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .dialectics-composer {
+    padding: 0.75rem 1rem;
+  }
+
+  .dialectics-composer-foot {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialectics-message,
+  .dialectics-info,
+  .dialectics-status.is-online .dialectics-status-dot::after,
+  .dialectics-button,
+  .dialectics-prompt-chip,
+  .dialectics-menu-item,
+  .dialectics-example-card,
+  .dialectics-sidebar-new {
+    animation: none !important;
+    transition: none !important;
+  }
 }
