@@ -681,7 +681,6 @@ function createShareCardElement(selectedMessages, pageTitle) {
   `;
   avatar.src = "/img/avatar.png";
   avatar.alt = "";
-  avatar.crossOrigin = "anonymous";
   avatar.onerror = function() { this.style.background = "#ddd"; };
 
   const brandName = document.createElement("span");
@@ -795,7 +794,6 @@ function createShareCardElement(selectedMessages, pageTitle) {
   qrImg.style.cssText = "width: 100%; height: 100%; object-fit: contain; display: block;";
   qrImg.src = "/images/wechat-qr-code.png";
   qrImg.alt = "";
-  qrImg.crossOrigin = "anonymous";
   qrImg.onerror = function() { qrBlock.textContent = "QR"; };
   qrBlock.append(qrImg);
 
@@ -852,7 +850,6 @@ async function generateShareImage(selectedMessages, pageTitle) {
     const canvas = await window.html2canvas(card, {
       scale: 2,
       backgroundColor: "#f5f5f5",
-      useCORS: true,
       logging: false,
       width: 1080,
       height: cardHeight,
