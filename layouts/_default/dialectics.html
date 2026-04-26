@@ -8,6 +8,11 @@
 {{ $displayTitle := .Params.displayTitle | default .Title }}
 {{ $portrait := resources.Get "img/dialectics/mao-zedong-red-army.jpg" }}
 {{ $emptyMessage := "请提出一个需要分析的问题。关键信息不足时，会先追问一轮。" }}
+{{ $qrImage := resources.Get "images/wechat-qr-code.png" }}
+{{ $qrDataURL := "" }}
+{{ with $qrImage }}
+  {{ $qrDataURL = printf "data:image/png;base64,%s" (.Content | base64Encode) }}
+{{ end }}
 <div
   class="dialectics-shell"
   data-dialectics-root
@@ -17,7 +22,8 @@
   data-storage-key="{{ $storageKey }}"
   data-input-limit="{{ $inputLimit }}"
   data-max-history-messages="{{ $maxHistoryMessages }}"
-  data-empty-message="{{ $emptyMessage }}">
+  data-empty-message="{{ $emptyMessage }}"
+  data-qr-code="{{ $qrDataURL }}">
 
   <header class="dialectics-intro-block">
     <div class="dialectics-intro-lead">

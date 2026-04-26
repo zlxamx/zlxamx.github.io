@@ -648,7 +648,7 @@ async function sendPromptWithFailover(apiTargets, activeApiUrl, payload) {
 // ── Share mode state ────────────────────────────────────────────────
 let shareMode = false;
 
-function createShareCardElement(selectedMessages, pageTitle) {
+function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
   // ── Card wrapper ───────────────────────────────────────────────────────
   const card = document.createElement("div");
   card.style.cssText = `
@@ -792,7 +792,7 @@ function createShareCardElement(selectedMessages, pageTitle) {
 
   const qrImg = document.createElement("img");
   qrImg.style.cssText = "width: 100%; height: 100%; object-fit: contain; display: block;";
-  qrImg.src = "/images/wechat-qr-code.png";
+  qrImg.src = qrDataURL || "/images/wechat-qr-code.png";
   qrImg.alt = "";
   qrImg.onerror = function() { this.style.display = "none"; };
   qrBlock.append(qrImg);
@@ -812,12 +812,12 @@ function createShareCardElement(selectedMessages, pageTitle) {
   return card;
 }
 
-async function generateShareImage(selectedMessages, pageTitle) {
+async function generateShareImage(selectedMessages, pageTitle, qrDataURL) {
   if (typeof window.html2canvas !== "function") {
     throw new Error("html2canvas not loaded");
   }
 
-  const card = createShareCardElement(selectedMessages, pageTitle);
+  const card = createShareCardElement(selectedMessages, pageTitle, qrDataURL);
 
   // Create a visible container for rendering (html2canvas works better with visible elements)
   const container = document.createElement("div");
@@ -883,6 +883,7 @@ function initDialecticsPage() {
   const hasApiTarget = apiTargets.length > 0;
   let activeApiUrl = apiTargets[0] || "";
   const pageTitle = root.dataset.pageTitle || "唯物辩证法答问";
+  const qrDataURL = root.dataset.qrCode || "";
   const storageKey = root.dataset.storageKey || "materialist-dialectics-chat";
   const inputLimit = Number(root.dataset.inputLimit || 1600);
   const maxHistoryMessages = Number(root.dataset.maxHistoryMessages || 8);
@@ -1052,7 +1053,7 @@ function initDialecticsPage() {
 
     try {
       const allMessages = [...state.archivedMessages, ...state.messages];
-      await generateShareImage(allMessages, pageTitle);
+      await generateShareImage(allMessages, pageTitle, qrDataURL);
       status.textContent = "图片已保存到下载文件里。";
     } catch (error) {
       status.textContent = "生成图片失败，请稍后再试。";
