@@ -753,11 +753,10 @@ body.is-dialectics-app footer {
 
 .dialectics-message-label {
   color: var(--d-ink-soft);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   margin: 0;
-  opacity: 0.6;
 }
 
 .dialectics-message-body {
@@ -767,24 +766,28 @@ body.is-dialectics-app footer {
   white-space: pre-wrap;
 }
 
-/* Answer — clean left-aligned text */
+/* Answer — white card with border */
 .dialectics-message.is-answer {
-  max-width: min(88%, 44rem);
+  background: light-dark(#ffffff, rgba(255, 255, 255, 0.03));
+  border: 1px solid light-dark(#e4ded8, rgba(255, 255, 255, 0.07));
+  border-radius: var(--d-radius);
+  padding: 0.9rem 1.1rem;
 }
 
-/* User — right-aligned accent bubble */
+.dialectics-message.is-answer .dialectics-message-label {
+  color: var(--d-accent-ink);
+}
+
+/* User — warm tan card with border */
 .dialectics-message.is-user {
-  background: var(--d-accent);
-  border-radius: 1rem 1rem 0.25rem 1rem;
-  color: light-dark(#fff, #0e1a14);
-  justify-self: end;
-  max-width: min(80%, 32rem);
-  padding: 0.7rem 0.95rem;
+  background: light-dark(#faf4ed, rgba(200, 105, 74, 0.10));
+  border: 1px solid light-dark(#e0cebd, rgba(200, 105, 74, 0.20));
+  border-radius: var(--d-radius);
+  padding: 0.9rem 1.1rem;
 }
 
 .dialectics-message.is-user .dialectics-message-label {
-  color: inherit;
-  opacity: 0.6;
+  color: light-dark(#8b5e3c, #d4a574);
 }
 
 /* System */
@@ -827,27 +830,25 @@ body.is-dialectics-app footer {
 /* Follow-up */
 .dialectics-message.is-follow_up {
   background: var(--d-accent-tint);
+  border: 1px solid var(--d-accent-edge);
   border-radius: var(--d-radius);
-  max-width: min(88%, 44rem);
-  padding: 0.75rem 0.9rem;
+  padding: 0.9rem 1.1rem;
 }
 
 .dialectics-message.is-follow_up .dialectics-message-label {
   color: var(--d-accent-ink);
-  opacity: 0.7;
 }
 
 /* Reject */
 .dialectics-message.is-reject {
   background: var(--d-danger-tint);
+  border: 1px solid var(--d-danger);
   border-radius: var(--d-radius);
-  max-width: min(88%, 44rem);
-  padding: 0.75rem 0.9rem;
+  padding: 0.9rem 1.1rem;
 }
 
 .dialectics-message.is-reject .dialectics-message-label {
   color: var(--d-danger);
-  opacity: 0.7;
 }
 
 /* ======================================================================

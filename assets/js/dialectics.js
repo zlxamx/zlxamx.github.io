@@ -425,7 +425,7 @@ function createMessageElement(message) {
 
   if (message.role === "user") {
     article.classList.add("is-user");
-    label.textContent = "你";
+    label.textContent = "提问";
   } else {
     const kind = message.kind || "answer";
     article.classList.add(`is-${kind}`);
@@ -435,7 +435,7 @@ function createMessageElement(message) {
     } else if (kind === "reject") {
       label.textContent = "边界";
     } else {
-      label.textContent = "分析";
+      label.textContent = "回答";
     }
   }
 
