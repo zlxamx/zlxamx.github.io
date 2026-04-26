@@ -794,7 +794,7 @@ function createShareCardElement(selectedMessages, pageTitle) {
   qrImg.style.cssText = "width: 100%; height: 100%; object-fit: contain; display: block;";
   qrImg.src = "/images/wechat-qr-code.png";
   qrImg.alt = "";
-  qrImg.onerror = function() { qrBlock.textContent = "QR"; };
+  qrImg.onerror = function() { this.style.display = "none"; };
   qrBlock.append(qrImg);
 
   const ctaText = document.createElement("span");
@@ -834,17 +834,19 @@ async function generateShareImage(selectedMessages, pageTitle) {
   document.body.append(container);
 
   try {
-    // Wait for all images to load before capturing
+    // Wait for all images to finish loading (or timeout after 5s)
     const images = card.querySelectorAll("img");
     await Promise.all(Array.from(images).map((img) => {
-      if (img.complete) return Promise.resolve();
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
       return new Promise((resolve) => {
-        img.addEventListener("load", resolve, { once: true });
-        img.addEventListener("error", resolve, { once: true });
+        const done = () => resolve();
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+        setTimeout(done, 5000);
       });
     }));
-    // Small extra delay for layout settling
-    await new Promise((r) => setTimeout(r, 100));
+    // Extra delay for layout to settle after images load
+    await new Promise((r) => setTimeout(r, 300));
 
     const cardHeight = card.scrollHeight;
     const canvas = await window.html2canvas(card, {
