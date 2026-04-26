@@ -779,7 +779,7 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
 
   const qrBlock = document.createElement("div");
   qrBlock.style.cssText = `
-    width: 88px; height: 88px;
+    width: 200px; height: 200px;
     border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
