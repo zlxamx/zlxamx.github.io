@@ -45,16 +45,16 @@ body.is-dialectics-app footer {
  * =================================================================== */
 
 .dialectics-shell {
-  /* ── Accent: derived from blog --accent ──────────────────────────── */
-  --d-accent:       var(--accent);
-  --d-accent-ink:   light-dark(#9b2d54, #4ad9a5);
-  --d-accent-tint:  light-dark(rgba(212, 67, 117, 0.08), rgba(43, 188, 138, 0.10));
-  --d-accent-glow:  light-dark(rgba(212, 67, 117, 0.18), rgba(43, 188, 138, 0.24));
-  --d-accent-edge:  light-dark(rgba(212, 67, 117, 0.30), rgba(43, 188, 138, 0.38));
+  /* ── Accent: Claude orange (light) / blog green (dark) ──────────── */
+  --d-accent:       light-dark(#c8694a, #2bbc8a);
+  --d-accent-ink:   light-dark(#6b2f1a, #4ad9a5);
+  --d-accent-tint:  light-dark(rgba(200, 105, 74, 0.08), rgba(43, 188, 138, 0.10));
+  --d-accent-glow:  light-dark(rgba(200, 105, 74, 0.18), rgba(43, 188, 138, 0.24));
+  --d-accent-edge:  light-dark(rgba(200, 105, 74, 0.30), rgba(43, 188, 138, 0.38));
 
   /* ── Surfaces ────────────────────────────────────────────────────── */
-  --d-surface:      light-dark(#fffaf9, rgba(255, 255, 255, 0.025));
-  --d-surface-warm: light-dark(#fdf5f3, rgba(255, 255, 255, 0.035));
+  --d-surface:      light-dark(#fdfaf7, rgba(255, 255, 255, 0.025));
+  --d-surface-warm: light-dark(#faf5ef, rgba(255, 255, 255, 0.035));
   --d-surface-card: light-dark(#ffffff, rgba(255, 255, 255, 0.04));
 
   /* ── Hairlines ───────────────────────────────────────────────────── */
