@@ -796,8 +796,7 @@ function createShareCardElement(selectedMessages, pageTitle) {
   qrImg.src = "/images/wechat-qr-code.png";
   qrImg.alt = "";
   qrImg.crossOrigin = "anonymous";
-  qrImg.onerror = function() { qrBlock.textContent = ""; };
-  qrImg.onload  = function() { qrBlock.innerHTML = ""; qrBlock.append(qrImg); };
+  qrImg.onerror = function() { qrBlock.textContent = "QR"; };
   qrBlock.append(qrImg);
 
   const ctaText = document.createElement("span");
@@ -837,8 +836,17 @@ async function generateShareImage(selectedMessages, pageTitle) {
   document.body.append(container);
 
   try {
-    // Wait for images and rendering
-    await new Promise((r) => setTimeout(r, 200));
+    // Wait for all images to load before capturing
+    const images = card.querySelectorAll("img");
+    await Promise.all(Array.from(images).map((img) => {
+      if (img.complete) return Promise.resolve();
+      return new Promise((resolve) => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+    }));
+    // Small extra delay for layout settling
+    await new Promise((r) => setTimeout(r, 100));
 
     const cardHeight = card.scrollHeight;
     const canvas = await window.html2canvas(card, {
