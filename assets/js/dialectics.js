@@ -682,7 +682,7 @@ async function sendPromptWithFailover(apiTargets, activeApiUrl, payload) {
 let shareMode = false;
 const SHARE_IMAGE_MAX_HEIGHT = 3200;
 const SHARE_IMAGE_OVERLAP = 120;
-const SHARE_IMAGE_LONG_HEIGHT = SHARE_IMAGE_MAX_HEIGHT * 3;
+const SHARE_IMAGE_PROMPT_HEIGHT = SHARE_IMAGE_MAX_HEIGHT * 3;
 
 function downloadCanvasImage(canvas, filename) {
   const link = document.createElement("a");
@@ -736,16 +736,11 @@ async function downloadShareCanvas(canvas, timestamp, splitPages) {
 }
 
 function shouldSplitShareImage(canvasHeight) {
-  if (canvasHeight <= SHARE_IMAGE_MAX_HEIGHT) {
+  if (canvasHeight <= SHARE_IMAGE_PROMPT_HEIGHT) {
     return false;
   }
 
-  const message =
-    canvasHeight > SHARE_IMAGE_LONG_HEIGHT
-      ? "图片过长，建议分多张导出。选择“确定”导出多张，选择“取消”导出一张。"
-      : "图片较长，建议分多张导出。选择“确定”导出多张，选择“取消”导出一张。";
-
-  return window.confirm(message);
+  return window.confirm("图片过长，建议分多张导出。选择“确定”导出多张，选择“取消”导出一张。");
 }
 
 function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
