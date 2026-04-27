@@ -666,26 +666,33 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
   // ── Brand row (subtle, top-left) ───────────────────────────────────────
   const brandRow = document.createElement("div");
   brandRow.style.cssText = `
-    display: flex;
-    align-items: center;
-    gap: 20px;
     align-self: flex-start;
+    height: 64px;
+    white-space: nowrap;
   `;
 
   const avatar = document.createElement("img");
   avatar.style.cssText = `
-    width: 60px; height: 60px;
+    width: 64px; height: 64px;
     border-radius: 50%;
     object-fit: cover;
-    flex-shrink: 0;
-    display: block;
+    display: inline-block;
+    vertical-align: middle;
   `;
   avatar.src = "/img/avatar.png";
   avatar.alt = "";
   avatar.onerror = function() { this.style.background = "#ddd"; };
 
   const brandName = document.createElement("span");
-  brandName.style.cssText = "font-size: 32px; font-weight: 600; color: #888; line-height: 1;";
+  brandName.style.cssText = `
+    font-size: 32px;
+    font-weight: 600;
+    color: #888;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 20px;
+    line-height: 1;
+  `;
   brandName.textContent = "希路路克";
 
   brandRow.append(avatar, brandName);
