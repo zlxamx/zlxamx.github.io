@@ -14,7 +14,8 @@
 
 ### 日志文件
 
-- 路径：`logs/YYYY-MM-DD.md`
+- 绝对路径：`/Users/zhangluxi/Documents/Vibe coding/zlxamx.github.io/logs/YYYY-MM-DD.md`
+- 无论当前工作目录是主仓库还是 worktree，都写入此路径
 - 不存在必须创建
 - 只能写入当天文件
 
