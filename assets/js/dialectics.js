@@ -694,7 +694,8 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
     vertical-align: middle;
     white-space: nowrap;
     padding-left: 24px;
-    transform: translateY(-2px);
+    height: 88px;
+    line-height: 88px;
   `;
   brandName.textContent = "希路路克";
 
