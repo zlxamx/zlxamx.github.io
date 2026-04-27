@@ -669,6 +669,7 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
     display: block;
     height: 88px;
     line-height: 88px;
+    align-self: flex-start;
   `;
 
   const avatar = document.createElement("img");
@@ -693,6 +694,7 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
     vertical-align: middle;
     white-space: nowrap;
     padding-left: 24px;
+    transform: translateY(-2px);
   `;
   brandName.textContent = "希路路克";
 
