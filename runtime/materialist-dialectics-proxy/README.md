@@ -14,7 +14,7 @@ This Worker fixes the access path by terminating requests on `https://luxi.blog/
 
 It now supports two execution modes:
 
-- direct runtime mode: the Worker calls DeepSeek or OpenAI itself
+- direct runtime mode: the Worker calls DeepSeek itself
 - upstream fallback mode: the Worker forwards to the old Vercel runtime when no model key is configured on Cloudflare
 
 ## What It Does
@@ -28,7 +28,6 @@ It now supports two execution modes:
 
 ## Configurable Vars
 
-- `LLM_PROVIDER`
 - `DEEPSEEK_MODEL`
 - `UPSTREAM_URL`
 - `ALLOWED_ORIGINS`
@@ -42,7 +41,6 @@ Defaults live in [`wrangler.jsonc`](./wrangler.jsonc).
 ## Optional Secrets
 
 - `DEEPSEEK_API_KEY`
-- `OPENAI_API_KEY`
 
 If `DEEPSEEK_API_KEY` is present, the Worker runs the full dialectics runtime directly on Cloudflare and stops depending on the upstream Vercel function.
 
@@ -64,7 +62,6 @@ The included workflow expects these repository secrets:
 Optional model secrets:
 
 - `DEEPSEEK_API_KEY`
-- `OPENAI_API_KEY`
 
 ## Local Check
 
@@ -78,5 +75,6 @@ npm run check
 - This Worker keeps the front-end path same-origin, so the page does not need to know the upstream hostname.
 - If `DEEPSEEK_API_KEY` is configured on Cloudflare, the Worker owns model calling, safety policy, rate limiting, and provider credentials directly.
 - If no model key is configured on Cloudflare, the Worker falls back to the old upstream runtime.
+- The direct Worker runtime is DeepSeek-only, matching the Vercel runtime contract.
 - Once this Worker is live, the page should primarily use `apiPath = "/api/materialist-dialectics/chat"` and treat the external `apiURL` only as a backup.
 - `UPSTREAM_URL` is stored as a normal Worker var because it is a public endpoint, not a credential.

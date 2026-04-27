@@ -19,7 +19,6 @@
   //   INTERNAL_TOKEN    — 与 Vercel 函数共享的随机密钥，用于层间鉴权
   //   DEEPSEEK_API_KEY  — 仅在 Worker 直连 DeepSeek 时需要（当前架构走 proxy 模式不需要）
   "vars": {
-    "LLM_PROVIDER": "deepseek",
     "DEEPSEEK_MODEL": "deepseek-chat",
     "ALLOWED_ORIGINS": "https://luxi.blog,https://www.luxi.blog,http://localhost:1313,http://127.0.0.1:1313",
     "INPUT_LIMIT": "1600",

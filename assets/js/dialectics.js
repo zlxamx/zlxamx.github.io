@@ -463,7 +463,7 @@ function createArchiveNoticeElement(archiveCount, maxHistoryMessages) {
   body.className = "dialectics-message-body";
 
   label.textContent = "更早的对话";
-  body.textContent = `更早的 ${archiveCount} 条对话已经不再参与现在的分析。继续提问时，只会看最近 ${maxHistoryMessages} 条。想保留完整内容，可以先点导出。`;
+  body.textContent = `较早对话已折叠；后续分析仅参考最近 ${maxHistoryMessages} 条。`;
 
   article.append(label, body);
   return article;
@@ -586,7 +586,7 @@ function syncComposer(
   if (!hasApiTarget) {
     submitButton.disabled = true;
     submitButton.textContent = "暂不可用";
-    status.textContent = statusMessage || storageWarning || "这个网站不会保存你的对话数据。";
+    status.textContent = statusMessage || storageWarning || "对话仅保存在当前浏览器。";
     return;
   }
 
@@ -598,29 +598,62 @@ function syncComposer(
   } else if (storageWarning) {
     status.textContent = storageWarning;
   } else if (!length) {
-    status.textContent = "这个网站不会保存你的对话数据。";
+    status.textContent = "对话仅保存在当前浏览器。";
   } else if (state.archivedMessages.length && maxHistoryMessages > 0) {
-    status.textContent = `这次分析只会参考最近 ${maxHistoryMessages} 条对话，更早的不会带进来。`;
+    status.textContent = `后续分析仅参考最近 ${maxHistoryMessages} 条。`;
   } else {
     status.textContent = "";
   }
 }
 
 async function sendPrompt(apiUrl, payload) {
-  const response = await window.fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-    signal: createRequestSignal(45000),
-  });
+  let response;
 
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
+  try {
+    response = await window.fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: createRequestSignal(45000),
+    });
+  } catch (error) {
+    error.dialecticsErrorKind =
+      error.name === "AbortError" || error.name === "TimeoutError" ? "timeout" : "network";
+    throw error;
   }
 
-  return response.json();
+  const body = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const error = new Error(`Request failed with status ${response.status}`);
+    error.status = response.status;
+    error.code = body && body.error ? body.error.code : "";
+    throw error;
+  }
+
+  return body;
+}
+
+function getSendFailureMessage(error) {
+  if (error && error.status === 429) {
+    return "请求太频繁，请稍后再试。";
+  }
+
+  if (error && error.status === 503) {
+    return "服务暂不可用，请稍后再试。";
+  }
+
+  if (error && error.status === 400 && error.code === "input_too_long") {
+    return "问题太长，请删减后再发送。";
+  }
+
+  if (error && (error.dialecticsErrorKind === "timeout" || error.dialecticsErrorKind === "network")) {
+    return "网络超时，请稍后重试。";
+  }
+
+  return "没发出去，你写的内容没丢。";
 }
 
 async function sendPromptWithFailover(apiTargets, activeApiUrl, payload) {
@@ -647,6 +680,73 @@ async function sendPromptWithFailover(apiTargets, activeApiUrl, payload) {
 
 // ── Share mode state ────────────────────────────────────────────────
 let shareMode = false;
+const SHARE_IMAGE_MAX_HEIGHT = 3200;
+const SHARE_IMAGE_OVERLAP = 120;
+const SHARE_IMAGE_LONG_HEIGHT = SHARE_IMAGE_MAX_HEIGHT * 3;
+
+function downloadCanvasImage(canvas, filename) {
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = canvas.toDataURL("image/png");
+  document.body.append(link);
+  link.click();
+  link.remove();
+}
+
+async function downloadShareCanvas(canvas, timestamp, splitPages) {
+  if (!splitPages || canvas.height <= SHARE_IMAGE_MAX_HEIGHT) {
+    downloadCanvasImage(canvas, `dialectics-share-${timestamp}.png`);
+    return 1;
+  }
+
+  const step = SHARE_IMAGE_MAX_HEIGHT - SHARE_IMAGE_OVERLAP;
+  let pageIndex = 0;
+  let sourceY = 0;
+
+  while (sourceY < canvas.height) {
+    pageIndex += 1;
+    const sliceHeight = Math.min(SHARE_IMAGE_MAX_HEIGHT, canvas.height - sourceY);
+    const pageCanvas = document.createElement("canvas");
+    const context = pageCanvas.getContext("2d");
+
+    pageCanvas.width = canvas.width;
+    pageCanvas.height = sliceHeight;
+    context.drawImage(
+      canvas,
+      0,
+      sourceY,
+      canvas.width,
+      sliceHeight,
+      0,
+      0,
+      canvas.width,
+      sliceHeight,
+    );
+
+    downloadCanvasImage(
+      pageCanvas,
+      `dialectics-share-${timestamp}-${String(pageIndex).padStart(2, "0")}.png`,
+    );
+
+    sourceY += step;
+    await new Promise((resolve) => setTimeout(resolve, 80));
+  }
+
+  return pageIndex;
+}
+
+function shouldSplitShareImage(canvasHeight) {
+  if (canvasHeight <= SHARE_IMAGE_MAX_HEIGHT) {
+    return false;
+  }
+
+  const message =
+    canvasHeight > SHARE_IMAGE_LONG_HEIGHT
+      ? "图片过长，建议分多张导出。选择“确定”导出多张，选择“取消”导出一张。"
+      : "图片较长，建议分多张导出。选择“确定”导出多张，选择“取消”导出一张。";
+
+  return window.confirm(message);
+}
 
 function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
   // ── Card wrapper ───────────────────────────────────────────────────────
@@ -947,12 +1047,7 @@ async function generateShareImage(selectedMessages, pageTitle, qrDataURL) {
     });
 
     const timestamp = formatExportTimestamp(new Date()).file;
-    const link = document.createElement("a");
-    link.download = `dialectics-share-${timestamp}.png`;
-    link.href = canvas.toDataURL("image/png");
-    document.body.append(link);
-    link.click();
-    link.remove();
+    return await downloadShareCanvas(canvas, timestamp, shouldSplitShareImage(canvas.height));
   } finally {
     container.remove();
   }
@@ -1121,7 +1216,7 @@ function initDialecticsPage() {
       input.value = prompt;
       setRuntimeStatus(runtimeStatus, runtimeNote, hasApiTarget ? "error" : "offline");
       renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
-      settledStatus = "没发出去，你写的内容没丢。";
+      settledStatus = getSendFailureMessage(error);
     } finally {
       pending = false;
       syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending, settledStatus);
@@ -1141,8 +1236,11 @@ function initDialecticsPage() {
 
     try {
       const allMessages = [...state.archivedMessages, ...state.messages];
-      await generateShareImage(allMessages, pageTitle, qrDataURL);
-      status.textContent = "图片已保存到下载文件里。";
+      const imageCount = await generateShareImage(allMessages, pageTitle, qrDataURL);
+      status.textContent =
+        imageCount > 1
+          ? `图片已分成 ${imageCount} 张保存。`
+          : "图片已保存到下载文件里。";
     } catch (error) {
       status.textContent = "生成图片失败，请稍后再试。";
       console.error("Share image generation failed:", error);

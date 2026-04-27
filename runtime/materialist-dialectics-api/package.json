@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "description": "Vercel runtime for the Luxi dialectics page",
   "license": "UNLICENSED",
+  "scripts": {
+    "eval:check": "node scripts/check-evals.js"
+  },
   "engines": {
     "node": ">=20"
   }

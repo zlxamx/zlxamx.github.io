@@ -12,78 +12,6 @@ const DEFAULT_MAX_HISTORY_MESSAGES = 8;
 const DEFAULT_MAX_OUTPUT_TOKENS = 900;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 600_000;
 const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 12;
-const RESPONSE_SCHEMA = {
-  name: "materialist_dialectics_response",
-  strict: true,
-  schema: {
-    type: "object",
-    additionalProperties: false,
-    properties: {
-      status: {
-        type: "string",
-        enum: ["answer", "follow_up", "reject"],
-      },
-      message: {
-        type: "string",
-      },
-      meta: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          questionType: {
-            type: "string",
-            enum: [
-              "contradiction",
-              "ism_error",
-              "epistemology",
-              "strategy",
-              "alignment",
-              "execution",
-              "out_of_scope",
-              "unknown",
-            ],
-          },
-          disclaimer: {
-            type: "boolean",
-          },
-          analysisPaths: {
-            type: "array",
-            items: {
-              type: "object",
-              additionalProperties: false,
-              properties: {
-                key: {
-                  type: "string",
-                  enum: [
-                    "contradiction_analysis",
-                    "concrete_analysis",
-                    "primary_secondary",
-                    "quantity_quality",
-                    "practice_test",
-                    "internal_external",
-                  ],
-                },
-                quote: {
-                  type: "string",
-                },
-                source: {
-                  type: "string",
-                  enum: ["user", "assistant"],
-                },
-                explanation: {
-                  type: "string",
-                },
-              },
-              required: ["key", "quote", "source", "explanation"],
-            },
-          },
-        },
-        required: ["questionType", "disclaimer", "analysisPaths"],
-      },
-    },
-    required: ["status", "message", "meta"],
-  },
-};
 const buckets = new Map();
 
 function parseAllowedOrigins(value) {
@@ -304,6 +232,8 @@ const ANALYSIS_PATH_ENUM = [
 ];
 
 const ANALYSIS_PATH_SOURCE_ENUM = ["user", "assistant"];
+const DISCLAIMER_TEXT =
+  "以下分析仅供参考，最终决定要由你根据完整处境来做；专业问题请咨询对应专业人士。";
 
 function collapseForMatch(value) {
   if (typeof value !== "string") return "";
@@ -364,7 +294,7 @@ function normalizeModelResult(result, sessionId, userInput = "") {
   const status = ["answer", "follow_up", "reject"].includes(result.status)
     ? result.status
     : "reject";
-  const message = typeof result.message === "string" ? result.message.trim() : "";
+  const rawMessage = typeof result.message === "string" ? result.message.trim() : "";
   const meta = isPlainObject(result.meta) ? result.meta : {};
   const questionType = [
     "contradiction",
@@ -379,17 +309,27 @@ function normalizeModelResult(result, sessionId, userInput = "") {
     ? meta.questionType
     : "unknown";
 
-  if (!message) {
+  if (!rawMessage) {
     return fallback;
   }
+
+  const disclaimer = Boolean(meta.disclaimer);
+  const analysisPaths =
+    status === "answer"
+      ? normalizeAnalysisPaths(meta.analysisPaths, userInput, rawMessage)
+      : [];
+  const message =
+    disclaimer && status === "answer" && !rawMessage.includes(DISCLAIMER_TEXT)
+      ? `${rawMessage}\n\n${DISCLAIMER_TEXT}`
+      : rawMessage;
 
   return {
     status,
     message,
     meta: {
       questionType,
-      disclaimer: Boolean(meta.disclaimer),
-      analysisPaths: normalizeAnalysisPaths(meta.analysisPaths, userInput, message),
+      disclaimer,
+      analysisPaths,
       sessionId,
     },
   };
@@ -769,54 +709,6 @@ function parseJsonText(text) {
   }
 }
 
-function extractOpenAIOutputText(payload) {
-  if (typeof payload.output_text === "string" && payload.output_text.trim()) {
-    return payload.output_text.trim();
-  }
-
-  if (!Array.isArray(payload.output)) {
-    return "";
-  }
-
-  const parts = [];
-
-  payload.output.forEach((item) => {
-    if (!Array.isArray(item.content)) {
-      return;
-    }
-
-    item.content.forEach((contentItem) => {
-      if (contentItem.type === "output_text" && typeof contentItem.text === "string") {
-        parts.push(contentItem.text);
-      }
-    });
-  });
-
-  return parts.join("").trim();
-}
-
-function extractOpenAIRefusalText(payload) {
-  if (!Array.isArray(payload.output)) {
-    return "";
-  }
-
-  const parts = [];
-
-  payload.output.forEach((item) => {
-    if (!Array.isArray(item.content)) {
-      return;
-    }
-
-    item.content.forEach((contentItem) => {
-      if (contentItem.type === "refusal" && typeof contentItem.refusal === "string") {
-        parts.push(contentItem.refusal);
-      }
-    });
-  });
-
-  return parts.join("\n").trim();
-}
-
 function normalizeDeepSeekMessages(instructions, input) {
   return [
     {
@@ -828,78 +720,12 @@ function normalizeDeepSeekMessages(instructions, input) {
 }
 
 function resolveProviderConfig(env) {
-  const rawProvider = (env.LLM_PROVIDER || "").trim().toLowerCase();
-  const provider = rawProvider || (env.DEEPSEEK_API_KEY ? "deepseek" : "openai");
-
-  if (provider === "deepseek") {
-    return {
-      provider,
-      apiKey: env.DEEPSEEK_API_KEY || "",
-      model: env.DEEPSEEK_MODEL || "deepseek-chat",
-      baseUrl: env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
-    };
-  }
-
   return {
-    provider: "openai",
-    apiKey: env.OPENAI_API_KEY || "",
-    model: env.OPENAI_MODEL || "gpt-5.4-mini",
-    baseUrl: env.OPENAI_BASE_URL || "https://api.openai.com",
+    provider: "deepseek",
+    apiKey: env.DEEPSEEK_API_KEY || "",
+    model: env.DEEPSEEK_MODEL || "deepseek-chat",
+    baseUrl: env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
   };
-}
-
-async function callOpenAI({ apiKey, model, baseUrl, instructions, input, maxOutputTokens, safetyIdentifier, timeoutMs }) {
-  const response = await fetch(`${baseUrl.replace(/\/$/, "")}/v1/responses`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      store: false,
-      instructions,
-      input,
-      max_output_tokens: maxOutputTokens,
-      prompt_cache_key: "materialist-dialectics-v1",
-      safety_identifier: safetyIdentifier,
-      text: {
-        format: {
-          type: "json_schema",
-          json_schema: RESPONSE_SCHEMA,
-        },
-      },
-    }),
-    signal: createTimeoutSignal(timeoutMs),
-  });
-
-  const payload = await response.json();
-
-  if (!response.ok) {
-    throw new Error(payload?.error?.message || "OpenAI request failed");
-  }
-
-  const outputText = extractOpenAIOutputText(payload);
-  const parsed = parseJsonText(outputText);
-  const refusalText = extractOpenAIRefusalText(payload);
-
-  if (parsed) {
-    return parsed;
-  }
-
-  if (refusalText) {
-    return {
-      status: "reject",
-      message: refusalText,
-      meta: {
-        questionType: "out_of_scope",
-        disclaimer: false,
-        analysisPaths: [],
-      },
-    };
-  }
-
-  throw new Error(`OpenAI returned non-JSON output: ${outputText || "[empty]"}`);
 }
 
 async function callDeepSeek({ apiKey, model, baseUrl, instructions, input, maxOutputTokens, timeoutMs }) {
@@ -938,27 +764,14 @@ async function callDeepSeek({ apiKey, model, baseUrl, instructions, input, maxOu
   throw new Error(`DeepSeek returned non-JSON output: ${text || "[empty]"}`);
 }
 
-async function callModel({ config, instructions, input, maxOutputTokens, safetyIdentifier, timeoutMs }) {
-  if (config.provider === "deepseek") {
-    return callDeepSeek({
-      apiKey: config.apiKey,
-      model: config.model,
-      baseUrl: config.baseUrl,
-      instructions,
-      input,
-      maxOutputTokens,
-      timeoutMs,
-    });
-  }
-
-  return callOpenAI({
+async function callModel({ config, instructions, input, maxOutputTokens, timeoutMs }) {
+  return callDeepSeek({
     apiKey: config.apiKey,
     model: config.model,
     baseUrl: config.baseUrl,
     instructions,
     input,
     maxOutputTokens,
-    safetyIdentifier,
     timeoutMs,
   });
 }
@@ -993,16 +806,8 @@ function checkRateLimit({ key, windowMs, limit }) {
   return { allowed: true };
 }
 
-async function buildSafetyIdentifier(clientIp) {
-  const encoder = new TextEncoder();
-  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(clientIp || "unknown-client"));
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 function hasDirectProvider(env) {
-  return Boolean((env.DEEPSEEK_API_KEY || "").trim() || (env.OPENAI_API_KEY || "").trim());
+  return Boolean((env.DEEPSEEK_API_KEY || "").trim());
 }
 
 async function handleDirectRuntime(request, env, origin, allowedOrigins) {
@@ -1115,10 +920,7 @@ async function handleDirectRuntime(request, env, origin, allowedOrigins) {
       {
         error: {
           code: "runtime_not_configured",
-          message:
-            providerConfig.provider === "deepseek"
-              ? "DEEPSEEK_API_KEY is missing on the server."
-              : "OPENAI_API_KEY is missing on the server.",
+          message: "DEEPSEEK_API_KEY is missing on the server.",
         },
       },
       origin,
@@ -1136,7 +938,6 @@ async function handleDirectRuntime(request, env, origin, allowedOrigins) {
       instructions: buildSystemPrompt({ followUpAlreadyUsed }),
       input: buildModelInput(messages, input),
       maxOutputTokens: parseNumber(env.MAX_OUTPUT_TOKENS, DEFAULT_MAX_OUTPUT_TOKENS),
-      safetyIdentifier: await buildSafetyIdentifier(clientIp),
       timeoutMs: parseTimeoutMs(env.REQUEST_TIMEOUT_MS),
     });
 

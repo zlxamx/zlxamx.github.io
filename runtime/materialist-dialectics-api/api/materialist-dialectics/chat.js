@@ -299,10 +299,7 @@ module.exports = async function handler(req, res) {
     json(res, 503, {
       error: {
         code: "runtime_not_configured",
-        message:
-          providerConfig.provider === "deepseek"
-            ? "DEEPSEEK_API_KEY is missing on the server."
-            : "OPENAI_API_KEY is missing on the server.",
+        message: "DEEPSEEK_API_KEY is missing on the server.",
       },
     });
     return;
