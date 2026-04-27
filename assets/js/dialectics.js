@@ -668,7 +668,9 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
   brandRow.style.cssText = `
     align-self: flex-start;
     height: 64px;
+    line-height: 64px;
     white-space: nowrap;
+    font-size: 0;
   `;
 
   const avatar = document.createElement("img");
@@ -676,8 +678,8 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
     width: 64px; height: 64px;
     border-radius: 50%;
     object-fit: cover;
-    display: inline-block;
     vertical-align: middle;
+    display: inline-block;
   `;
   avatar.src = "/img/avatar.png";
   avatar.alt = "";
@@ -688,10 +690,11 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
     font-size: 32px;
     font-weight: 600;
     color: #888;
-    display: inline-block;
     vertical-align: middle;
     margin-left: 20px;
-    line-height: 1;
+    line-height: 64px;
+    height: 64px;
+    display: inline-block;
   `;
   brandName.textContent = "希路路克";
 
