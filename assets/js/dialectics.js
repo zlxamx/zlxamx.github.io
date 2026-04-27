@@ -668,23 +668,24 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
   brandRow.style.cssText = `
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
     align-self: flex-start;
   `;
 
   const avatar = document.createElement("img");
   avatar.style.cssText = `
-    width: 44px; height: 44px;
+    width: 60px; height: 60px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+    display: block;
   `;
   avatar.src = "/img/avatar.png";
   avatar.alt = "";
   avatar.onerror = function() { this.style.background = "#ddd"; };
 
   const brandName = document.createElement("span");
-  brandName.style.cssText = "font-size: 24px; font-weight: 600; color: #888;";
+  brandName.style.cssText = "font-size: 32px; font-weight: 600; color: #888; line-height: 1;";
   brandName.textContent = "希路路克";
 
   brandRow.append(avatar, brandName);
