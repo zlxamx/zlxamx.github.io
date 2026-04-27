@@ -14,10 +14,13 @@
       "zone_name": "luxi.blog"
     }
   ],
+  // Secrets (set via `wrangler secret put`):
+  //   UPSTREAM_URL      — Vercel 函数直连地址，不得提交到代码库
+  //   INTERNAL_TOKEN    — 与 Vercel 函数共享的随机密钥，用于层间鉴权
+  //   DEEPSEEK_API_KEY  — 仅在 Worker 直连 DeepSeek 时需要（当前架构走 proxy 模式不需要）
   "vars": {
     "LLM_PROVIDER": "deepseek",
     "DEEPSEEK_MODEL": "deepseek-chat",
-    "UPSTREAM_URL": "https://zlxamx-github-io.vercel.app/api/materialist-dialectics/chat",
     "ALLOWED_ORIGINS": "https://luxi.blog,https://www.luxi.blog,http://localhost:1313,http://127.0.0.1:1313",
     "INPUT_LIMIT": "1600",
     "MAX_HISTORY_MESSAGES": "8",

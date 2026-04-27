@@ -1,4 +1,3 @@
-const { createHash } = require("node:crypto");
 const { buildSystemPrompt } = require("../../lib/prompt");
 const { checkRateLimit, getClientIp } = require("../../lib/rate-limit");
 const { json, sendCors, readJsonBody } = require("../../lib/http");
@@ -37,10 +36,6 @@ function buildModelInput(messages, input) {
   });
 
   return history;
-}
-
-function buildSafetyIdentifier(clientIp) {
-  return createHash("sha256").update(clientIp || "unknown-client").digest("hex");
 }
 
 function directPolicyBlock(input) {
@@ -130,6 +125,9 @@ function normalizeAnalysisPaths(raw, userInput, assistantMessage) {
   return out.slice(0, 4);
 }
 
+const DISCLAIMER_TEXT =
+  "以下分析仅供参考，最终决定要由你根据完整处境来做；专业问题请咨询对应专业人士。";
+
 function normalizeModelResult(result, sessionId, userInput = "") {
   const fallback = {
     status: "reject",
@@ -149,7 +147,7 @@ function normalizeModelResult(result, sessionId, userInput = "") {
   const status = ["answer", "follow_up", "reject"].includes(result.status)
     ? result.status
     : "reject";
-  const message = typeof result.message === "string" ? result.message.trim() : "";
+  const rawMessage = typeof result.message === "string" ? result.message.trim() : "";
   const meta = isPlainObject(result.meta) ? result.meta : {};
   const questionType = [
     "contradiction",
@@ -164,17 +162,31 @@ function normalizeModelResult(result, sessionId, userInput = "") {
     ? meta.questionType
     : "unknown";
 
-  if (!message) {
+  if (!rawMessage) {
     return fallback;
   }
+
+  const disclaimer = Boolean(meta.disclaimer);
+
+  // SKILL: analysisPaths must be empty for non-answer statuses
+  const analysisPaths =
+    status === "answer"
+      ? normalizeAnalysisPaths(meta.analysisPaths, userInput, rawMessage)
+      : [];
+
+  // SKILL: append disclaimer text when disclaimer=true and status=answer
+  const message =
+    disclaimer && status === "answer" && !rawMessage.includes(DISCLAIMER_TEXT)
+      ? `${rawMessage}\n\n${DISCLAIMER_TEXT}`
+      : rawMessage;
 
   return {
     status,
     message,
     meta: {
       questionType,
-      disclaimer: Boolean(meta.disclaimer),
-      analysisPaths: normalizeAnalysisPaths(meta.analysisPaths, userInput, message),
+      disclaimer,
+      analysisPaths,
       sessionId,
     },
   };
@@ -186,6 +198,23 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") {
     res.status(204).end();
     return;
+  }
+
+  // 层间鉴权：若 INTERNAL_TOKEN 已配置，则拒绝不携带正确 token 的请求
+  const internalToken = process.env.INTERNAL_TOKEN || "";
+  if (internalToken) {
+    const provided = typeof req.headers["x-internal-token"] === "string"
+      ? req.headers["x-internal-token"]
+      : "";
+    if (provided !== internalToken) {
+      json(res, 403, {
+        error: {
+          code: "forbidden",
+          message: "Forbidden.",
+        },
+      });
+      return;
+    }
   }
 
   if (req.method !== "POST") {
@@ -289,7 +318,6 @@ module.exports = async function handler(req, res) {
       instructions: buildSystemPrompt({ followUpAlreadyUsed }),
       input: buildModelInput(messages, input),
       maxOutputTokens: Number(process.env.MAX_OUTPUT_TOKENS || "900"),
-      safetyIdentifier: buildSafetyIdentifier(clientIp),
       timeoutMs: Number(process.env.MODEL_TIMEOUT_MS || "50000"),
     });
 

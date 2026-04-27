@@ -170,7 +170,7 @@ function resolveUpstreamUrl(env) {
   }
 }
 
-function cloneUpstreamHeaders(request) {
+function cloneUpstreamHeaders(request, internalToken) {
   const headers = new Headers();
   const contentType = request.headers.get("content-type");
   const clientIp = getClientIp(request);
@@ -181,6 +181,10 @@ function cloneUpstreamHeaders(request) {
 
   if (clientIp) {
     headers.set("x-forwarded-for", clientIp);
+  }
+
+  if (internalToken) {
+    headers.set("x-internal-token", internalToken);
   }
 
   return headers;
@@ -1173,7 +1177,7 @@ async function handleUpstreamProxy(request, env, origin, allowedOrigins) {
   try {
     const upstreamResponse = await fetch(upstreamUrl.toString(), {
       method: "POST",
-      headers: cloneUpstreamHeaders(request),
+      headers: cloneUpstreamHeaders(request, env.INTERNAL_TOKEN || ""),
       body: requestBody,
       redirect: "manual",
       signal: createTimeoutSignal(parseTimeoutMs(env.REQUEST_TIMEOUT_MS)),
