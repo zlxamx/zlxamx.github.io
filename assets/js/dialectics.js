@@ -765,6 +765,82 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
     body.textContent = msg.content;
 
     section.append(label, body);
+
+    // Append analysis paths for assistant messages
+    if (!isUser) {
+      const paths = Array.isArray(msg.analysisPaths) ? msg.analysisPaths : [];
+      if (paths.length > 0) {
+        const pathsDivider = document.createElement("div");
+        pathsDivider.style.cssText = `
+          margin: 32px 0 24px;
+          height: 1px;
+          background: #e8e8e8;
+        `;
+
+        const pathsTitle = document.createElement("p");
+        pathsTitle.style.cssText = `
+          margin: 0 0 18px 0;
+          font-size: 22px;
+          font-weight: 700;
+          color: #aaa;
+          letter-spacing: 0.06em;
+        `;
+        pathsTitle.textContent = `本次分析路径（${paths.length}）`;
+
+        const pathsList = document.createElement("div");
+        pathsList.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        `;
+
+        paths.forEach((path) => {
+          const meta = ANALYSIS_PATH_INDEX[path.key];
+          const sourceLabel = ANALYSIS_PATH_SOURCE_LABEL[path.source] || "";
+
+          const item = document.createElement("div");
+          item.style.cssText = `
+            background: #f9f9f9;
+            border-left: 4px solid #c8a96e;
+            border-radius: 0 12px 12px 0;
+            padding: 18px 22px;
+          `;
+
+          const itemLabel = document.createElement("p");
+          itemLabel.style.cssText = `
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #c8a96e;
+          `;
+          itemLabel.textContent = meta ? meta.label : path.key;
+
+          const quoteEl = document.createElement("p");
+          quoteEl.style.cssText = `
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            color: #666;
+            font-style: italic;
+          `;
+          quoteEl.textContent = `「${path.quote}」${sourceLabel ? `  — ${sourceLabel}` : ""}`;
+
+          const explanationEl = document.createElement("p");
+          explanationEl.style.cssText = `
+            margin: 0;
+            font-size: 22px;
+            line-height: 1.7;
+            color: #444;
+          `;
+          explanationEl.textContent = path.explanation;
+
+          item.append(itemLabel, quoteEl, explanationEl);
+          pathsList.append(item);
+        });
+
+        section.append(pathsDivider, pathsTitle, pathsList);
+      }
+    }
+
     messagesWrap.append(section);
   });
 
