@@ -666,11 +666,9 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
   // ── Brand row (subtle, top-left) ───────────────────────────────────────
   const brandRow = document.createElement("div");
   brandRow.style.cssText = `
-    align-self: flex-start;
-    display: flex;
-    align-items: center;
-    gap: 24px;
+    display: block;
     height: 88px;
+    line-height: 88px;
   `;
 
   const avatar = document.createElement("img");
@@ -679,20 +677,22 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
     height: 88px;
     border-radius: 50%;
     object-fit: cover;
-    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
   `;
   avatar.src = "/img/avatar.png";
   avatar.alt = "";
   avatar.onerror = function() { this.style.background = "#ddd"; };
 
-  const brandName = document.createElement("div");
+  const brandName = document.createElement("span");
   brandName.style.cssText = `
     font-size: 42px;
     font-weight: 600;
     color: #888;
-    line-height: 88px;
-    height: 88px;
+    display: inline-block;
+    vertical-align: middle;
     white-space: nowrap;
+    padding-left: 24px;
   `;
   brandName.textContent = "希路路克";
 
