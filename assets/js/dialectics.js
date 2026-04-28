@@ -80,6 +80,234 @@ function normalizeStoredMessages(messages) {
   return messages.map(normalizeStoredMessage).filter(Boolean);
 }
 
+function createInlineMarkdownFragment(text) {
+  const fragment = document.createDocumentFragment();
+  const source = typeof text === "string" ? text : "";
+  let index = 0;
+
+  function appendText(value) {
+    if (value) {
+      fragment.append(document.createTextNode(value));
+    }
+  }
+
+  function findNextToken(start) {
+    const candidates = [
+      { type: "code", index: source.indexOf("`", start) },
+      { type: "strong", index: source.indexOf("**", start) },
+      { type: "em", index: source.indexOf("*", start) },
+      { type: "link", index: source.indexOf("[", start) },
+    ].filter((candidate) => candidate.index >= 0);
+
+    candidates.sort((a, b) => a.index - b.index);
+    return candidates[0] || null;
+  }
+
+  while (index < source.length) {
+    const token = findNextToken(index);
+    if (!token) {
+      appendText(source.slice(index));
+      break;
+    }
+
+    if (token.index > index) {
+      appendText(source.slice(index, token.index));
+    }
+
+    if (token.type === "code") {
+      const end = source.indexOf("`", token.index + 1);
+      if (end > token.index + 1) {
+        const code = document.createElement("code");
+        code.textContent = source.slice(token.index + 1, end);
+        fragment.append(code);
+        index = end + 1;
+        continue;
+      }
+    }
+
+    if (token.type === "strong") {
+      const end = source.indexOf("**", token.index + 2);
+      if (end > token.index + 2) {
+        const strong = document.createElement("strong");
+        strong.append(createInlineMarkdownFragment(source.slice(token.index + 2, end)));
+        fragment.append(strong);
+        index = end + 2;
+        continue;
+      }
+    }
+
+    if (token.type === "em" && source[token.index + 1] !== "*") {
+      const end = source.indexOf("*", token.index + 1);
+      if (end > token.index + 1 && source[end - 1] !== " ") {
+        const em = document.createElement("em");
+        em.append(createInlineMarkdownFragment(source.slice(token.index + 1, end)));
+        fragment.append(em);
+        index = end + 1;
+        continue;
+      }
+    }
+
+    if (token.type === "link") {
+      const labelEnd = source.indexOf("]", token.index + 1);
+      const hrefStart = labelEnd >= 0 ? source.indexOf("(", labelEnd) : -1;
+      const hrefEnd = hrefStart >= 0 ? source.indexOf(")", hrefStart) : -1;
+      if (labelEnd > token.index + 1 && hrefStart === labelEnd + 1 && hrefEnd > hrefStart + 1) {
+        const href = source.slice(hrefStart + 1, hrefEnd).trim();
+        const label = source.slice(token.index + 1, labelEnd);
+        if (/^(https?:\/\/|\/)/.test(href)) {
+          const anchor = document.createElement("a");
+          anchor.href = href;
+          anchor.rel = "noopener noreferrer";
+          anchor.target = "_blank";
+          anchor.append(createInlineMarkdownFragment(label));
+          fragment.append(anchor);
+          index = hrefEnd + 1;
+          continue;
+        }
+      }
+    }
+
+    appendText(source[token.index]);
+    index = token.index + 1;
+  }
+
+  return fragment;
+}
+
+function styleMarkdownBlock(element, options) {
+  const isShare = Boolean(options && options.share);
+  element.style.margin = "0";
+
+  if (element.tagName === "H2" || element.tagName === "H3") {
+    element.style.fontSize = isShare ? "1.08em" : "1em";
+    element.style.fontWeight = "700";
+    element.style.lineHeight = "1.5";
+  } else if (element.tagName === "UL" || element.tagName === "OL") {
+    element.style.paddingLeft = isShare ? "1.4em" : "1.25em";
+  } else if (element.tagName === "BLOCKQUOTE") {
+    element.style.borderLeft = isShare ? "6px solid #ddd" : "3px solid currentColor";
+    element.style.color = isShare ? "#666" : "inherit";
+    element.style.opacity = isShare ? "1" : "0.82";
+    element.style.paddingLeft = isShare ? "18px" : "0.85em";
+  } else if (element.tagName === "PRE") {
+    element.style.background = isShare ? "#f6f6f6" : "rgba(0, 0, 0, 0.04)";
+    element.style.borderRadius = isShare ? "12px" : "0.45rem";
+    element.style.overflow = "hidden";
+    element.style.padding = isShare ? "18px 20px" : "0.75em 0.85em";
+    element.style.whiteSpace = "pre-wrap";
+  }
+}
+
+function appendMarkdownBlock(container, element, options) {
+  styleMarkdownBlock(element, options);
+  if (container.childNodes.length > 0) {
+    element.style.marginTop = options && options.share ? "0.65em" : "0.55em";
+  }
+  container.append(element);
+}
+
+function renderMarkdownContent(container, content, options = {}) {
+  const lines = String(content || "").replace(/\r\n?/g, "\n").split("\n");
+  let index = 0;
+
+  container.textContent = "";
+  container.style.whiteSpace = "normal";
+
+  while (index < lines.length) {
+    const line = lines[index];
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      index += 1;
+      continue;
+    }
+
+    if (/^```/.test(trimmed)) {
+      const codeLines = [];
+      index += 1;
+      while (index < lines.length && !/^```/.test(lines[index].trim())) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length) index += 1;
+
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
+      code.textContent = codeLines.join("\n");
+      pre.append(code);
+      appendMarkdownBlock(container, pre, options);
+      continue;
+    }
+
+    const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)$/);
+    if (headingMatch) {
+      const heading = document.createElement(headingMatch[1].length === 1 ? "h2" : "h3");
+      heading.append(createInlineMarkdownFragment(headingMatch[2].trim()));
+      appendMarkdownBlock(container, heading, options);
+      index += 1;
+      continue;
+    }
+
+    const listMatch = trimmed.match(/^((?:[-*])|\d+\.)\s+(.+)$/);
+    if (listMatch) {
+      const isOrdered = /^\d+\./.test(listMatch[1]);
+      const list = document.createElement(isOrdered ? "ol" : "ul");
+
+      while (index < lines.length) {
+        const current = lines[index].trim();
+        const itemMatch = current.match(/^((?:[-*])|\d+\.)\s+(.+)$/);
+        if (!itemMatch || /^\d+\./.test(itemMatch[1]) !== isOrdered) break;
+
+        const item = document.createElement("li");
+        item.append(createInlineMarkdownFragment(itemMatch[2].trim()));
+        list.append(item);
+        index += 1;
+      }
+
+      appendMarkdownBlock(container, list, options);
+      continue;
+    }
+
+    if (trimmed.startsWith(">")) {
+      const quoteLines = [];
+      while (index < lines.length && lines[index].trim().startsWith(">")) {
+        quoteLines.push(lines[index].trim().replace(/^>\s?/, ""));
+        index += 1;
+      }
+
+      const quote = document.createElement("blockquote");
+      const paragraph = document.createElement("p");
+      paragraph.style.margin = "0";
+      paragraph.append(createInlineMarkdownFragment(quoteLines.join("\n")));
+      quote.append(paragraph);
+      appendMarkdownBlock(container, quote, options);
+      continue;
+    }
+
+    const paragraphLines = [];
+    while (index < lines.length) {
+      const current = lines[index];
+      const currentTrimmed = current.trim();
+      if (
+        !currentTrimmed ||
+        /^```/.test(currentTrimmed) ||
+        /^(#{1,3})\s+/.test(currentTrimmed) ||
+        /^((?:[-*])|\d+\.)\s+/.test(currentTrimmed) ||
+        currentTrimmed.startsWith(">")
+      ) {
+        break;
+      }
+
+      paragraphLines.push(currentTrimmed);
+      index += 1;
+    }
+
+    const paragraph = document.createElement("p");
+    paragraph.append(createInlineMarkdownFragment(paragraphLines.join("\n")));
+    appendMarkdownBlock(container, paragraph, options);
+  }
+}
+
 function loadState(storageKey) {
   try {
     const raw = window.localStorage.getItem(storageKey);
@@ -127,24 +355,6 @@ function saveState(storageKey, state) {
   }
 }
 
-function getMessageLabel(message) {
-  if (message.role === "user") {
-    return "你";
-  }
-
-  const kind = message.kind || "answer";
-
-  if (kind === "follow_up") {
-    return "追问";
-  }
-
-  if (kind === "reject") {
-    return "边界";
-  }
-
-  return "分析";
-}
-
 function formatExportTimestamp(date) {
   const pad = (value) => String(value).padStart(2, "0");
   const year = date.getFullYear();
@@ -158,19 +368,6 @@ function formatExportTimestamp(date) {
     display: `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`,
     file: `${year}-${month}-${day}-${hours}${minutes}${seconds}`,
   };
-}
-
-function formatMessageTimestamp(value) {
-  if (!value) {
-    return "";
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  return formatExportTimestamp(date).display;
 }
 
 function createMessage(role, kind, content, analysisPaths = []) {
@@ -227,91 +424,6 @@ function createAnalysisPathsElement(paths) {
 
   details.append(list);
   return details;
-}
-
-function createExportPayload(pageTitle, state) {
-  const timestamp = formatExportTimestamp(new Date());
-  const transcript = [...state.archivedMessages, ...state.messages];
-  const lines = [
-    `# ${pageTitle}聊天记录`,
-    "",
-    `- 导出时间：${timestamp.display}`,
-    `- 会话 ID：${state.sessionId}`,
-    `- 消息数：${transcript.length}`,
-    `- 更早的对话条数：${state.archivedMessages.length}`,
-  ];
-
-  if (transcript.length) {
-    lines.push("", "## 对话记录");
-
-    transcript.forEach((message, index) => {
-      const formattedTimestamp = formatMessageTimestamp(message.createdAt);
-      const heading = formattedTimestamp
-        ? `### ${index + 1}. ${getMessageLabel(message)} · ${formattedTimestamp}`
-        : `### ${index + 1}. ${getMessageLabel(message)}`;
-
-      lines.push(
-        "",
-        heading,
-        "",
-        message.content.trim() || "（空内容）",
-      );
-
-      const paths = Array.isArray(message.analysisPaths) ? message.analysisPaths : [];
-      if (
-        message.role === "assistant" &&
-        (message.kind || "answer") === "answer" &&
-        paths.length > 0
-      ) {
-        lines.push("", "本次用到的分析路径：");
-        paths.forEach((path) => {
-          const meta = ANALYSIS_PATH_INDEX[path.key];
-          if (!meta) return;
-          const sourceLabel = ANALYSIS_PATH_SOURCE_LABEL[path.source] || "";
-          lines.push(
-            `- ${meta.label}`,
-            `  - 引文「${path.quote}」${sourceLabel ? `（出自${sourceLabel}）` : ""}`,
-            `  - ${path.explanation}`,
-          );
-        });
-      }
-    });
-  }
-
-  if (state.draft.trim()) {
-    lines.push(
-      "",
-      "## 未发送草稿",
-      "",
-      state.draft.trim(),
-    );
-  }
-
-  return {
-    content: `${lines.join("\n")}\n`,
-    filename: `dialectics-chat-${timestamp.file}.md`,
-  };
-}
-
-function downloadTextFile(filename, content) {
-  const blob = new window.Blob([content], {
-    type: "text/markdown;charset=utf-8",
-  });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = filename;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => {
-    window.URL.revokeObjectURL(url);
-  }, 0);
-}
-
-function hasExportableContent(state) {
-  return state.archivedMessages.length > 0 || state.messages.length > 0 || state.draft.trim().length > 0;
 }
 
 function createRequestSignal(timeoutMs) {
@@ -417,12 +529,12 @@ function setRuntimeStatus(button, note, kind, options = {}) {
 function createMessageElement(message) {
   const article = document.createElement("article");
   const label = document.createElement("p");
-  const body = document.createElement("p");
+  const body = document.createElement("div");
 
   article.className = "dialectics-message";
   label.className = "dialectics-message-label";
   body.className = "dialectics-message-body";
-  body.textContent = message.content;
+  renderMarkdownContent(body, message.content);
 
   if (message.role === "user") {
     article.classList.add("is-user");
@@ -468,6 +580,7 @@ function resetStreamingMessageElement(article) {
 
   if (body) {
     body.textContent = "正在分析...";
+    body.dataset.rawContent = "";
     body.dataset.streamingPlaceholder = "true";
   }
 }
@@ -594,7 +707,6 @@ function syncComposer(
   input,
   count,
   status,
-  exportButton,
   submitButton,
   state,
   inputLimit,
@@ -611,7 +723,6 @@ function syncComposer(
   const length = input.value.trim().length;
   count.textContent = String(length);
   state.storageFailed = !saveState(state.storageKey, state);
-  exportButton.disabled = !hasExportableContent(state);
   const storageWarning = state.storageFailed ? "刚才没存成功，刷新页面可能会丢。" : "";
 
   if (pending) {
@@ -690,7 +801,8 @@ async function consumeStream(reader, bubbleElement) {
 
       message += text;
       if (body) {
-        body.textContent += text;
+        body.dataset.rawContent = message;
+        renderMarkdownContent(body, message);
         const thread = bubbleElement.parentElement;
         if (thread) {
           thread.scrollTop = thread.scrollHeight;
@@ -828,8 +940,9 @@ async function sendPromptWithFailover(apiTargets, activeApiUrl, payload, bubbleE
 
 // ── Share mode state ────────────────────────────────────────────────
 let shareMode = false;
-const SHARE_IMAGE_MAX_HEIGHT = 3200;
+const SHARE_IMAGE_MAX_HEIGHT = 6400;
 const SHARE_IMAGE_OVERLAP = 120;
+const SHARE_IMAGE_MIN_TAIL_HEIGHT = 3200;
 const SHARE_IMAGE_PROMPT_HEIGHT = SHARE_IMAGE_MAX_HEIGHT * 3;
 
 function downloadCanvasImage(canvas, filename) {
@@ -841,46 +954,81 @@ function downloadCanvasImage(canvas, filename) {
   link.remove();
 }
 
+function createShareImageSlices(canvasHeight) {
+  if (canvasHeight <= SHARE_IMAGE_MAX_HEIGHT) {
+    return [{ sourceY: 0, height: canvasHeight }];
+  }
+
+  const slices = [];
+  const step = SHARE_IMAGE_MAX_HEIGHT - SHARE_IMAGE_OVERLAP;
+  let sourceY = 0;
+
+  while (canvasHeight - sourceY > SHARE_IMAGE_MAX_HEIGHT) {
+    slices.push({ sourceY, height: SHARE_IMAGE_MAX_HEIGHT });
+    sourceY += step;
+  }
+
+  const tailHeight = canvasHeight - sourceY;
+  if (slices.length > 0 && tailHeight <= SHARE_IMAGE_MIN_TAIL_HEIGHT) {
+    const previous = slices[slices.length - 1];
+    const tailSourceY = Math.max(0, canvasHeight - SHARE_IMAGE_MIN_TAIL_HEIGHT - 1);
+    const adjustedPreviousHeight = tailSourceY - previous.sourceY + SHARE_IMAGE_OVERLAP;
+
+    if (tailSourceY > previous.sourceY && adjustedPreviousHeight <= SHARE_IMAGE_MAX_HEIGHT) {
+      previous.height = adjustedPreviousHeight;
+      slices.push({
+        sourceY: tailSourceY,
+        height: canvasHeight - tailSourceY,
+      });
+      return slices;
+    }
+
+    if (canvasHeight - previous.sourceY <= SHARE_IMAGE_MAX_HEIGHT) {
+      previous.height = canvasHeight - previous.sourceY;
+      return slices;
+    }
+  }
+
+  slices.push({ sourceY, height: tailHeight });
+  return slices;
+}
+
 async function downloadShareCanvas(canvas, timestamp, splitPages) {
   if (!splitPages || canvas.height <= SHARE_IMAGE_MAX_HEIGHT) {
     downloadCanvasImage(canvas, `dialectics-share-${timestamp}.png`);
     return 1;
   }
 
-  const step = SHARE_IMAGE_MAX_HEIGHT - SHARE_IMAGE_OVERLAP;
-  let pageIndex = 0;
-  let sourceY = 0;
+  const slices = createShareImageSlices(canvas.height);
 
-  while (sourceY < canvas.height) {
-    pageIndex += 1;
-    const sliceHeight = Math.min(SHARE_IMAGE_MAX_HEIGHT, canvas.height - sourceY);
+  for (let index = 0; index < slices.length; index += 1) {
+    const slice = slices[index];
     const pageCanvas = document.createElement("canvas");
     const context = pageCanvas.getContext("2d");
 
     pageCanvas.width = canvas.width;
-    pageCanvas.height = sliceHeight;
+    pageCanvas.height = slice.height;
     context.drawImage(
       canvas,
       0,
-      sourceY,
+      slice.sourceY,
       canvas.width,
-      sliceHeight,
+      slice.height,
       0,
       0,
       canvas.width,
-      sliceHeight,
+      slice.height,
     );
 
     downloadCanvasImage(
       pageCanvas,
-      `dialectics-share-${timestamp}-${String(pageIndex).padStart(2, "0")}.png`,
+      `dialectics-share-${timestamp}-${String(index + 1).padStart(2, "0")}.png`,
     );
 
-    sourceY += step;
     await new Promise((resolve) => setTimeout(resolve, 80));
   }
 
-  return pageIndex;
+  return slices.length;
 }
 
 function shouldSplitShareImage(canvasHeight) {
@@ -1009,15 +1157,15 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
     `;
     label.textContent = isUser ? "提问" : "回答";
 
-    const body = document.createElement("p");
+    const body = document.createElement("div");
     body.style.cssText = `
       margin: 0;
       font-size: 34px;
       line-height: 2.0;
-      white-space: pre-wrap;
+      white-space: normal;
       color: #222;
     `;
-    body.textContent = msg.content;
+    renderMarkdownContent(body, msg.content, { share: true });
 
     section.append(label, body);
 
@@ -1220,7 +1368,6 @@ function initDialecticsPage() {
   const input = root.querySelector("[data-dialectics-input]");
   const count = root.querySelector("[data-dialectics-count]");
   const status = root.querySelector("[data-dialectics-status]");
-  const exportButton = root.querySelector("[data-dialectics-export]");
   const resetButton = root.querySelector("[data-dialectics-reset]");
   const submitButton = root.querySelector("[data-dialectics-submit]");
   const runtimeStatus = root.querySelector("[data-dialectics-runtime-status]");
@@ -1250,11 +1397,11 @@ function initDialecticsPage() {
   syncInfoPanel(infoPanel, infoTriggers, infoContents, activeInfoKey);
   input.value = state.draft;
   renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
-  syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
+  syncComposer(input, count, status, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
 
   input.addEventListener("input", () => {
     state.draft = input.value;
-    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
+    syncComposer(input, count, status, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
   });
 
   // 事件委托：挂在 thread 父容器上，动态重建的 chips 也能命中
@@ -1263,7 +1410,7 @@ function initDialecticsPage() {
     if (!chip) return;
     input.value = chip.dataset.dialecticsPrompt || "";
     state.draft = input.value;
-    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
+    syncComposer(input, count, status, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
     input.focus();
   });
 
@@ -1273,24 +1420,6 @@ function initDialecticsPage() {
       activeInfoKey = activeInfoKey === nextKey ? "" : nextKey;
       syncInfoPanel(infoPanel, infoTriggers, infoContents, activeInfoKey);
     });
-  });
-
-  exportButton.addEventListener("click", () => {
-    state.draft = input.value;
-    state.storageFailed = !saveState(state.storageKey, state);
-
-    if (!hasExportableContent(state)) {
-      status.textContent = "现在还没有可以导出的对话。";
-      return;
-    }
-
-    try {
-      const payload = createExportPayload(pageTitle, state);
-      downloadTextFile(payload.filename, payload.content);
-      status.textContent = "对话已经保存到下载文件里。";
-    } catch (error) {
-      status.textContent = "导出失败，请稍后再试。";
-    }
   });
 
   resetButton.addEventListener("click", () => {
@@ -1305,7 +1434,7 @@ function initDialecticsPage() {
     state.messages = [];
     input.value = "";
     renderThread(thread, state.messages, emptyMessage, 0, 0, examplePrompts);
-    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
+    syncComposer(input, count, status, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
   });
 
   form.addEventListener("submit", async (event) => {
@@ -1335,7 +1464,7 @@ function initDialecticsPage() {
     resetStreamingMessageElement(assistantElement);
     thread.append(assistantElement);
     thread.scrollTop = thread.scrollHeight;
-    syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
+    syncComposer(input, count, status, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
     status.textContent = "正在发送...";
 
     let settledStatus = "";
@@ -1373,7 +1502,7 @@ function initDialecticsPage() {
       settledStatus = getSendFailureMessage(error);
     } finally {
       pending = false;
-      syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending, settledStatus);
+      syncComposer(input, count, status, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending, settledStatus);
     }
   });
 
