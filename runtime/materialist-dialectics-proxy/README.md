@@ -23,6 +23,7 @@ It now supports two execution modes:
 - enforces an origin allowlist before forwarding browser requests
 - preserves the caller IP through `x-forwarded-for`
 - can run the full public runtime directly on Cloudflare
+- streams direct DeepSeek runtime responses to the browser as SSE
 - falls back to the old upstream runtime when no provider key is configured
 - returns `502` or `504` when the upstream runtime is unreachable
 

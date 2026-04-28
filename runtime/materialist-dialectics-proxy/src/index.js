@@ -6,7 +6,7 @@ const DEFAULT_ALLOWED_ORIGINS = [
 ];
 
 const API_PATH = "/api/materialist-dialectics/chat";
-const DEFAULT_REQUEST_TIMEOUT_MS = 25_000;
+const DEFAULT_REQUEST_TIMEOUT_MS = 90_000;
 const DEFAULT_INPUT_LIMIT = 1600;
 const DEFAULT_MAX_HISTORY_MESSAGES = 8;
 const DEFAULT_MAX_OUTPUT_TOKENS = 900;
@@ -314,14 +314,14 @@ function normalizeModelResult(result, sessionId, userInput = "") {
   }
 
   const disclaimer = Boolean(meta.disclaimer);
-  const analysisPaths =
-    status === "answer"
-      ? normalizeAnalysisPaths(meta.analysisPaths, userInput, rawMessage)
-      : [];
   const message =
     disclaimer && status === "answer" && !rawMessage.includes(DISCLAIMER_TEXT)
       ? `${rawMessage}\n\n${DISCLAIMER_TEXT}`
       : rawMessage;
+  const analysisPaths =
+    status === "answer"
+      ? normalizeAnalysisPaths(meta.analysisPaths, userInput, message)
+      : [];
 
   return {
     status,
@@ -740,28 +740,21 @@ async function callDeepSeek({ apiKey, model, baseUrl, instructions, input, maxOu
       messages: normalizeDeepSeekMessages(instructions, input),
       temperature: 0.2,
       max_tokens: maxOutputTokens,
-      response_format: {
-        type: "json_object",
-      },
-      stream: false,
+      stream: true,
     }),
     signal: createTimeoutSignal(timeoutMs),
   });
 
-  const payload = await response.json();
-
   if (!response.ok) {
+    const payload = await response.json().catch(() => null);
     throw new Error(payload?.error?.message || "DeepSeek request failed");
   }
 
-  const text = payload?.choices?.[0]?.message?.content || "";
-  const parsed = parseJsonText(text);
-
-  if (parsed) {
-    return parsed;
+  if (!response.body) {
+    throw new Error("DeepSeek returned an empty stream");
   }
 
-  throw new Error(`DeepSeek returned non-JSON output: ${text || "[empty]"}`);
+  return response.body;
 }
 
 async function callModel({ config, instructions, input, maxOutputTokens, timeoutMs }) {
@@ -773,6 +766,260 @@ async function callModel({ config, instructions, input, maxOutputTokens, timeout
     input,
     maxOutputTokens,
     timeoutMs,
+  });
+}
+
+function createSseEvent(payload) {
+  return `data: ${JSON.stringify(payload)}\n\n`;
+}
+
+function createSseHeaders(origin, allowedOrigins) {
+  const headers = createCorsHeaders(origin, allowedOrigins);
+  headers.set("Content-Type", "text/event-stream; charset=utf-8");
+  headers.set("Cache-Control", "no-cache");
+  headers.set("Connection", "keep-alive");
+  return headers;
+}
+
+function createSseResponse(origin, allowedOrigins) {
+  const { readable, writable } = new TransformStream();
+  return {
+    response: new Response(readable, {
+      status: 200,
+      headers: createSseHeaders(origin, allowedOrigins),
+    }),
+    writer: writable.getWriter(),
+  };
+}
+
+function createSsePayloadResponse(events, origin, allowedOrigins) {
+  return new Response(events.map(createSseEvent).join(""), {
+    status: 200,
+    headers: createSseHeaders(origin, allowedOrigins),
+  });
+}
+
+async function writeSseEvent(writer, payload) {
+  const encoder = new TextEncoder();
+  await writer.write(encoder.encode(createSseEvent(payload)));
+}
+
+function findMessageValueStart(text) {
+  let inString = false;
+  let escaped = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === "\"") {
+      const end = text.indexOf("\"", index + 1);
+      if (end === -1) {
+        return -1;
+      }
+
+      const key = text.slice(index + 1, end);
+      if (key === "message") {
+        let cursor = end + 1;
+        while (/\s/.test(text[cursor] || "")) cursor += 1;
+        if (text[cursor] !== ":") {
+          index = end;
+          continue;
+        }
+
+        cursor += 1;
+        while (/\s/.test(text[cursor] || "")) cursor += 1;
+        return text[cursor] === "\"" ? cursor + 1 : -1;
+      }
+
+      index = end;
+    }
+  }
+
+  return -1;
+}
+
+function decodeJsonEscape(char) {
+  const escapes = {
+    "\"": "\"",
+    "\\": "\\",
+    "/": "/",
+    b: "\b",
+    f: "\f",
+    n: "\n",
+    r: "\r",
+    t: "\t",
+  };
+
+  return Object.prototype.hasOwnProperty.call(escapes, char) ? escapes[char] : char;
+}
+
+function createMessageExtractor(onToken) {
+  let state = "SEARCHING";
+  let cursor = 0;
+  let escaped = false;
+  let unicodeBuffer = null;
+  let streamedMessage = "";
+
+  function emit(text) {
+    if (!text) return;
+    streamedMessage += text;
+    onToken(text);
+  }
+
+  return {
+    getStreamedMessage() {
+      return streamedMessage;
+    },
+    push(fullText) {
+      if (state === "SEARCHING") {
+        const start = findMessageValueStart(fullText);
+        if (start === -1) {
+          return;
+        }
+
+        state = "STREAMING";
+        cursor = start;
+      }
+
+      if (state !== "STREAMING") {
+        return;
+      }
+
+      while (cursor < fullText.length) {
+        const char = fullText[cursor];
+        cursor += 1;
+
+        if (unicodeBuffer !== null) {
+          unicodeBuffer += char;
+          if (unicodeBuffer.length === 4) {
+            emit(String.fromCharCode(parseInt(unicodeBuffer, 16)));
+            unicodeBuffer = null;
+            escaped = false;
+          }
+          continue;
+        }
+
+        if (escaped) {
+          if (char === "u") {
+            unicodeBuffer = "";
+          } else {
+            emit(decodeJsonEscape(char));
+            escaped = false;
+          }
+          continue;
+        }
+
+        if (char === "\\") {
+          escaped = true;
+          continue;
+        }
+
+        if (char === "\"") {
+          state = "BUFFERING";
+          return;
+        }
+
+        emit(char);
+      }
+    },
+  };
+}
+
+async function extractMessageStream(deepSeekStream, { sessionId, userInput, writer }) {
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  const reader = deepSeekStream.getReader();
+  let sseBuffer = "";
+  let generatedText = "";
+  let writeQueue = Promise.resolve();
+
+  const writeEvent = (payload) => {
+    writeQueue = writeQueue.then(() => writer.write(encoder.encode(createSseEvent(payload))));
+    return writeQueue;
+  };
+  const extractor = createMessageExtractor((text) => {
+    writeEvent({ type: "token", text });
+  });
+
+  function consumeDeepSeekEvent(rawData) {
+    const data = rawData.trim();
+    if (!data || data === "[DONE]") {
+      return;
+    }
+
+    let chunk;
+    try {
+      chunk = JSON.parse(data);
+    } catch (error) {
+      return;
+    }
+
+    const text = chunk?.choices?.[0]?.delta?.content || "";
+    if (!text) {
+      return;
+    }
+
+    generatedText += text;
+    extractor.push(generatedText);
+  }
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    sseBuffer += decoder.decode(value, { stream: true });
+    const events = sseBuffer.split("\n\n");
+    sseBuffer = events.pop() || "";
+
+    events.forEach((eventText) => {
+      const dataLines = eventText
+        .split("\n")
+        .filter((line) => line.startsWith("data:"))
+        .map((line) => line.slice(5).trimStart());
+      consumeDeepSeekEvent(dataLines.join("\n"));
+    });
+  }
+
+  const tail = decoder.decode();
+  if (tail) {
+    sseBuffer += tail;
+  }
+
+  if (sseBuffer.trim()) {
+    const dataLines = sseBuffer
+      .split("\n")
+      .filter((line) => line.startsWith("data:"))
+      .map((line) => line.slice(5).trimStart());
+    consumeDeepSeekEvent(dataLines.join("\n"));
+  }
+
+  const parsed = parseJsonText(generatedText);
+  if (!parsed) {
+    throw new Error(`DeepSeek returned non-JSON output: ${generatedText || "[empty]"}`);
+  }
+
+  const result = normalizeModelResult(parsed, sessionId, userInput);
+  await writeQueue;
+  const streamedMessage = extractor.getStreamedMessage();
+  if (result.message.startsWith(streamedMessage) && result.message.length > streamedMessage.length) {
+    await writeEvent({ type: "token", text: result.message.slice(streamedMessage.length) });
+  }
+
+  await writeEvent({
+    type: "done",
+    status: result.status,
+    meta: result.meta,
   });
 }
 
@@ -899,15 +1146,16 @@ async function handleDirectRuntime(request, env, origin, allowedOrigins) {
 
   const policyBlocked = directPolicyBlock(input);
   if (policyBlocked) {
-    return json(
-      200,
-      {
-        ...policyBlocked,
-        meta: {
-          ...policyBlocked.meta,
-          sessionId,
+    const result = normalizeModelResult(policyBlocked, sessionId, input);
+    return createSsePayloadResponse(
+      [
+        { type: "token", text: result.message },
+        {
+          type: "done",
+          status: result.status,
+          meta: result.meta,
         },
-      },
+      ],
       origin,
       allowedOrigins,
     );
@@ -932,29 +1180,34 @@ async function handleDirectRuntime(request, env, origin, allowedOrigins) {
   const messages = normalizeMessages(body.messages, maxHistoryMessages);
   const followUpAlreadyUsed = messages.some((message) => message.kind === "follow_up");
 
-  try {
-    const result = await callModel({
-      config: providerConfig,
-      instructions: buildSystemPrompt({ followUpAlreadyUsed }),
-      input: buildModelInput(messages, input),
-      maxOutputTokens: parseNumber(env.MAX_OUTPUT_TOKENS, DEFAULT_MAX_OUTPUT_TOKENS),
-      timeoutMs: parseTimeoutMs(env.REQUEST_TIMEOUT_MS),
-    });
+  const { response, writer } = createSseResponse(origin, allowedOrigins);
 
-    return json(200, normalizeModelResult(result, sessionId, input), origin, allowedOrigins);
-  } catch (error) {
-    return json(
-      500,
-      {
-        error: {
-          code: "model_call_failed",
-          message: "The model runtime failed to produce a valid response.",
-        },
-      },
-      origin,
-      allowedOrigins,
-    );
-  }
+  (async () => {
+    try {
+      const stream = await callModel({
+        config: providerConfig,
+        instructions: buildSystemPrompt({ followUpAlreadyUsed }),
+        input: buildModelInput(messages, input),
+        maxOutputTokens: parseNumber(env.MAX_OUTPUT_TOKENS, DEFAULT_MAX_OUTPUT_TOKENS),
+        timeoutMs: parseTimeoutMs(env.REQUEST_TIMEOUT_MS),
+      });
+
+      await extractMessageStream(stream, {
+        sessionId,
+        userInput: input,
+        writer,
+      });
+    } catch (error) {
+      await writeSseEvent(writer, {
+        type: "error",
+        code: "model_call_failed",
+      }).catch(() => {});
+    } finally {
+      await writer.close().catch(() => {});
+    }
+  })();
+
+  return response;
 }
 
 async function handleUpstreamProxy(request, env, origin, allowedOrigins) {

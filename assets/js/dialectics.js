@@ -453,6 +453,47 @@ function createMessageElement(message) {
   return article;
 }
 
+function resetStreamingMessageElement(article) {
+  const body = article.querySelector(".dialectics-message-body");
+  const label = article.querySelector(".dialectics-message-label");
+
+  article.classList.remove("is-answer", "is-follow_up", "is-reject");
+  article.classList.add("is-answer");
+  article.querySelectorAll(".dialectics-paths").forEach((element) => element.remove());
+
+  if (label) {
+    label.textContent = "回答";
+  }
+
+  if (body) {
+    body.textContent = "正在分析...";
+    body.dataset.streamingPlaceholder = "true";
+  }
+}
+
+function updateStreamingMessageElement(article, status, paths) {
+  const label = article.querySelector(".dialectics-message-label");
+  const kind = ["answer", "follow_up", "reject"].includes(status) ? status : "answer";
+
+  article.classList.remove("is-answer", "is-follow_up", "is-reject");
+  article.classList.add(`is-${kind}`);
+
+  if (label) {
+    if (kind === "follow_up") {
+      label.textContent = "追问";
+    } else if (kind === "reject") {
+      label.textContent = "边界";
+    } else {
+      label.textContent = "回答";
+    }
+  }
+
+  article.querySelectorAll(".dialectics-paths").forEach((element) => element.remove());
+  if (kind === "answer" && paths.length > 0) {
+    article.append(createAnalysisPathsElement(paths));
+  }
+}
+
 function createArchiveNoticeElement(archiveCount, maxHistoryMessages) {
   const article = document.createElement("article");
   const label = document.createElement("p");
@@ -606,7 +647,103 @@ function syncComposer(
   }
 }
 
-async function sendPrompt(apiUrl, payload) {
+function parseSsePayload(eventText) {
+  const data = eventText
+    .split("\n")
+    .filter((line) => line.startsWith("data:"))
+    .map((line) => line.slice(5).trimStart())
+    .join("\n");
+
+  if (!data) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(data);
+  } catch (error) {
+    return null;
+  }
+}
+
+async function consumeStream(reader, bubbleElement) {
+  const decoder = new TextDecoder();
+  const body = bubbleElement.querySelector(".dialectics-message-body");
+  let buffer = "";
+  let message = "";
+  let donePayload = null;
+
+  async function consumeEvent(eventText) {
+    const payload = parseSsePayload(eventText);
+    if (!payload || typeof payload !== "object") {
+      return;
+    }
+
+    if (payload.type === "token") {
+      const text = typeof payload.text === "string" ? payload.text : "";
+      if (!text) return;
+
+      if (body && body.dataset.streamingPlaceholder === "true") {
+        body.textContent = "";
+        delete body.dataset.streamingPlaceholder;
+      }
+
+      message += text;
+      if (body) {
+        body.textContent += text;
+        const thread = bubbleElement.parentElement;
+        if (thread) {
+          thread.scrollTop = thread.scrollHeight;
+        }
+      }
+      return;
+    }
+
+    if (payload.type === "done") {
+      donePayload = payload;
+      return;
+    }
+
+    if (payload.type === "error") {
+      const error = new Error("Streaming response failed");
+      error.code = typeof payload.code === "string" ? payload.code : "";
+      throw error;
+    }
+  }
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const events = buffer.split("\n\n");
+    buffer = events.pop() || "";
+
+    for (const eventText of events) {
+      await consumeEvent(eventText);
+    }
+  }
+
+  const tail = decoder.decode();
+  if (tail) {
+    buffer += tail;
+  }
+
+  if (buffer.trim()) {
+    await consumeEvent(buffer);
+  }
+
+  if (!donePayload) {
+    throw new Error("Streaming response ended before done event");
+  }
+
+  return {
+    status: donePayload.status || "answer",
+    message: message || "这次没拿到回复内容。",
+    meta: donePayload.meta && typeof donePayload.meta === "object" ? donePayload.meta : {},
+  };
+}
+
+async function sendPrompt(apiUrl, payload, bubbleElement) {
   let response;
 
   try {
@@ -616,7 +753,7 @@ async function sendPrompt(apiUrl, payload) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
-      signal: createRequestSignal(45000),
+      signal: createRequestSignal(90000),
     });
   } catch (error) {
     error.dialecticsErrorKind =
@@ -624,13 +761,19 @@ async function sendPrompt(apiUrl, payload) {
     throw error;
   }
 
-  const body = await response.json().catch(() => null);
+  const contentType = response.headers.get("content-type") || "";
+  const isStreaming = contentType.includes("text/event-stream");
+  const body = isStreaming ? null : await response.json().catch(() => null);
 
   if (!response.ok) {
     const error = new Error(`Request failed with status ${response.status}`);
     error.status = response.status;
     error.code = body && body.error ? body.error.code : "";
     throw error;
+  }
+
+  if (isStreaming && response.body && bubbleElement) {
+    return consumeStream(response.body.getReader(), bubbleElement);
   }
 
   return body;
@@ -656,14 +799,18 @@ function getSendFailureMessage(error) {
   return "没发出去，你写的内容没丢。";
 }
 
-async function sendPromptWithFailover(apiTargets, activeApiUrl, payload) {
+async function sendPromptWithFailover(apiTargets, activeApiUrl, payload, bubbleElement) {
   let lastError = null;
   const requestTargets = orderApiTargets(activeApiUrl, apiTargets);
   const primaryApiTarget = apiTargets[0] || "";
 
   for (const apiTarget of requestTargets) {
     try {
-      const result = await sendPrompt(apiTarget, payload);
+      if (bubbleElement) {
+        resetStreamingMessageElement(bubbleElement);
+      }
+
+      const result = await sendPrompt(apiTarget, payload, bubbleElement);
 
       return {
         result,
@@ -1178,6 +1325,15 @@ function initDialecticsPage() {
     state.draft = "";
     input.value = "";
     renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
+    const assistantElement = createMessageElement({
+      role: "assistant",
+      kind: "answer",
+      content: "正在分析...",
+      analysisPaths: [],
+    });
+    resetStreamingMessageElement(assistantElement);
+    thread.append(assistantElement);
+    thread.scrollTop = thread.scrollHeight;
     syncComposer(input, count, status, exportButton, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
     status.textContent = "正在发送...";
 
@@ -1189,15 +1345,17 @@ function initDialecticsPage() {
         sessionId: state.sessionId,
         messages: previousMessages,
         input: prompt,
-      });
+      }, assistantElement);
       activeApiUrl = apiUrl;
 
+      const paths = result && result.meta ? result.meta.analysisPaths : [];
+      updateStreamingMessageElement(assistantElement, result.status || "answer", normalizeAnalysisPaths(paths));
       state.messages.push(
         createMessage(
           "assistant",
           result.status || "answer",
           result.message || "这次没拿到回复内容。",
-          result && result.meta ? result.meta.analysisPaths : [],
+          paths,
         ),
       );
       archiveOverflowMessages(state, maxHistoryMessages);
