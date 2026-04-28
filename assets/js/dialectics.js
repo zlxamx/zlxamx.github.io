@@ -763,7 +763,6 @@ let shareMode = false;
 const SHARE_IMAGE_MAX_HEIGHT = 6400;
 const SHARE_IMAGE_OVERLAP = 120;
 const SHARE_IMAGE_MIN_TAIL_HEIGHT = 3200;
-const SHARE_IMAGE_PROMPT_HEIGHT = SHARE_IMAGE_MAX_HEIGHT * 3;
 
 function downloadCanvasImage(canvas, filename) {
   const link = document.createElement("a");
@@ -852,7 +851,7 @@ async function downloadShareCanvas(canvas, timestamp, splitPages) {
 }
 
 function shouldSplitShareImage(canvasHeight) {
-  if (canvasHeight <= SHARE_IMAGE_PROMPT_HEIGHT) {
+  if (canvasHeight <= SHARE_IMAGE_MAX_HEIGHT) {
     return false;
   }
 
