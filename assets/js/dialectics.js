@@ -207,10 +207,12 @@ function appendMarkdownBlock(container, element, options) {
 }
 
 function renderMarkdownContent(container, content, options = {}) {
-  const lines = String(content || "").replace(/\r\n?/g, "\n").split("\n");
+  const source = String(content || "");
+  const lines = source.replace(/\r\n?/g, "\n").split("\n");
   let index = 0;
 
   container.textContent = "";
+  container.dataset.markdownSource = source;
   container.style.whiteSpace = "normal";
 
   while (index < lines.length) {
@@ -306,6 +308,34 @@ function renderMarkdownContent(container, content, options = {}) {
     paragraph.append(createInlineMarkdownFragment(paragraphLines.join("\n")));
     appendMarkdownBlock(container, paragraph, options);
   }
+}
+
+function containsMarkdownSyntax(text) {
+  return (
+    /\*\*[^*]+?\*\*/.test(text) ||
+    /`[^`]+?`/.test(text) ||
+    /\[[^\]]+?\]\((?:https?:\/\/|\/)[^)]+?\)/.test(text) ||
+    /(?:^|\n)\s{0,3}(?:#{1,3}\s+|[-*]\s+|\d+\.\s+|>\s+|```)/.test(text)
+  );
+}
+
+function renderMarkdownBodiesInPlace(root) {
+  if (!root) {
+    return;
+  }
+
+  root.querySelectorAll(".dialectics-message-body").forEach((body) => {
+    const raw = body.dataset.markdownSource || body.textContent || "";
+    if (!raw || !containsMarkdownSyntax(raw)) {
+      return;
+    }
+
+    if (body.dataset.markdownSource === raw && !containsMarkdownSyntax(body.textContent || "")) {
+      return;
+    }
+
+    renderMarkdownContent(body, raw);
+  });
 }
 
 function loadState(storageKey) {
@@ -681,6 +711,7 @@ function renderThread(
     thread.append(createMessageElement(message));
   });
 
+  renderMarkdownBodiesInPlace(thread);
   thread.scrollTop = thread.scrollHeight;
 }
 
@@ -1397,6 +1428,7 @@ function initDialecticsPage() {
   syncInfoPanel(infoPanel, infoTriggers, infoContents, activeInfoKey);
   input.value = state.draft;
   renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
+  renderMarkdownBodiesInPlace(root);
   syncComposer(input, count, status, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
 
   input.addEventListener("input", () => {
