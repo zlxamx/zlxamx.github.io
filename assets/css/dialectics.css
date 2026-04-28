@@ -614,7 +614,19 @@ body.is-modal-open {
  * Analysis paths
  * =================================================================== */
 
+@keyframes dialectics-paths-fadein {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .dialectics-paths {
+  animation: dialectics-paths-fadein 0.35s ease forwards;
   border-top: 1px solid var(--d-hairline);
   margin-top: 0.5rem;
   padding-top: 0.5rem;

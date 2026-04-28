@@ -186,6 +186,7 @@ function createMessage(role, kind, content, analysisPaths = []) {
 function createAnalysisPathsElement(paths) {
   const details = document.createElement("details");
   details.className = "dialectics-paths";
+  details.open = true;
 
   const summary = document.createElement("summary");
   summary.className = "dialectics-paths-summary";
