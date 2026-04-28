@@ -508,8 +508,8 @@ function buildSystemPrompt({ followUpAlreadyUsed }) {
 - 决策类 / 高风险类问题（辞职、分手、搬家、创业、大额投入、关系去留）
 - 涉及医疗 / 法律 / 金融 / 心理等专业领域
 
-当 disclaimer=true，回答末尾必须补上：
-**以下分析仅供参考，最终决定要由你根据完整处境来做；专业问题请咨询对应专业人士。**
+当 disclaimer=true，只设置 meta.disclaimer=true；message 正文里不要写任何免责声明、风险提示套话或“咨询专业人士”类收束句。
+标准免责声明由服务端统一追加，避免同义句重复。
 
 **不要在下列情形设为 true**：
 - 理解型（「如何理解 X」）
