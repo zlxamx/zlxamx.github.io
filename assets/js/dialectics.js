@@ -80,234 +80,29 @@ function normalizeStoredMessages(messages) {
   return messages.map(normalizeStoredMessage).filter(Boolean);
 }
 
-function createInlineMarkdownFragment(text) {
-  const fragment = document.createDocumentFragment();
-  const source = typeof text === "string" ? text : "";
-  let index = 0;
-
-  function appendText(value) {
-    if (value) {
-      fragment.append(document.createTextNode(value));
-    }
-  }
-
-  function findNextToken(start) {
-    const candidates = [
-      { type: "code", index: source.indexOf("`", start) },
-      { type: "strong", index: source.indexOf("**", start) },
-      { type: "em", index: source.indexOf("*", start) },
-      { type: "link", index: source.indexOf("[", start) },
-    ].filter((candidate) => candidate.index >= 0);
-
-    candidates.sort((a, b) => a.index - b.index);
-    return candidates[0] || null;
-  }
-
-  while (index < source.length) {
-    const token = findNextToken(index);
-    if (!token) {
-      appendText(source.slice(index));
-      break;
-    }
-
-    if (token.index > index) {
-      appendText(source.slice(index, token.index));
-    }
-
-    if (token.type === "code") {
-      const end = source.indexOf("`", token.index + 1);
-      if (end > token.index + 1) {
-        const code = document.createElement("code");
-        code.textContent = source.slice(token.index + 1, end);
-        fragment.append(code);
-        index = end + 1;
-        continue;
-      }
-    }
-
-    if (token.type === "strong") {
-      const end = source.indexOf("**", token.index + 2);
-      if (end > token.index + 2) {
-        const strong = document.createElement("strong");
-        strong.append(createInlineMarkdownFragment(source.slice(token.index + 2, end)));
-        fragment.append(strong);
-        index = end + 2;
-        continue;
-      }
-    }
-
-    if (token.type === "em" && source[token.index + 1] !== "*") {
-      const end = source.indexOf("*", token.index + 1);
-      if (end > token.index + 1 && source[end - 1] !== " ") {
-        const em = document.createElement("em");
-        em.append(createInlineMarkdownFragment(source.slice(token.index + 1, end)));
-        fragment.append(em);
-        index = end + 1;
-        continue;
-      }
-    }
-
-    if (token.type === "link") {
-      const labelEnd = source.indexOf("]", token.index + 1);
-      const hrefStart = labelEnd >= 0 ? source.indexOf("(", labelEnd) : -1;
-      const hrefEnd = hrefStart >= 0 ? source.indexOf(")", hrefStart) : -1;
-      if (labelEnd > token.index + 1 && hrefStart === labelEnd + 1 && hrefEnd > hrefStart + 1) {
-        const href = source.slice(hrefStart + 1, hrefEnd).trim();
-        const label = source.slice(token.index + 1, labelEnd);
-        if (/^(https?:\/\/|\/)/.test(href)) {
-          const anchor = document.createElement("a");
-          anchor.href = href;
-          anchor.rel = "noopener noreferrer";
-          anchor.target = "_blank";
-          anchor.append(createInlineMarkdownFragment(label));
-          fragment.append(anchor);
-          index = hrefEnd + 1;
-          continue;
-        }
-      }
-    }
-
-    appendText(source[token.index]);
-    index = token.index + 1;
-  }
-
-  return fragment;
-}
-
-function styleMarkdownBlock(element, options) {
-  const isShare = Boolean(options && options.share);
-  element.style.margin = "0";
-
-  if (element.tagName === "H2" || element.tagName === "H3") {
-    element.style.fontSize = isShare ? "1.08em" : "1em";
-    element.style.fontWeight = "700";
-    element.style.lineHeight = "1.5";
-  } else if (element.tagName === "UL" || element.tagName === "OL") {
-    element.style.paddingLeft = isShare ? "1.4em" : "1.25em";
-  } else if (element.tagName === "BLOCKQUOTE") {
-    element.style.borderLeft = isShare ? "6px solid #ddd" : "3px solid currentColor";
-    element.style.color = isShare ? "#666" : "inherit";
-    element.style.opacity = isShare ? "1" : "0.82";
-    element.style.paddingLeft = isShare ? "18px" : "0.85em";
-  } else if (element.tagName === "PRE") {
-    element.style.background = isShare ? "#f6f6f6" : "rgba(0, 0, 0, 0.04)";
-    element.style.borderRadius = isShare ? "12px" : "0.45rem";
-    element.style.overflow = "hidden";
-    element.style.padding = isShare ? "18px 20px" : "0.75em 0.85em";
-    element.style.whiteSpace = "pre-wrap";
-  }
-}
-
-function appendMarkdownBlock(container, element, options) {
-  styleMarkdownBlock(element, options);
-  if (container.childNodes.length > 0) {
-    element.style.marginTop = options && options.share ? "0.65em" : "0.55em";
-  }
-  container.append(element);
-}
-
-function renderMarkdownContent(container, content, options = {}) {
+function stripMarkdownSyntax(content) {
   const source = String(content || "");
-  const lines = source.replace(/\r\n?/g, "\n").split("\n");
-  let index = 0;
+  return source
+    .replace(/\r\n?/g, "\n")
+    .replace(/^```[^\n]*\n?/gm, "")
+    .replace(/^```\s*$/gm, "")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/^\s{0,3}>\s?/gm, "")
+    .replace(/^\s{0,3}[-*]\s+/gm, "")
+    .replace(/\[([^\]]+?)\]\((?:https?:\/\/|\/)[^)]+?\)/g, "$1")
+    .replace(/\*\*([\s\S]*?)\*\*/g, "$1")
+    .replace(/__([\s\S]*?)__/g, "$1")
+    .replace(/`([^`]+?)`/g, "$1")
+    .replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, "$1$2")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
+}
 
-  container.textContent = "";
-  container.dataset.markdownSource = source;
-  container.style.whiteSpace = "normal";
-
-  while (index < lines.length) {
-    const line = lines[index];
-    const trimmed = line.trim();
-
-    if (!trimmed) {
-      index += 1;
-      continue;
-    }
-
-    if (/^```/.test(trimmed)) {
-      const codeLines = [];
-      index += 1;
-      while (index < lines.length && !/^```/.test(lines[index].trim())) {
-        codeLines.push(lines[index]);
-        index += 1;
-      }
-      if (index < lines.length) index += 1;
-
-      const pre = document.createElement("pre");
-      const code = document.createElement("code");
-      code.textContent = codeLines.join("\n");
-      pre.append(code);
-      appendMarkdownBlock(container, pre, options);
-      continue;
-    }
-
-    const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)$/);
-    if (headingMatch) {
-      const heading = document.createElement(headingMatch[1].length === 1 ? "h2" : "h3");
-      heading.append(createInlineMarkdownFragment(headingMatch[2].trim()));
-      appendMarkdownBlock(container, heading, options);
-      index += 1;
-      continue;
-    }
-
-    const listMatch = trimmed.match(/^((?:[-*])|\d+\.)\s+(.+)$/);
-    if (listMatch) {
-      const isOrdered = /^\d+\./.test(listMatch[1]);
-      const list = document.createElement(isOrdered ? "ol" : "ul");
-
-      while (index < lines.length) {
-        const current = lines[index].trim();
-        const itemMatch = current.match(/^((?:[-*])|\d+\.)\s+(.+)$/);
-        if (!itemMatch || /^\d+\./.test(itemMatch[1]) !== isOrdered) break;
-
-        const item = document.createElement("li");
-        item.append(createInlineMarkdownFragment(itemMatch[2].trim()));
-        list.append(item);
-        index += 1;
-      }
-
-      appendMarkdownBlock(container, list, options);
-      continue;
-    }
-
-    if (trimmed.startsWith(">")) {
-      const quoteLines = [];
-      while (index < lines.length && lines[index].trim().startsWith(">")) {
-        quoteLines.push(lines[index].trim().replace(/^>\s?/, ""));
-        index += 1;
-      }
-
-      const quote = document.createElement("blockquote");
-      const paragraph = document.createElement("p");
-      paragraph.style.margin = "0";
-      paragraph.append(createInlineMarkdownFragment(quoteLines.join("\n")));
-      quote.append(paragraph);
-      appendMarkdownBlock(container, quote, options);
-      continue;
-    }
-
-    const paragraphLines = [];
-    while (index < lines.length) {
-      const current = lines[index];
-      const currentTrimmed = current.trim();
-      if (
-        !currentTrimmed ||
-        /^```/.test(currentTrimmed) ||
-        /^(#{1,3})\s+/.test(currentTrimmed) ||
-        /^((?:[-*])|\d+\.)\s+/.test(currentTrimmed) ||
-        currentTrimmed.startsWith(">")
-      ) {
-        break;
-      }
-
-      paragraphLines.push(currentTrimmed);
-      index += 1;
-    }
-
-    const paragraph = document.createElement("p");
-    paragraph.append(createInlineMarkdownFragment(paragraphLines.join("\n")));
-    appendMarkdownBlock(container, paragraph, options);
-  }
+function renderPlainContent(container, content) {
+  const source = String(content || "");
+  container.dataset.rawContent = source;
+  container.textContent = stripMarkdownSyntax(source);
+  container.style.whiteSpace = "pre-wrap";
 }
 
 function containsMarkdownSyntax(text) {
@@ -319,22 +114,17 @@ function containsMarkdownSyntax(text) {
   );
 }
 
-function renderMarkdownBodiesInPlace(root) {
+function renderPlainBodiesInPlace(root) {
   if (!root) {
     return;
   }
 
   root.querySelectorAll(".dialectics-message-body").forEach((body) => {
-    const raw = body.dataset.markdownSource || body.textContent || "";
+    const raw = body.dataset.rawContent || body.textContent || "";
     if (!raw || !containsMarkdownSyntax(raw)) {
       return;
     }
-
-    if (body.dataset.markdownSource === raw && !containsMarkdownSyntax(body.textContent || "")) {
-      return;
-    }
-
-    renderMarkdownContent(body, raw);
+    renderPlainContent(body, raw);
   });
 }
 
@@ -564,7 +354,7 @@ function createMessageElement(message) {
   article.className = "dialectics-message";
   label.className = "dialectics-message-label";
   body.className = "dialectics-message-body";
-  renderMarkdownContent(body, message.content);
+  renderPlainContent(body, message.content);
 
   if (message.role === "user") {
     article.classList.add("is-user");
@@ -711,7 +501,7 @@ function renderThread(
     thread.append(createMessageElement(message));
   });
 
-  renderMarkdownBodiesInPlace(thread);
+  renderPlainBodiesInPlace(thread);
   thread.scrollTop = thread.scrollHeight;
 }
 
@@ -832,8 +622,7 @@ async function consumeStream(reader, bubbleElement) {
 
       message += text;
       if (body) {
-        body.dataset.rawContent = message;
-        renderMarkdownContent(body, message);
+        renderPlainContent(body, message);
         const thread = bubbleElement.parentElement;
         if (thread) {
           thread.scrollTop = thread.scrollHeight;
@@ -1193,10 +982,10 @@ function createShareCardElement(selectedMessages, pageTitle, qrDataURL) {
       margin: 0;
       font-size: 34px;
       line-height: 2.0;
-      white-space: normal;
+      white-space: pre-wrap;
       color: #222;
     `;
-    renderMarkdownContent(body, msg.content, { share: true });
+    renderPlainContent(body, msg.content);
 
     section.append(label, body);
 
@@ -1428,7 +1217,7 @@ function initDialecticsPage() {
   syncInfoPanel(infoPanel, infoTriggers, infoContents, activeInfoKey);
   input.value = state.draft;
   renderThread(thread, state.messages, emptyMessage, state.archivedMessages.length, maxHistoryMessages, examplePrompts);
-  renderMarkdownBodiesInPlace(root);
+  renderPlainBodiesInPlace(root);
   syncComposer(input, count, status, submitButton, state, inputLimit, maxHistoryMessages, hasApiTarget, pending);
 
   input.addEventListener("input", () => {
