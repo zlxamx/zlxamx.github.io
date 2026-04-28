@@ -316,6 +316,14 @@ body.is-modal-open {
   white-space: nowrap;
 }
 
+.dialectics-title-desktop {
+  display: inline;
+}
+
+.dialectics-title-mobile {
+  display: none;
+}
+
 .dialectics-welcome-sparkle {
   color: var(--d-accent);
   display: inline-block;
@@ -1350,8 +1358,17 @@ body.is-modal-open {
 
   .dialectics-welcome-title {
     font-size: 1.45rem;
+    line-height: 1.6;
     margin-bottom: 1rem;
     white-space: normal;
+  }
+
+  .dialectics-title-desktop {
+    display: none;
+  }
+
+  .dialectics-title-mobile {
+    display: inline;
   }
 
   .dialectics-welcome-sub {
