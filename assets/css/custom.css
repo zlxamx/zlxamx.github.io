@@ -1373,6 +1373,12 @@ a:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .writing-sidebar,
+  .writing-list-wrap {
+    min-width: 0;
+    width: 100%;
+  }
+
   .writing-sidebar {
     border-bottom: 1px solid var(--code-border);
     border-right: 0;
@@ -2134,8 +2140,18 @@ a:focus-visible {
     width: 3rem;
   }
 
+  .header-menu p {
+    border-right: none;
+    padding: 0 0.55rem;
+  }
+
+  .header-menu p:first-child {
+    padding-left: 0;
+  }
+
   .theme-toggle-shell {
     margin-top: 0.2rem;
+    padding-right: 0;
   }
 
   .about-avatar {
