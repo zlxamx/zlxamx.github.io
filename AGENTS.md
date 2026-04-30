@@ -85,7 +85,7 @@
 - 主色：`--accent: light-dark(#d44375, #2bbc8a)`
 - 所有强调必须用 `var(--accent)`
 - ❌ 禁止新增强调色
-- 例外：辩证问答页 (`/dialectics/`) 使用独立强调色 `#c8694a`（Codex 橙）/ 暗色复用 `#2bbc8a`
+- 例外：辩证问答页 (`/dialectics/`) 使用独立强调色 `#c8694a`（Claude 橙）/ 暗色复用 `#2bbc8a`
 
 ### 背景
 

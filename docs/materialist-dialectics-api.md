@@ -57,12 +57,24 @@ The front-end may keep a direct external fallback endpoint for emergencies, but 
 - The backend should reject empty `input`.
 - V1 should cap `input` length to the same value used by the page shell.
 
-## Response Body
+## Response Format
+
+The endpoint streams a series of Server-Sent Events (`Content-Type: text/event-stream`).
+
+### SSE Event Types
+
+**`token`** — incremental text chunk from the model:
+
+```json
+{ "type": "token", "text": "This is not mainly a mood problem." }
+```
+
+**`done`** — final event, carries the same metadata as the old JSON response:
 
 ```json
 {
+  "type": "done",
   "status": "answer",
-  "message": "This is not mainly a mood problem. It is a judgment problem about incompatible goals...",
   "meta": {
     "questionType": "contradiction",
     "disclaimer": true,
@@ -71,13 +83,19 @@ The front-end may keep a direct external fallback endpoint for emergencies, but 
 }
 ```
 
-## Response Rules
+**`error`** — model call failed mid-stream:
 
-- `status` must be one of:
+```json
+{ "type": "error", "code": "model_call_failed" }
+```
+
+### Response Rules
+
+- `status` (in `done`) must be one of:
   - `answer`
   - `follow_up`
   - `reject`
-- `message` must be plain text, already safe to render without Markdown parsing.
+- `token.text` is plain text; clients concatenate tokens to reconstruct the full answer.
 - `meta.questionType` should be one of:
   - `contradiction`
   - `ism_error`
@@ -119,9 +137,8 @@ The backend should do the following in order:
 
 ## Non-Goals In V1
 
-- No streaming
 - No server-side history store
-- No Markdown rendering contract
+- No Markdown rendering contract (answers are plain text)
 - No auth
 - No share links
 - No analytics payload beyond basic server logs
