@@ -141,7 +141,11 @@
           {{ range . }}
           <a class="home-contact-icon-box" href="{{ trim .url " " | safeURL }}" target="_blank" rel="noopener noreferrer me"
              title="{{ (.title | default .name) | title }}">
+            {{- if eq (trim .name " " | lower) "jike" -}}
+            <svg role="img" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>即刻</title><path d="M13.5 2L4 13.5h7L9 22l11-12h-7z"/></svg>
+            {{- else -}}
             {{ partial "svg.html" . }}
+            {{- end -}}
           </a>
           {{ end }}
         </div>

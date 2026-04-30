@@ -61,6 +61,16 @@ maxHistoryMessages = 8
 name = "github"
 url = "https://github.com/zlxamx"
 
+[[params.social]]
+name  = "rss"
+url   = "/index.xml"
+title = "RSS 订阅"
+
+[[params.social]]
+name  = "jike"
+url   = "https://okjk.co/0BEcqW"
+title = "即刻"
+
 [[params.menu]]
 name = "写作"
 url = "/post"
